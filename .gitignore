@@ -1,2 +1,5 @@
 .idea/*
 venv/*
+src/video_frames/*
+src/dataset/*
+

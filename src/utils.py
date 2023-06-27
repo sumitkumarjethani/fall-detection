@@ -2,12 +2,13 @@ import os
 
 
 def is_directory(path):
-    if os.path.exists(path) and os.path.isdir(path):
+    if os.path.isdir(path):
         return True
     return False
 
 
-def file_exists(path):
-    if os.path.exists(path) and os.path.isfile(path):
+def path_exist(path):
+    if os.path.exists(path):
         return True
     return False
+
