@@ -143,7 +143,8 @@ def process_dataset(
     n_images = {0: 0, 1: 0}
     for dir in os.listdir(input_dir):
         curdir = os.path.join(input_dir, dir)
-
+        if not os.path.isdir(curdir):
+            continue
         if dir in output_classes.values():
             continue
         if "rgb" not in os.listdir(curdir):
@@ -162,7 +163,8 @@ def process_dataset(
                 src_image_number = str(row["index"]).zfill(4)
                 src_image_filename = f"rgb_{src_image_number}.png"
                 src_image_path = os.path.join(images_dir, src_image_filename)
-
+                if not os.path.exists(src_image_path):
+                    continue
                 class_index = classes_mapping.get(int(row["class"]), -1)
                 if class_index == -1:
                     continue
