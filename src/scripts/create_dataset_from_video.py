@@ -3,6 +3,9 @@ import logging
 import os
 import pandas as pd
 import sys
+import tensorflow_hub as hub
+import tensorflow as tf
+
 # setting path
 sys.path.append('./')
 
@@ -13,6 +16,59 @@ models = ['default_model']
 
 logger = logging.getLogger('app')
 
+# Dictionary that maps from joint names to keypoint indices.
+KEYPOINT_DICT = {
+    'nose': 0,
+    'left_eye': 1,
+    'right_eye': 2,
+    'left_ear': 3,
+    'right_ear': 4,
+    'left_shoulder': 5,
+    'right_shoulder': 6,
+    'left_elbow': 7,
+    'right_elbow': 8,
+    'left_wrist': 9,
+    'right_wrist': 10,
+    'left_hip': 11,
+    'right_hip': 12,
+    'left_knee': 13,
+    'right_knee': 14,
+    'left_ankle': 15,
+    'right_ankle': 16
+}
+
+column_names = []
+for key in KEYPOINT_DICT.keys():
+    column_names.append(key+"_x")
+    column_names.append(key+"_y")
+    column_names.append(key+"_score")
+column_names.append('target')
+column_names.append('image_name')
+
+module = hub.load("https://tfhub.dev/google/movenet/singlepose/lightning/4")
+input_size = 192
+
+def movenet(input_image):
+    """Runs detection on an input image.
+
+    Args:
+      input_image: A [1, height, width, 3] tensor represents the input image
+        pixels. Note that the height/width should already be resized and match the
+        expected input resolution of the model before passing into this function.
+
+    Returns:
+      A [1, 1, 17, 3] float numpy array representing the predicted keypoint
+      coordinates and scores.
+    """
+    model = module.signatures['serving_default']
+
+    # SavedModel format expects tensor type of int32.
+    input_image = tf.cast(input_image, dtype=tf.int32)
+    # Run model inference.
+    outputs = model(input_image)
+    # Output is a [1, 1, 17, 3] tensor.
+    keypoints_with_scores = outputs['output_0'].numpy()
+    return keypoints_with_scores
 
 def cli():
     parser = argparse.ArgumentParser()
@@ -81,24 +137,30 @@ def create_keypoint_dataset(model, source_path, sources_list):
                 logger.debug(source_name_dir + " split...")
 
                 # TODO: change by final keypoint structure
-                source_name_dir_df = pd.DataFrame({
-                    "video_name": [],
-                    "target": []
-                })
+                source_name_dir_df = pd.DataFrame(columns=column_names)
+
                 for class_folder in os.listdir(source_path + "/" + source_name + "/" + source_name_dir):
                     if class_folder in target_classes:
-                        files_list = os.listdir(
-                            source_path + "/" + source_name + "/" +
-                            source_name_dir + "/" + class_folder
-                        )
-                        # TODO: change by final keypoint structure
-                        source_name_dir_df = pd.concat([source_name_dir_df, pd.DataFrame({
-                            "video_name": files_list,
-                            "target": [class_folder] * len(files_list)
-                        })], axis=0)
+                        class_folder_path = source_path + "/" + source_name + "/" + source_name_dir + "/" + class_folder
+                        kps = []
+                        for img_name in os.listdir(class_folder_path):
+                            image = tf.io.read_file(class_folder_path + "/" + img_name)
+                            image = tf.image.decode_jpeg(image)
+                            # Resize and pad the image to keep the aspect ratio and fit the expected size.
+                            input_image = tf.expand_dims(image, axis=0)
+                            input_image = tf.image.resize_with_pad(input_image, input_size, input_size)
+
+                            # Run model inference.
+                            keypoints_with_scores = movenet(input_image).flatten().tolist()
+                            keypoints_with_scores.append(class_folder)
+                            keypoints_with_scores.append(img_name)
+                            kps.append(keypoints_with_scores)
+                        source_name_dir_df = pd.concat([
+                            source_name_dir_df,
+                            pd.DataFrame(kps, columns=column_names)
+                        ], axis=0)
                 source_name_dir_df.to_csv(source_name_dataset_dir + "/"
                                           + source_name_dir + ".csv", index=False)
-
 
 def main():
     try:
