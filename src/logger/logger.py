@@ -10,9 +10,6 @@ def configure_logging():
         format="%(asctime)s [%(levelname)s] %(module)s - %(funcName)s: %(message)s",
     )
 
-    waitress_logger = logging.getLogger('waitress')
-    waitress_logger.setLevel(logging.INFO)
-
     # create logger
     app_logger = logging.getLogger('app')
     app_logger.setLevel(logging.DEBUG)
