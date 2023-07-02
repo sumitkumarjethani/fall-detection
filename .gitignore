@@ -1,5 +1,5 @@
 .idea/*
 venv/*
-src/video_frames/*
+video_frames/*
 src/notebooks/*
 
