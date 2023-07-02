@@ -93,7 +93,7 @@ def download_dataset_from_url(url: str, output_dir: str) -> None:
         raise Exception(f"could not untar downloaded temp.tar.gz file: {e}")
 
     try:
-        #os.system(f"rm {temp_tar_file}")
+        #os.system(f"rm {temp_tar_file}") # mac
         os.system(f"del {temp_tar_file}")   # windows
     except Exception as e:
         raise Exception(f"could not delete temp.tar.gz file: {e}")
@@ -101,7 +101,7 @@ def download_dataset_from_url(url: str, output_dir: str) -> None:
     try:
         # remove depth directory because we don't need it.
         depth_dir = os.path.join(output_dir, get_fir_name_from_url(url), "depth")
-        #os.system(f"rm -r {depth_dir}")
+        #os.system(f"rm -r {depth_dir}") # mac
         os.system(f"rmdir /s /q {depth_dir}")   # windows
     except Exception as e:
         raise Exception(f"could not delete depth directory: {e}")
@@ -179,5 +179,5 @@ def process_dataset(input_dir: str, output_dir: Optional[str] = None) -> None:
                 dst_image_path = os.path.join(
                     output_dir, class_name, dst_image_filename
                 )
-                logger.info("copying:    ", src_image_path, "     to:     ", dst_image_path)
+                logger.info("copying:    " + src_image_path + "     to:     " + dst_image_path)
                 shutil.copy(src=src_image_path, dst=dst_image_path)
