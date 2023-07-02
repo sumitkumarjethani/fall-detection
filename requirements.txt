@@ -5,6 +5,7 @@ attrs==23.1.0
 cachetools==5.3.1
 certifi==2023.5.7
 charset-normalizer==3.1.0
+colorama==0.4.6
 contourpy==1.1.0
 cycler==0.11.0
 fastjsonschema==2.17.1
@@ -63,6 +64,7 @@ tensorflow-hub==0.13.0
 tensorflow-intel==2.12.0
 tensorflow-io-gcs-filesystem==0.31.0
 termcolor==2.3.0
+tqdm==4.65.0
 traitlets==5.9.0
 typing-extensions==4.6.3
 tzdata==2023.3
