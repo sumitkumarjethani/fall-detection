@@ -106,7 +106,7 @@ def create_keypoint_dataset(model_name, input, output):
 
     # Create final df columns
     column_names = [f"{key}_{suffix}" for key in key_point_dict.keys() for suffix in ["x", "y", "score"]]
-    column_names.extend(['target', 'image_path'])
+    column_names.extend(['image_path', 'target'])
 
     for target_class in target_classes:
         logger.info("Processing " + target_class + " images...")
