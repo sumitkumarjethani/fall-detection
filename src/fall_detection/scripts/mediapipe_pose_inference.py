@@ -7,7 +7,7 @@ import sys
 sys.path.append("./")
 
 from logger.logger import configure_logging
-from pose.movenet import MovenetModel, TFLiteMovenetModel, load_image, save_image
+from pose.mediapipe import MediapipePoseModel, load_image, save_image
 
 
 logger = logging.getLogger("app")
@@ -30,13 +30,7 @@ def cli():
         type=str,
         required=True,
     )
-    parser.add_argument(
-        "-m",
-        "--model",
-        help="model name to use for the inference.",
-        required=False,
-        default="movenet_lightning",
-    )
+
     args = parser.parse_args()
 
     return args
@@ -46,11 +40,10 @@ def main():
     try:
         configure_logging()
         args = cli()
-        logger.info(f"loading model {args.model}")
-        if "tflite" in args.model:
-            model = TFLiteMovenetModel(args.model, ".")
-        else:
-            model = MovenetModel(args.model)
+
+        logger.info(f"loading model")
+        model = MediapipePoseModel()
+
         if not os.path.exists(args.input):
             raise Exception(f"input image {args.input} not found.")
 

@@ -89,6 +89,30 @@ KEYPOINT_EDGE_INDS_TO_COLOR = {
 }
 
 
+cyan = (255, 255, 0)
+magenta = (255, 0, 255)
+EDGE_COLORS = {
+    (0, 1): magenta,
+    (0, 2): cyan,
+    (1, 3): magenta,
+    (2, 4): cyan,
+    (0, 5): magenta,
+    (0, 6): cyan,
+    (5, 7): magenta,
+    (7, 9): cyan,
+    (6, 8): magenta,
+    (8, 10): cyan,
+    (5, 6): magenta,
+    (5, 11): cyan,
+    (6, 12): magenta,
+    (11, 12): cyan,
+    (11, 13): magenta,
+    (13, 15): cyan,
+    (12, 14): magenta,
+    (14, 16): cyan,
+}
+
+
 def _keypoints_and_edges_for_display(
     keypoints_with_scores, height, width, keypoint_threshold=0.11
 ):
@@ -148,91 +172,145 @@ def _keypoints_and_edges_for_display(
     return keypoints_xy, edges_xy, edge_colors
 
 
-def draw_prediction_on_image(
-    image,
-    keypoints_with_scores,
-    crop_region=None,
-    output_image_height=None,
-):
-    """Draws the keypoint predictions on image.
+# def draw_prediction_on_image(
+#     image,
+#     keypoints_with_scores,
+#     crop_region=None,
+#     output_image_height=None,
+# ):
+#     """Draws the keypoint predictions on image.
 
-    Args:
-      image: A numpy array with shape [height, width, channel] representing the
-        pixel values of the input image.
-      keypoints_with_scores: A numpy array with shape [1, 1, 17, 3] representing
-        the keypoint coordinates and scores returned from the MoveNet model.
-      crop_region: A dictionary that defines the coordinates of the bounding box
-        of the crop region in normalized coordinates (see the init_crop_region
-        function below for more detail). If provided, this function will also
-        draw the bounding box on the image.
-      output_image_height: An integer indicating the height of the output image.
-        Note that the image aspect ratio will be the same as the input image.
+#     Args:
+#       image: A numpy array with shape [height, width, channel] representing the
+#         pixel values of the input image.
+#       keypoints_with_scores: A numpy array with shape [1, 1, 17, 3] representing
+#         the keypoint coordinates and scores returned from the MoveNet model.
+#       crop_region: A dictionary that defines the coordinates of the bounding box
+#         of the crop region in normalized coordinates (see the init_crop_region
+#         function below for more detail). If provided, this function will also
+#         draw the bounding box on the image.
+#       output_image_height: An integer indicating the height of the output image.
+#         Note that the image aspect ratio will be the same as the input image.
 
-    Returns:
-      A numpy array with shape [out_height, out_width, channel] representing the
-      image overlaid with keypoint predictions.
+#     Returns:
+#       A numpy array with shape [out_height, out_width, channel] representing the
+#       image overlaid with keypoint predictions.
+#     """
+#     height, width, channel = image.shape
+#     print(height, width)
+#     aspect_ratio = float(width) / height
+#     fig, ax = plt.subplots(figsize=(12 * aspect_ratio, 12))
+#     # To remove the huge white borders
+#     fig.tight_layout(pad=0)
+#     ax.margins(0)
+#     ax.set_yticklabels([])
+#     ax.set_xticklabels([])
+#     plt.axis("off")
+
+#     im = ax.imshow(image)
+#     line_segments = LineCollection([], linewidths=(4), linestyle="solid")
+#     ax.add_collection(line_segments)
+#     # Turn off tick labels
+#     scat = ax.scatter([], [], s=60, color="#FF1493", zorder=3)
+
+#     (keypoint_locs, keypoint_edges, edge_colors) = _keypoints_and_edges_for_display(
+#         keypoints_with_scores, height, width
+#     )
+
+#     line_segments.set_segments(keypoint_edges)
+#     line_segments.set_color(edge_colors)
+#     if keypoint_edges.shape[0]:
+#         line_segments.set_segments(keypoint_edges)
+#         line_segments.set_color(edge_colors)
+#     if keypoint_locs.shape[0]:
+#         scat.set_offsets(keypoint_locs)
+
+#     if crop_region is not None:
+#         xmin = max(crop_region["x_min"] * width, 0.0)
+#         ymin = max(crop_region["y_min"] * height, 0.0)
+#         rec_width = min(crop_region["x_max"], 0.99) * width - xmin
+#         rec_height = min(crop_region["y_max"], 0.99) * height - ymin
+#         rect = patches.Rectangle(
+#             (xmin, ymin),
+#             rec_width,
+#             rec_height,
+#             linewidth=1,
+#             edgecolor="b",
+#             facecolor="none",
+#         )
+#         ax.add_patch(rect)
+
+#     fig.canvas.draw()
+#     print(fig.canvas.get_width_height())
+#     image_from_plot = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+#     image_from_plot = image_from_plot.reshape(
+#         fig.canvas.get_width_height()[::-1] + (3,)
+#     )
+#     plt.close(fig)
+#     if output_image_height is not None:
+#         output_image_width = int(output_image_height / height * width)
+#         image_from_plot = cv2.resize(
+#             image_from_plot,
+#             dsize=(output_image_width, output_image_height),
+#             interpolation=cv2.INTER_CUBIC,
+#         )
+#     return image_from_plot
+
+
+def _draw_edges(denormalized_coordinates, image, threshold=0.11):
     """
-    height, width, channel = image.shape
-    aspect_ratio = float(width) / height
-    fig, ax = plt.subplots(figsize=(12 * aspect_ratio, 12))
-    # To remove the huge white borders
-    fig.tight_layout(pad=0)
-    ax.margins(0)
-    ax.set_yticklabels([])
-    ax.set_xticklabels([])
-    plt.axis("off")
+    Draws the edges on a image frame
+    """
 
-    im = ax.imshow(image)
-    line_segments = LineCollection([], linewidths=(4), linestyle="solid")
-    ax.add_collection(line_segments)
-    # Turn off tick labels
-    scat = ax.scatter([], [], s=60, color="#FF1493", zorder=3)
+    # Iterate through the edges
+    for edge, color in EDGE_COLORS.items():
+        # Get the dict value associated to the actual edge
+        p1, p2 = edge
+        # Get the points
+        y1, x1, confidence_1 = denormalized_coordinates[p1]
+        y2, x2, confidence_2 = denormalized_coordinates[p2]
+        # Draw the line from point 1 to point 2, the confidence > threshold
+        if (confidence_1 > threshold) & (confidence_2 > threshold):
+            cv2.line(
+                img=image,
+                pt1=(int(x1), int(y1)),
+                pt2=(int(x2), int(y2)),
+                color=color,
+                thickness=2,
+                lineType=cv2.LINE_AA,  # Gives anti-aliased (smoothed) line which looks great for curves
+            )
+    return image
 
-    (keypoint_locs, keypoint_edges, edge_colors) = _keypoints_and_edges_for_display(
-        keypoints_with_scores, height, width
+
+def draw_prediction_on_image(image, keypoints, threshold=0.11, input_size=1280):
+    """Draws the keypoints on a image frame"""
+    # Denormalize the coordinates : multiply the normalized coordinates by the input_size(width,height)
+    denormalized_coordinates = np.squeeze(
+        np.multiply(keypoints, [input_size, input_size, 1])
     )
-
-    line_segments.set_segments(keypoint_edges)
-    line_segments.set_color(edge_colors)
-    if keypoint_edges.shape[0]:
-        line_segments.set_segments(keypoint_edges)
-        line_segments.set_color(edge_colors)
-    if keypoint_locs.shape[0]:
-        scat.set_offsets(keypoint_locs)
-
-    if crop_region is not None:
-        xmin = max(crop_region["x_min"] * width, 0.0)
-        ymin = max(crop_region["y_min"] * height, 0.0)
-        rec_width = min(crop_region["x_max"], 0.99) * width - xmin
-        rec_height = min(crop_region["y_max"], 0.99) * height - ymin
-        rect = patches.Rectangle(
-            (xmin, ymin),
-            rec_width,
-            rec_height,
-            linewidth=1,
-            edgecolor="b",
-            facecolor="none",
-        )
-        ax.add_patch(rect)
-
-    fig.canvas.draw()
-    image_from_plot = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-    image_from_plot = image_from_plot.reshape(
-        fig.canvas.get_width_height()[::-1] + (3,)
+    # Iterate through the points
+    for keypoint in denormalized_coordinates:
+        # Unpack the keypoint values : y, x, confidence score
+        keypoint_y, keypoint_x, keypoint_confidence = keypoint
+        if keypoint_confidence > threshold:
+            """ "
+            Draw the circle
+            Note : A thickness of -1 px will fill the circle shape by the specified color.
+            """
+            cv2.circle(
+                img=image,
+                center=(int(keypoint_x), int(keypoint_y)),
+                radius=4,
+                color=(255, 0, 0),
+                thickness=-1,
+            )
+    return _draw_edges(
+        denormalized_coordinates,
+        image,
     )
-    plt.close(fig)
-    if output_image_height is not None:
-        output_image_width = int(output_image_height / height * width)
-        image_from_plot = cv2.resize(
-            image_from_plot,
-            dsize=(output_image_width, output_image_height),
-            interpolation=cv2.INTER_CUBIC,
-        )
-    return image_from_plot
 
 
 def _preprocess_image_for_movenet(image, input_size):
-    image = tf.image.decode_jpeg(image)
     input_image = tf.expand_dims(image, axis=0)
     input_image = tf.image.resize_with_pad(input_image, input_size, input_size)
     return input_image
@@ -277,15 +355,21 @@ class MovenetModel:
         return self.__call__(image)
 
     def draw_landmarks(self, image, pose_landmarks):
-        # Visualize the predictions with image.
-        display_image = tf.expand_dims(image, axis=0)
-        display_image = tf.cast(
-            tf.image.resize_with_pad(display_image, 1280, 1280), dtype=tf.int32
-        )
-        output_overlay = draw_prediction_on_image(
-            np.squeeze(display_image.numpy(), axis=0), pose_landmarks
-        )
-        return output_overlay
+        image = tf.image.resize_with_pad(image, 1280, 1280)
+        return draw_prediction_on_image(image.numpy(), pose_landmarks, input_size=1280)
+
+    # def draw_landmarks(self, image, pose_landmarks):
+    #     # Visualize the predictions with image.
+    #     display_image = tf.expand_dims(image, axis=0)
+    #     display_image = tf.cast(
+    #         tf.image.resize_with_pad(display_image, 1200, 1200), dtype=tf.int32
+    #     )
+    #     print(display_image.shape)
+    #     output_overlay = draw_prediction_on_image(
+    #         np.squeeze(display_image.numpy(), axis=0), pose_landmarks
+    #     )
+
+    #     return output_overlay
 
 
 class TFLiteMovenetModel:
@@ -321,15 +405,21 @@ class TFLiteMovenetModel:
         return self.__call__(image)
 
     def draw_landmarks(self, image, pose_landmarks):
-        # Visualize the predictions with image.
-        display_image = tf.expand_dims(image, axis=0)
-        display_image = tf.cast(
-            tf.image.resize_with_pad(display_image, 1280, 1280), dtype=tf.int32
+        return draw_prediction_on_image(
+            image, pose_landmarks, input_size=self._input_size
         )
-        output_overlay = draw_prediction_on_image(
-            np.squeeze(display_image.numpy(), axis=0), pose_landmarks
-        )
-        return output_overlay
+
+    # def draw_landmarks(self, image, pose_landmarks):
+    #     # Visualize the predictions with image.
+    #     display_image = tf.expand_dims(image, axis=0)
+    #     display_image = tf.cast(
+    #         tf.image.resize_with_pad(display_image, 1200, 1200), dtype=tf.int32
+    #     )
+    #     print(display_image.shape)
+    #     output_overlay = draw_prediction_on_image(
+    #         np.squeeze(display_image.numpy(), axis=0), pose_landmarks
+    #     )
+    #     return output_overlay
 
 
 def load_tflite_model(model_name: str, output_dir: str):
@@ -354,10 +444,11 @@ def load_standard_model(model_name: str):
 
 def load_image(image_path):
     image = tf.io.read_file(image_path)
+    image = tf.image.decode_image(image)
     return image
 
 
 def save_image(image, output_path):
     # Using cv2.imwrite() method
     # Saving the image
-    cv2.imwrite(output_path, image)
+    cv2.imwrite(output_path, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))

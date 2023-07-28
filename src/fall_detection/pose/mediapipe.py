@@ -6,13 +6,14 @@ except:
         "mediapipe dependency was not found. Make sure you pip installed mediapipe-requirements.txt"
     )
 
-from pose import PoseModel
+from .pose import PoseModel
+import cv2
 
 
 class MediapipePoseModel(PoseModel):
     def predict(self, image):
         # Initialize fresh pose tracker and run it.
-        with mp_pose.Pose(upper_body_only=False) as pose_tracker:
+        with mp_pose.Pose() as pose_tracker:
             result = pose_tracker.process(image=image)
             pose_landmarks = result.pose_landmarks
         return pose_landmarks
@@ -25,3 +26,11 @@ class MediapipePoseModel(PoseModel):
                 connections=mp_pose.POSE_CONNECTIONS,
             )
         return image
+
+
+def load_image(image_path):
+    return cv2.imread(image_path)
+
+
+def save_image(image, image_path):
+    return cv2.imwrite(image_path, image)

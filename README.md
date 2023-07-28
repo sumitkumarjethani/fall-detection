@@ -32,5 +32,11 @@ python src/scripts/process_falldataset.py -I ./data
 #### Movenet Inference
 
 ```bash
-python scripts/movenet_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/samples/Fall/image_000000001.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/output/image_000000001_output.jpg"
+python scripts/movenet_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg"
+```
+
+#### Mediaipe inference
+
+```bash
+python scripts/mediapipe_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg"
 ```
