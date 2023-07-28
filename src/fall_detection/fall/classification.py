@@ -27,7 +27,7 @@ class KnnPoseClassifier(PoseClassifier):
         self,
         pose_embedder,
         n_landmarks=33,
-        n_dimensions=2,
+        n_dimensions=3,
         top_n_by_max_distance=30,
         top_n_by_mean_distance=10,
         axes_weights=(1.0, 1.0, 0.2),

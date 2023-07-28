@@ -14,8 +14,8 @@ class PoseClassificationVisualizer(object):
         class_name,
         plot_location_x=0.05,
         plot_location_y=0.05,
-        plot_max_width=0.4,
-        plot_max_height=0.4,
+        plot_max_width=0.8,
+        plot_max_height=0.8,
         plot_figsize=(9, 4),
         plot_x_max=None,
         plot_y_max=None,
@@ -45,7 +45,7 @@ class PoseClassificationVisualizer(object):
         frame,
         pose_classification,
         pose_classification_filtered,
-        repetitions_count,
+        detector_state,
     ):
         """Renders pose classifcation and counter until given frame."""
         # Extend classification history.
@@ -60,12 +60,13 @@ class PoseClassificationVisualizer(object):
 
         # Draw the plot.
         img = self._plot_classification_history(output_width, output_height)
+
         img.thumbnail(
             (
                 int(output_width * self._plot_max_width),
                 int(output_height * self._plot_max_height),
             ),
-            Image.ANTIALIAS,
+            Image.Resampling.LANCZOS,
         )
         output_img.paste(
             img,
@@ -77,19 +78,14 @@ class PoseClassificationVisualizer(object):
 
         # Draw the count.
         output_img_draw = ImageDraw.Draw(output_img)
-        if self._counter_font is None:
-            font_size = int(output_height * self._counter_font_size)
-            font_request = requests.get(self._counter_font_path, allow_redirects=True)
-            self._counter_font = ImageFont.truetype(
-                io.BytesIO(font_request.content), size=font_size
-            )
+
         output_img_draw.text(
             (
-                output_width * self._counter_location_x,
-                output_height * self._counter_location_y,
+                output_width * self._detector_location_x,
+                output_height * self._detector_location_y,
             ),
-            str(repetitions_count),
-            fill=self._counter_font_color,
+            f"{self._class_name}: " + str(detector_state),
+            fill=self._detector_font_color,
         )
 
         return output_img
@@ -115,7 +111,7 @@ class PoseClassificationVisualizer(object):
         plt.xlabel("Frame")
         plt.ylabel("Confidence")
         plt.title("Classification history for `{}`".format(self._class_name))
-        plt.legend(loc="upper right")
+        # plt.legend(loc="upper right")
 
         if self._plot_y_max is not None:
             plt.ylim(top=self._plot_y_max)

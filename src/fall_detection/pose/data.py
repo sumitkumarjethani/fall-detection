@@ -6,8 +6,16 @@ import os
 from PIL import Image
 import sys
 import tqdm
-from utils import show_image
-from pose import PoseModel
+
+from .pose import PoseModel
+
+
+def load_image(image_path):
+    return cv2.imread(image_path)
+
+
+def save_image(image, image_path):
+    return cv2.imwrite(image_path, image)
 
 
 class PoseLandmarksGenerator(object):
@@ -91,8 +99,7 @@ class PoseLandmarksGenerator(object):
                     if pose_landmarks is not None:
                         pose_model.draw_landmarks(
                             image=output_frame,
-                            landmark_list=pose_landmarks,
-                            connections=mp_pose.POSE_CONNECTIONS,
+                            pose_landmarks=pose_landmarks,
                         )
 
                     output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGB2BGR)
@@ -124,37 +131,36 @@ class PoseLandmarksGenerator(object):
                             3,
                         ), "Unexpected landmarks shape: {}".format(pose_landmarks.shape)
                         csv_out_writer.writerow(
-                            [image_name]
-                            + pose_landmarks.flatten().astype(np.str).tolist()
+                            [image_name] + pose_landmarks.flatten().astype(str).tolist()
                         )
 
-                    # Draw XZ projection and concatenate with the image.
-                    projection_xz = self._draw_xz_projection(
-                        output_frame=output_frame, pose_landmarks=pose_landmarks
-                    )
-                    output_frame = np.concatenate((output_frame, projection_xz), axis=1)
+                    # # Draw XZ projection and concatenate with the image.
+                    # projection_xz = self._draw_xz_projection(
+                    #     output_frame=output_frame, pose_landmarks=pose_landmarks
+                    # )
+                    # output_frame = np.concatenate((output_frame, projection_xz), axis=1)
 
-    def _draw_xz_projection(self, output_frame, pose_landmarks, r=0.5, color="red"):
-        frame_height, frame_width = output_frame.shape[0], output_frame.shape[1]
-        img = Image.new("RGB", (frame_width, frame_height), color="white")
+    # def _draw_xz_projection(self, output_frame, pose_landmarks, r=0.5, color="red"):
+    #     frame_height, frame_width = output_frame.shape[0], output_frame.shape[1]
+    #     img = Image.new("RGB", (frame_width, frame_height), color="white")
 
-        if pose_landmarks is None:
-            return np.asarray(img)
+    #     if pose_landmarks is None:
+    #         return np.asarray(img)
 
-        # Scale radius according to the image width.
-        r *= frame_width * 0.01
+    #     # Scale radius according to the image width.
+    #     r *= frame_width * 0.01
 
-        draw = ImageDraw.Draw(img)
-        for idx_1, idx_2 in mp_pose.POSE_CONNECTIONS:
-            # Flip Z and move hips center to the center of the image.
-            x1, y1, z1 = pose_landmarks[idx_1] * [1, 1, -1] + [0, 0, frame_height * 0.5]
-            x2, y2, z2 = pose_landmarks[idx_2] * [1, 1, -1] + [0, 0, frame_height * 0.5]
+    #     draw = ImageDraw.Draw(img)
+    #     for idx_1, idx_2 in mp_pose.POSE_CONNECTIONS:
+    #         # Flip Z and move hips center to the center of the image.
+    #         x1, y1, z1 = pose_landmarks[idx_1] * [1, 1, -1] + [0, 0, frame_height * 0.5]
+    #         x2, y2, z2 = pose_landmarks[idx_2] * [1, 1, -1] + [0, 0, frame_height * 0.5]
 
-            draw.ellipse([x1 - r, z1 - r, x1 + r, z1 + r], fill=color)
-            draw.ellipse([x2 - r, z2 - r, x2 + r, z2 + r], fill=color)
-            draw.line([x1, z1, x2, z2], width=int(r), fill=color)
+    #         draw.ellipse([x1 - r, z1 - r, x1 + r, z1 + r], fill=color)
+    #         draw.ellipse([x2 - r, z2 - r, x2 + r, z2 + r], fill=color)
+    #         draw.line([x1, z1, x2, z2], width=int(r), fill=color)
 
-        return np.asarray(img)
+    #     return np.asarray(img)
 
     def align_images_and_csvs(self, print_removed_items=False):
         """Makes sure that image folders and CSVs have the same sample.
@@ -198,7 +204,7 @@ class PoseLandmarksGenerator(object):
                     if print_removed_items:
                         print("Removed image from folder: ", image_path)
 
-    def analyze_outliers(self, outliers):
+    def analyze_outliers(self, outliers, out_folder):
         """Classifies each sample agains all other to find outliers.
 
         If sample is classified differrrently than the original class - it sould
@@ -217,7 +223,13 @@ class PoseLandmarksGenerator(object):
 
             img = cv2.imread(image_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            show_image(img, figsize=(20, 20))
+            cv2.imwrite(
+                os.path.join(
+                    out_folder,
+                    "outlier_" + outlier.sample.name,
+                ),
+                img,
+            )
 
     def remove_outliers(self, outliers):
         """Removes outliers from the image folders."""

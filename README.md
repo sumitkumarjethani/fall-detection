@@ -40,3 +40,36 @@ python scripts/movenet_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall
 ```bash
 python scripts/mediapipe_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg"
 ```
+
+#### Generate Landmarks Dataset
+
+- Test small script
+```bash
+python scripts/generate_landmarks_dataset.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset_out" -f "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset_csv" -m "mediapipe"
+```
+
+- Full Falldataset
+```bash
+python scripts/generate_landmarks_dataset.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/samples" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/samples_out" -f "/Users/vito/Documents/TFM-2023/fall-detection/data/samples_csv_out" -m "mediapipe" --max-samples 1000
+```
+
+#### Train Pose Classification
+
+- Test train on small dataset
+
+
+```bash
+python scripts/train_pose_classifier.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset_csv" -m "/Users/vito/Documents/TFM-2023/fall-detection/models/test_pose_classification_model.pkl"
+```
+
+-  train on falldataset dataset
+
+```bash
+python scripts/train_pose_classifier.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/samples_csv_out" -m "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_classification_model.pkl"
+```
+
+#### Fall Detection
+
+```bash
+python scripts/video_inference_fall_detector.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri.mp4" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri_out.mp4" -m "mediapipe" -c "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_classification_model.pkl" 
+```

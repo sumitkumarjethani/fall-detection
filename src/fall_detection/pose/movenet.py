@@ -333,7 +333,7 @@ class MovenetModel:
     Output is a [1, 1, 17, 3] tensor.
     """
 
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str = "movenet_thunder"):
         self.model_name = model_name
         self._module = self._load_standard_model(model_name)
         self._input_size = get_model_input_size(model_name)

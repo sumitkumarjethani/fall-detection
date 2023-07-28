@@ -12,6 +12,16 @@ class StateDetector(object):
         # Either we are in given pose or not.
         self._pose_entered = False
 
+        self._state = int(self._pose_entered)
+
+    @property
+    def state(self):
+        return int(self._pose_entered)
+
+    @property
+    def class_name(self):
+        return self._class_name
+
     def __call__(self, pose_classification):
         """
         Takes the pose classification (smoothed if possible) and returns
@@ -42,11 +52,11 @@ class StateDetector(object):
         # entered it on this frame and update the state.
         if not self._pose_entered:
             self._pose_entered = pose_confidence > self._enter_threshold
-            return int(self._pose_entered)
+            self.state
 
         # If we were in the pose and are exiting it, then increase the counter and
         # update the state.
         if pose_confidence < self._exit_threshold:
             self._pose_entered = False
 
-        return int(self._pose_entered)
+        return self.state
