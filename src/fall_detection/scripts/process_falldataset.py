@@ -5,8 +5,8 @@ import sys
 # setting path
 sys.path.append("./")
 
-from src.logger.logger import configure_logging
-from src.datasets.falldataset import process_dataset
+from logger.logger import configure_logging
+from datasets.falldataset import process_dataset
 
 
 logger = logging.getLogger("app")

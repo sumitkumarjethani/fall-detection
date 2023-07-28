@@ -1,26 +1,39 @@
 import argparse
 import logging
 import sys
+
 # setting path
-sys.path.append('./')
+sys.path.append("./")
 
-from src.logger.logger import configure_logging
-from src.utils import is_directory, file_exists
+from logger.logger import configure_logging
+from utils import is_directory, file_exists
 
-models = ['default_model']
+models = ["default_model"]
 
-logger = logging.getLogger('app')
+logger = logging.getLogger("app")
 
 
 def cli():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--model', help='key-point model to use for the dataset',
-                        required=False, default='default_model')
-    parser.add_argument('--source-path', help='source directory with video frames and labels.txt',
-                        required=True, default=None)
-    parser.add_argument('--video', help='video directory for which the dataset will be created',
-                        required=False, default=None)
+    parser.add_argument(
+        "--model",
+        help="key-point model to use for the dataset",
+        required=False,
+        default="default_model",
+    )
+    parser.add_argument(
+        "--source-path",
+        help="source directory with video frames and labels.txt",
+        required=True,
+        default=None,
+    )
+    parser.add_argument(
+        "--video",
+        help="video directory for which the dataset will be created",
+        required=False,
+        default=None,
+    )
 
     args = parser.parse_args()
 
@@ -51,5 +64,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

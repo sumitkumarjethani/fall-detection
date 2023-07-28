@@ -1,5 +1,5 @@
 .idea/*
-venv/*
-/data
-
 *.pyc
+/data
+/venv
+/__pycache__

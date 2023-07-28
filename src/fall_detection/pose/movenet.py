@@ -8,6 +8,7 @@ from typing import List
 
 import tensorflow as tf
 import tensorflow_hub as hub
+import cv2
 import numpy as np
 
 # Import matplotlib libraries
@@ -25,6 +26,14 @@ _movenet_models = {
     "movenet_thunder": "https://tfhub.dev/google/movenet/singlepose/thunder/4",
 }
 
+_movenet_input_size = {
+    "movenet_lightning_f16.tflite": 192,
+    "movenet_thunder_f16.tflite": 256,
+    "movenet_lightning_int8.tflite": 192,
+    "movenet_thunder_int8.tflite": 256,
+    "movenet_lightning": 192,
+    "movenet_thunder": 256,
+}
 
 _model_names = [
     "movenet_lightning",
@@ -34,124 +43,6 @@ _model_names = [
     "movenet_lightning_int8.tflite",
     "movenet_thunder_int8.tflite",
 ]
-
-
-def get_model_url(model_name) -> str:
-    return _movenet_models.get(model_name, None)
-
-
-def get_model_names() -> List[str]:
-    return _model_names
-
-
-class MovenetModel:
-    """
-    Output is a [1, 1, 17, 3] tensor.
-    """
-
-    def __init__(self, model_name: str):
-        self.model_name = model_name
-        self._module = self._load_standard_model(model_name)
-
-    def _load_standard_model(model_name: str, output_dir: str):
-        url = get_model_url(model_name)
-        module = hub.load(url)
-        return module
-
-    def __call__(self, image):
-        model = self._module.signatures["serving_default"]
-        # SavedModel format expects tensor type of int32.
-        image = tf.cast(image, dtype=tf.int32)
-        # Run model inference.
-        outputs = model(image)
-        # Output is a [1, 1, 17, 3] tensor.
-        keypoints_with_scores = outputs["output_0"].numpy()
-        return keypoints_with_scores
-
-
-class TFLiteMovenetModel:
-    def __init__(self, model_name: str, output_dir: str = "."):
-        self.model_name = model_name
-        self._interpreter = self._load_tflite_model(model_name, output_dir)
-
-    def _load_tflite_model(model_name: str, output_dir: str):
-        url = get_model_url(model_name)
-
-        output_path = os.path.join(output_dir, model_name)
-        if not os.path.exists(output_path):
-            os.system(f"wget -q -O model.tflite {url}")
-
-        interpreter = tf.lite.Interpreter(model_path="model.tflite")
-        interpreter.allocate_tensors()
-        return interpreter
-
-    def __call__(self, image):
-        image = tf.cast(image, dtype=tf.uint8)
-        input_details = self._interpreter.get_input_details()
-        output_details = self._interpreter.get_output_details()
-        self._interpreter.set_tensor(input_details[0]["index"], image.numpy())
-        # Invoke inference.
-        self._interpreter.invoke()
-        # Get the model prediction.
-        keypoints_with_scores = self._interpreter.get_tensor(output_details[0]["index"])
-        return keypoints_with_scores
-
-
-# model_name = "movenet_lightning"
-
-
-def load_model(model_name: str, output_dir: str) -> None:
-    pass
-
-
-def _load_tflite_model(model_name: str, output_dir: str):
-    url = get_model_url(model_name)
-    if not url:
-        raise ValueError("Unsupported model name: %s" % model_name)
-
-    output_path = os.path.join(output_dir, model_name)
-    if not os.path.exists(output_path):
-        os.system(f"wget -q -O model.tflite {url}")
-
-    interpreter = tf.lite.Interpreter(model_path="model.tflite")
-    interpreter.allocate_tensors()
-
-
-def _load_standard_model(model_name: str, output_dir: str):
-    url = get_model_url(model_name)
-    module = hub.load(url)
-
-
-# if "tflite" in model_name:
-#   if "movenet_lightning_f16" in model_name:
-#     !wget -q -O model.tflite https://tfhub.dev/google/lite-model/movenet/singlepose/lightning/tflite/float16/4?lite-format=tflite
-#     input_size = 192
-#   elif "movenet_thunder_f16" in model_name:
-#     !wget -q -O model.tflite https://tfhub.dev/google/lite-model/movenet/singlepose/thunder/tflite/float16/4?lite-format=tflite
-#     input_size = 256
-#   elif "movenet_lightning_int8" in model_name:
-#     !wget -q -O model.tflite https://tfhub.dev/google/lite-model/movenet/singlepose/lightning/tflite/int8/4?lite-format=tflite
-#     input_size = 192
-#   elif "movenet_thunder_int8" in model_name:
-#     !wget -q -O model.tflite https://tfhub.dev/google/lite-model/movenet/singlepose/thunder/tflite/int8/4?lite-format=tflite
-#     input_size = 256
-#   else:
-#     raise ValueError("Unsupported model name: %s" % model_name)
-
-#   # Initialize the TFLite interpreter
-#   interpreter = tf.lite.Interpreter(model_path="model.tflite")
-#   interpreter.allocate_tensors()
-
-
-# else:
-#   if "movenet_lightning" in model_name:
-#     module = hub.load("https://tfhub.dev/google/movenet/singlepose/lightning/4")
-#     input_size = 192
-#   elif "movenet_thunder" in model_name:
-#     module = hub.load("https://tfhub.dev/google/movenet/singlepose/thunder/4")
-#     input_size = 256
-#   else:
-#     raise ValueError("Unsupported model name: %s" % model_name)
 
 
 # Dictionary that maps from joint names to keypoint indices.
@@ -261,7 +152,6 @@ def draw_prediction_on_image(
     image,
     keypoints_with_scores,
     crop_region=None,
-    close_figure=False,
     output_image_height=None,
 ):
     """Draws the keypoint predictions on image.
@@ -339,3 +229,135 @@ def draw_prediction_on_image(
             interpolation=cv2.INTER_CUBIC,
         )
     return image_from_plot
+
+
+def _preprocess_image_for_movenet(image, input_size):
+    image = tf.image.decode_jpeg(image)
+    input_image = tf.expand_dims(image, axis=0)
+    input_image = tf.image.resize_with_pad(input_image, input_size, input_size)
+    return input_image
+
+
+def get_model_url(model_name) -> str:
+    return _movenet_models.get(model_name, None)
+
+
+def get_model_input_size(model_name) -> int:
+    return _movenet_input_size.get(model_name, None)
+
+
+def get_model_names() -> List[str]:
+    return _model_names
+
+
+class MovenetModel:
+    """
+    Output is a [1, 1, 17, 3] tensor.
+    """
+
+    def __init__(self, model_name: str):
+        self.model_name = model_name
+        self._module = self._load_standard_model(model_name)
+        self._input_size = get_model_input_size(model_name)
+
+    def _load_standard_model(self, model_name: str):
+        url = get_model_url(model_name)
+        module = hub.load(url)
+        return module
+
+    def __call__(self, image):
+        image = _preprocess_image_for_movenet(image, self._input_size)
+        model = self._module.signatures["serving_default"]
+        image = tf.cast(image, dtype=tf.int32)
+        outputs = model(image)
+        keypoints_with_scores = outputs["output_0"].numpy()
+        return keypoints_with_scores
+
+    def predict(self, image):
+        return self.__call__(image)
+
+    def draw_landmarks(self, image, pose_landmarks):
+        # Visualize the predictions with image.
+        display_image = tf.expand_dims(image, axis=0)
+        display_image = tf.cast(
+            tf.image.resize_with_pad(display_image, 1280, 1280), dtype=tf.int32
+        )
+        output_overlay = draw_prediction_on_image(
+            np.squeeze(display_image.numpy(), axis=0), pose_landmarks
+        )
+        return output_overlay
+
+
+class TFLiteMovenetModel:
+    def __init__(self, model_name: str, output_dir: str = "."):
+        self.model_name = model_name
+        self._interpreter = self._load_tflite_model(model_name, output_dir)
+        self._input_size = get_model_input_size(model_name)
+
+    def _load_tflite_model(self, model_name: str, output_dir: str):
+        url = get_model_url(model_name)
+
+        output_path = os.path.join(output_dir, model_name)
+        if not os.path.exists(output_path):
+            os.system(f"wget -q -O model.tflite {url}")
+
+        interpreter = tf.lite.Interpreter(model_path="model.tflite")
+        interpreter.allocate_tensors()
+        return interpreter
+
+    def __call__(self, image):
+        image = _preprocess_image_for_movenet(image, self._input_size)
+        image = tf.cast(image, dtype=tf.uint8)
+        input_details = self._interpreter.get_input_details()
+        output_details = self._interpreter.get_output_details()
+        self._interpreter.set_tensor(input_details[0]["index"], image.numpy())
+        # Invoke inference.
+        self._interpreter.invoke()
+        # Get the model prediction.
+        keypoints_with_scores = self._interpreter.get_tensor(output_details[0]["index"])
+        return keypoints_with_scores
+
+    def predict(self, image):
+        return self.__call__(image)
+
+    def draw_landmarks(self, image, pose_landmarks):
+        # Visualize the predictions with image.
+        display_image = tf.expand_dims(image, axis=0)
+        display_image = tf.cast(
+            tf.image.resize_with_pad(display_image, 1280, 1280), dtype=tf.int32
+        )
+        output_overlay = draw_prediction_on_image(
+            np.squeeze(display_image.numpy(), axis=0), pose_landmarks
+        )
+        return output_overlay
+
+
+def load_tflite_model(model_name: str, output_dir: str):
+    url = get_model_url(model_name)
+    if not url:
+        raise ValueError("Unsupported model name: %s" % model_name)
+
+    output_path = os.path.join(output_dir, model_name)
+    if not os.path.exists(output_path):
+        os.system(f"wget -q -O model.tflite {url}")
+
+    interpreter = tf.lite.Interpreter(model_path="model.tflite")
+    interpreter.allocate_tensors()
+    return interpreter
+
+
+def load_standard_model(model_name: str):
+    url = get_model_url(model_name)
+    module = hub.load(url)
+    return module
+
+
+def load_image(image_path):
+    image = tf.io.read_file(image_path)
+    return image
+
+
+def save_image(image, output_path):
+    # Using cv2.imwrite() method
+    # Saving the image
+    cv2.imwrite(output_path, image)
