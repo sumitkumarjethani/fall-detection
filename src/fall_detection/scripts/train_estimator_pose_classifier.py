@@ -2,6 +2,11 @@ import argparse
 import logging
 import os
 import sys
+from sklearn.discriminant_analysis import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+
+from sklearn.pipeline import make_pipeline
 
 # setting path
 sys.path.append("./")
@@ -9,7 +14,7 @@ sys.path.append("./")
 from logger.logger import configure_logging
 
 from fall.data import load_pose_samples_from_dir
-from fall.classification import KnnPoseClassifier
+from fall.classification import EstimatorClassifier
 from fall.embedding import PoseEmbedder
 import pickle
 
@@ -55,14 +60,16 @@ def main():
             n_dimensions=3,
         )
 
+        # Initialize estimator
+
+        # model = make_pipeline(
+        #     StandardScaler(), LogisticRegression(max_iter=9000, random_state=42)
+        # )
+
+        model = RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42)
+
         # Initialize classifier.
-        pose_classifier = KnnPoseClassifier(
-            pose_embedder=pose_embedder,
-            top_n_by_max_distance=30,
-            top_n_by_mean_distance=10,
-            n_landmarks=33,
-            n_dimensions=3,
-        )
+        pose_classifier = EstimatorClassifier(model, pose_embedder)
 
         pose_classifier.fit(pose_samples)
 

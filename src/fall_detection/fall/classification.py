@@ -4,7 +4,11 @@ import os
 from typing import List
 from abc import ABC, abstractmethod
 
-from .data import PoseSampleOutlier
+from .data import PoseSample, PoseSampleOutlier
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 
 class PoseClassifier(ABC):
@@ -20,6 +24,39 @@ class PoseClassifier(ABC):
         return self.predict(pose_landmarks)
 
 
+_estimators = {
+    "logistic-regression": LogisticRegression,
+    "random-forest": RandomForestClassifier,
+}
+
+
+class EstimatorClassifier(PoseClassifier):
+    def __init__(self, estimator, pose_embedder, n_output_scaler=10):
+        self._pose_embedder = pose_embedder
+        self._n_output_scaler = n_output_scaler
+        self._model = estimator
+        self._model = make_pipeline(
+            StandardScaler(), LogisticRegression(max_iter=9000, random_state=42)
+        )
+
+    def fit(self, pose_samples: List[PoseSample]):
+        X = np.array([ps.embedding for ps in pose_samples]).reshape(
+            len(pose_samples), -1
+        )
+        y = np.array([ps.class_name for ps in pose_samples])
+        self._model.fit(X, y)
+        return self
+
+    def predict(self, pose_landmarks):
+        pose_embedding = self._pose_embedder(pose_landmarks).reshape(1, -1)
+        pred_prob = self._model.predict_proba(pose_embedding)
+        result = {
+            c: self._n_output_scaler * pred_prob[0][i]
+            for i, c in enumerate(self._model.classes_)
+        }
+        return result
+
+
 class KnnPoseClassifier(PoseClassifier):
     """Classifies pose landmarks."""
 
@@ -30,7 +67,7 @@ class KnnPoseClassifier(PoseClassifier):
         n_dimensions=3,
         top_n_by_max_distance=30,
         top_n_by_mean_distance=10,
-        axes_weights=(1.0, 1.0, 0.2),
+        axes_weights=(1.0, 1.0, 0.1),
     ):
         self._pose_embedder = pose_embedder
         self._n_landmarks = n_landmarks
@@ -103,7 +140,7 @@ class KnnPoseClassifier(PoseClassifier):
         #
         # That helps to remove outliers - poses that are almost the same as the
         # given one, but has one joint bent into another direction and actually
-        # represnt a different pose class.
+        # represents a different pose class.
         max_dist_heap = []
         for sample_idx, sample in enumerate(self._pose_samples):
             max_dist = min(
@@ -180,6 +217,7 @@ class EMADictSmoothing(object):
             }
         """
         # Add new data to the beginning of the window for simpler code.
+
         self._data_in_window.insert(0, data)
         self._data_in_window = self._data_in_window[: self._window_size]
 

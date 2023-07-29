@@ -5,3 +5,4 @@ tensorflow
 mediapipe
 Pillow
 tqdm
+scikit-learn

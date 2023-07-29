@@ -184,6 +184,33 @@ class PoseEmbedder(object):
                     self._get_average_by_names(landmarks, "right_wrist", "right_ankle"),
                     landmarks[self._landmark_names.index("right_hip")],
                 ),
+                ## adding body angle embeddings angle
+                # self._get_cosine_distance_by_names(
+                #     landmarks,
+                #     "left_wrist",
+                #     "left_elbow",
+                # ),
+                # self._get_cosine_distance_by_names(
+                #     landmarks, "left_elbow", "left_shoulder"
+                # ),
+                # self._get_cosine_distance_by_names(
+                #     landmarks, "right_wrist", "right_elbow"
+                # ),
+                # self._get_cosine_distance_by_names(
+                #     landmarks, "right_elbow", "right_shoulder"
+                # ),
+                # self._get_cosine_distance_by_names(
+                #     landmarks, "left_elbow", "left_shoulder", "left_hip"
+                # ),
+                # self._get_cosine_distance_by_names(
+                #     landmarks, "right_elbow", "right_shoulder", "right_hip"
+                # ),
+                # self._get_cosine_distance_by_names(
+                #     landmarks, "left_ankle", "left_knee", "left_hip"
+                # ),
+                # self._get_cosine_distance_by_names(
+                #     landmarks, "right_ankle", "right_knee", "right_hip"
+                # ),
             ]
         )
 
@@ -200,4 +227,29 @@ class PoseEmbedder(object):
         return self._get_distance(lmk_from, lmk_to)
 
     def _get_distance(self, lmk_from, lmk_to):
-        return lmk_to - lmk_from
+        distance = lmk_to - lmk_from
+        return distance
+
+    def _get_cosine_distance_by_names(self, landmarks, name_from, name_to):
+        lmk_from = landmarks[self._landmark_names.index(name_from)]
+        lmk_to = landmarks[self._landmark_names.index(name_to)]
+        return self._get_cosine_distance(lmk_from, lmk_to)
+
+    def _get_cosine_distance(self, lmk_from, lmk_to):
+        cos_dis = np.dot(lmk_from, lmk_to) / (
+            np.linalg.norm(lmk_from) * np.linalg.norm(lmk_to)
+        )
+        return cos_dis
+
+    def _get_angle_by_names(self, landmarks, name_from, name_vertex, name_to):
+        lmk_from = landmarks[self._landmark_names.index(name_from)]
+        lmk_vertex = landmarks[self._landmark_names.index(name_vertex)]
+        lmk_to = landmarks[self._landmark_names.index(name_to)]
+        return self._get_angle(lmk_from, lmk_vertex, lmk_to)
+
+    def _get_angle(self, lmk_from, lmk_vertex, lmk_to):
+        ba = lmk_from - lmk_vertex
+        bc = lmk_to - lmk_vertex
+        cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+        angle = np.arccos(cosine_angle)
+        return angle

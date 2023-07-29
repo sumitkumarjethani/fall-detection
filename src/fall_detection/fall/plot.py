@@ -19,10 +19,10 @@ class PoseClassificationVisualizer(object):
         plot_figsize=(9, 4),
         plot_x_max=None,
         plot_y_max=None,
-        detector_location_x=0.85,
-        detector_location_y=0.05,
+        detector_location_x=0.05,
+        detector_location_y=0.25,
         detector_font_color="red",
-        detector_font_size=0.15,
+        detector_font_size=0.05,
     ):
         self._class_name = class_name
         self._plot_location_x = plot_location_x
@@ -37,6 +37,7 @@ class PoseClassificationVisualizer(object):
         self._detector_font_color = detector_font_color
         self._detector_font_size = detector_font_size
 
+        self._detector_font = None
         self._pose_classification_history = []
         self._pose_classification_filtered_history = []
 
@@ -79,6 +80,15 @@ class PoseClassificationVisualizer(object):
         # Draw the count.
         output_img_draw = ImageDraw.Draw(output_img)
 
+        if self._detector_font is None:
+            font_size = int(output_height * self._detector_font_size)
+            font_request = requests.get(
+                "https://github.com/googlefonts/roboto/blob/main/src/hinted/Roboto-Regular.ttf?raw=true",
+                allow_redirects=True,
+            )
+            self._detector_font = ImageFont.truetype(
+                io.BytesIO(font_request.content), size=font_size
+            )
         output_img_draw.text(
             (
                 output_width * self._detector_location_x,
@@ -86,6 +96,7 @@ class PoseClassificationVisualizer(object):
             ),
             f"{self._class_name}: " + str(detector_state),
             fill=self._detector_font_color,
+            font=self._detector_font,
         )
 
         return output_img

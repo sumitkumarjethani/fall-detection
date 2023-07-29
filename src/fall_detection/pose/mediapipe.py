@@ -13,7 +13,11 @@ import cv2
 class MediapipePoseModel(PoseModel):
     def predict(self, image):
         # Initialize fresh pose tracker and run it.
-        with mp_pose.Pose() as pose_tracker:
+        with mp_pose.Pose(
+            min_detection_confidence=0.7,
+            min_tracking_confidence=0.5,
+            model_complexity=1,
+        ) as pose_tracker:
             result = pose_tracker.process(image=image)
             pose_landmarks = result.pose_landmarks
         return pose_landmarks

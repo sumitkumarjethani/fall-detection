@@ -11,7 +11,6 @@ sys.path.append("./")
 
 from logger.logger import configure_logging
 
-from fall.data import load_pose_samples_from_dir
 from fall.classification import EMADictSmoothing
 from fall.embedding import PoseEmbedder
 from fall.detection import StateDetector
@@ -84,19 +83,17 @@ def main():
             pose_classifier = pickle.load(f)
 
         # Initialize EMA smoothing.
-        # pose_classification_filter = EMADictSmoothing(window_size=10, alpha=0.2)
-        pose_classification_filter = EMADictSmoothing(window_size=5, alpha=0.4)
+        pose_classification_smoother = EMADictSmoothing(window_size=10, alpha=0.2)
 
         # Initialize counter.
         fall_detector = StateDetector(
-            class_name="Fall", enter_threshold=5, exit_threshold=4
+            class_name="Fall", enter_threshold=8, exit_threshold=4
         )
 
         # Initialize renderer.
         pose_classification_visualizer = PoseClassificationVisualizer(
             class_name="Fall",
             plot_x_max=video_n_frames,
-            # Graphic looks nicer if it's the same as `top_n_by_mean_distance`.
             plot_y_max=10,
         )
 
@@ -122,6 +119,7 @@ def main():
 
                 # Draw pose prediction.
                 output_frame = input_frame.copy()
+
                 if pose_landmarks is not None:
                     pose_model.draw_landmarks(
                         image=output_frame,
@@ -154,23 +152,19 @@ def main():
                     pose_classification = pose_classifier(pose_landmarks)
 
                     # Smooth classification using EMA.
-                    pose_classification_filtered = pose_classification_filter(
+                    pose_classification_filtered = pose_classification_smoother(
                         pose_classification
                     )
-                    print(pose_classification_filtered)
+
                     fall_detection = fall_detector(pose_classification_filtered)
+
                 else:
-                    # No pose => no classification on current frame.
                     pose_classification = None
-
-                    # Still add empty classification to the filter to maintaing correct
-                    # smoothing for future frames.
-                    pose_classification_filtered = pose_classification_filter(dict())
+                    pose_classification_filtered = pose_classification_smoother(dict())
                     pose_classification_filtered = None
-
-                    # Don't update the counter presuming that person is 'frozen'. Just
-                    # take the latest repetitions count.
                     fall_detection = fall_detector.state
+
+                print(pose_classification_filtered)
 
                 # Draw classification plot and repetition counter.
                 output_frame = pose_classification_visualizer(
