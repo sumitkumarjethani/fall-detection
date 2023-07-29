@@ -11,5 +11,5 @@ setup(
     author="Vito Stamatti",
     license="MIT",
     packages=find_packages(),
-    install_requires=requirements,
+    # install_requires=requirements,
 )

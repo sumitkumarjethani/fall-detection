@@ -41,6 +41,13 @@ python scripts/movenet_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall
 python scripts/mediapipe_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg"
 ```
 
+#### Yolo Pose Inferece
+
+```bash
+python scripts/yolo_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg" -m "/Users/vito/Documents/TFM-2023/fall-detection/models/yolo-pose/yolov7-w6-pose.pt"
+```
+
+
 #### Generate Landmarks Dataset
 
 - Test small script
