@@ -24,10 +24,10 @@ class PoseClassifier(ABC):
         return self.predict(pose_landmarks)
 
 
-_estimators = {
-    "logistic-regression": LogisticRegression,
-    "random-forest": RandomForestClassifier,
-}
+# _estimators = {
+#     "logistic-regression": LogisticRegression(random_state=42, max_iter=9000),
+#     "random-forest": RandomForestClassifier(random_state=42),
+# }
 
 
 class EstimatorClassifier(PoseClassifier):
@@ -35,9 +35,6 @@ class EstimatorClassifier(PoseClassifier):
         self._pose_embedder = pose_embedder
         self._n_output_scaler = n_output_scaler
         self._model = estimator
-        self._model = make_pipeline(
-            StandardScaler(), LogisticRegression(max_iter=9000, random_state=42)
-        )
 
     def fit(self, pose_samples: List[PoseSample]):
         X = np.array([ps.embedding for ps in pose_samples]).reshape(

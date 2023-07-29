@@ -81,5 +81,11 @@ python scripts/video_inference_fall_detector.py -i "/Users/vito/Documents/TFM-20
 ```
 
 ```bash
-python scripts/video_inference_fall_detector.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri.mp4" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri_out_linear.mp4" -m "mediapipe" -c "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_linear_classification_model.pkl" 
+python scripts/video_inference_fall_detector.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri.mp4" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri_out.mp4" -m "mediapipe" -c "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_estimator_classification_model.pkl" 
 ```
+
+- Webcam 
+```bash
+python scripts/webcam_inference_fall_detector.py -m "mediapipe" -c "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_estimator_classification_model.pkl" 
+```
+
