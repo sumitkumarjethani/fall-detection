@@ -5,6 +5,8 @@ import sys
 from sklearn.discriminant_analysis import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import StackingClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.pipeline import make_pipeline
 
@@ -15,7 +17,7 @@ from logger.logger import configure_logging
 
 from fall.data import load_pose_samples_from_dir
 from fall.classification import EstimatorClassifier
-from fall.embedding import PoseEmbedder
+from fall.embedding import PoseEmbedder, BLAZE_POSE_KEYPOINTS, COCO_POSE_KEYPOINTS
 import pickle
 
 logger = logging.getLogger("app")
@@ -61,7 +63,14 @@ def main():
         args = cli()
 
         # Initialize embedder.
-        pose_embedder = PoseEmbedder()
+        if args.n_kps == 17:
+            landmark_names = COCO_POSE_KEYPOINTS
+        elif args.n_kps == 33:
+            landmark_names = BLAZE_POSE_KEYPOINTS
+        else:
+            raise ValueError("number of keypoints supported are 17 or 33")
+
+        pose_embedder = PoseEmbedder(landmark_names=landmark_names)
 
         # load csv file with pose samples
         pose_samples = load_pose_samples_from_dir(
@@ -72,11 +81,18 @@ def main():
         )
 
         # Initialize estimator
-
+        # model = StackingClassifier(
+        #     estimators=[
+        #         make_pipeline(
+        #             StandardScaler(), LogisticRegression(max_iter=9000, random_state=42)
+        #         ),
+        #         RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42),
+        #     ],
+        #     final_estimator=KNeighborsClassifier(n_neighbors=5),
+        # )
         # model = make_pipeline(
         #     StandardScaler(), LogisticRegression(max_iter=9000, random_state=42)
         # )
-
         model = RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42)
 
         # Initialize classifier.

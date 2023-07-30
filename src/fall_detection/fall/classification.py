@@ -24,12 +24,6 @@ class PoseClassifier(ABC):
         return self.predict(pose_landmarks)
 
 
-# _estimators = {
-#     "logistic-regression": LogisticRegression(random_state=42, max_iter=9000),
-#     "random-forest": RandomForestClassifier(random_state=42),
-# }
-
-
 class EstimatorClassifier(PoseClassifier):
     def __init__(self, estimator, pose_embedder, n_output_scaler=10):
         self._pose_embedder = pose_embedder
@@ -76,6 +70,7 @@ class KnnPoseClassifier(PoseClassifier):
         self._pose_samples = []
 
     def fit(self, pose_samples):
+        print(f"fitting on {len(pose_samples)}  pose samples")
         self._pose_samples = pose_samples
 
     def find_pose_sample_outliers(self):
@@ -151,9 +146,7 @@ class KnnPoseClassifier(PoseClassifier):
 
         max_dist_heap = sorted(max_dist_heap, key=lambda x: x[0])
         max_dist_heap = max_dist_heap[: self._top_n_by_max_distance]
-
         # Filter by mean distance.
-        #
         # After removing outliers we can find the nearest pose by mean distance.
         mean_dist_heap = []
         for _, sample_idx in max_dist_heap:
@@ -169,7 +162,6 @@ class KnnPoseClassifier(PoseClassifier):
 
         mean_dist_heap = sorted(mean_dist_heap, key=lambda x: x[0])
         mean_dist_heap = mean_dist_heap[: self._top_n_by_mean_distance]
-
         # Collect results into map: (class_name -> n_samples)
         class_names = [
             self._pose_samples[sample_idx].class_name

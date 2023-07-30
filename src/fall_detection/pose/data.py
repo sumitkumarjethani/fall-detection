@@ -92,6 +92,7 @@ class PoseLandmarksGenerator(object):
 
                     # Initialize fresh pose tracker and run it.
                     pose_landmarks = pose_model.predict(input_frame)
+
                     # Save image with pose prediction (if pose was detected).
                     output_frame = input_frame.copy()
 

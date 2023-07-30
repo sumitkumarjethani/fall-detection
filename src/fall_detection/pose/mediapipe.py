@@ -44,10 +44,7 @@ class MediapipePoseModel(PoseModel):
             ],
             dtype=np.float32,
         )
-        assert pose_landmarks.shape == (
-            33,
-            3,
-        ), "Unexpected landmarks shape: {}".format(pose_landmarks.shape)
+        return pose_landmarks
 
 
 def load_image(image_path):

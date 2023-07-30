@@ -5,10 +5,11 @@ import sys
 
 # setting path
 sys.path.append("./")
-
+sys.path.append("../../yolov7")
 from logger.logger import configure_logging
 from pose.mediapipe import MediapipePoseModel
 from pose.movenet import MovenetModel
+from pose.yolo import YoloPoseModel
 from pose.data import PoseLandmarksGenerator
 
 logger = logging.getLogger("app")
@@ -44,7 +45,7 @@ def cli():
         help="model name to use.",
         type=str,
         required=True,
-        choices=["mediapipe", "movenet"],
+        choices=["mediapipe", "movenet", "yolo"],
         default="mediapipe",
     )
 
@@ -70,8 +71,12 @@ def main():
 
         if args.model == "mediapipe":
             model = MediapipePoseModel()
-        else:
+        elif args.model == "movenet":
             model = MovenetModel()
+        elif args.model == "yolo":
+            model = YoloPoseModel()
+        else:
+            raise ValueError("model name not valid")
 
         generator = PoseLandmarksGenerator(
             images_in_folder=args.input_images,

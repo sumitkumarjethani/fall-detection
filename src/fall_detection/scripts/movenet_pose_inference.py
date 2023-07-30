@@ -37,6 +37,14 @@ def cli():
         help="model name to use for the inference.",
         required=False,
         default="movenet_thunder",
+        choices=[
+            "movenet_lightning",
+            "movenet_thunder",
+            "movenet_lightning_f16.tflite",
+            "movenet_thunder_f16.tflite",
+            "movenet_lightning_int8.tflite",
+            "movenet_thunder_int8.tflite",
+        ],
     )
     args = parser.parse_args()
 

@@ -17,6 +17,7 @@ from fall.detection import StateDetector
 from fall.plot import PoseClassificationVisualizer
 from pose.mediapipe import MediapipePoseModel
 from pose.movenet import MovenetModel
+from pose.yolo import YoloPoseModel
 import pickle
 
 logger = logging.getLogger("app")
@@ -42,9 +43,11 @@ def cli():
     parser.add_argument(
         "-m",
         "--pose-model",
-        help="model name to save.",
+        help="pose model name",
         type=str,
         required=True,
+        choices=["movenet", "mediapipe", "yolo"],
+        default="movenet",
     )
     parser.add_argument(
         "-c",
@@ -74,20 +77,26 @@ def main():
         video_width = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         video_height = int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+        logger.info(f"loading model")
+
         if args.pose_model == "mediapipe":
             pose_model = MediapipePoseModel()
-        else:
+        elif args.pose_model == "movenet":
             pose_model = MovenetModel()
+        elif args.pose_model == "yolo":
+            pose_model = YoloPoseModel()
+        else:
+            raise ValueError("model input not valid")
 
         with open(f"{args.classification_model}", "rb") as f:
             pose_classifier = pickle.load(f)
 
         # Initialize EMA smoothing.
-        pose_classification_smoother = EMADictSmoothing(window_size=10, alpha=0.2)
+        pose_classification_smoother = EMADictSmoothing(window_size=10, alpha=0.3)
 
         # Initialize counter.
         fall_detector = StateDetector(
-            class_name="Fall", enter_threshold=8, exit_threshold=4
+            class_name="Fall", enter_threshold=6, exit_threshold=4
         )
 
         # Initialize renderer.
@@ -132,23 +141,11 @@ def main():
                         output_frame.shape[0],
                         output_frame.shape[1],
                     )
-                    pose_landmarks = np.array(
-                        [
-                            [
-                                lmk.x * frame_width,
-                                lmk.y * frame_height,
-                                lmk.z * frame_width,
-                            ]
-                            for lmk in pose_landmarks.landmark
-                        ],
-                        dtype=np.float32,
+                    pose_landmarks = pose_model.pose_landmarks_to_nparray(
+                        pose_landmarks, frame_height, frame_width
                     )
-                    assert pose_landmarks.shape == (
-                        33,
-                        3,
-                    ), "Unexpected landmarks shape: {}".format(pose_landmarks.shape)
-
                     # Classify the pose on the current frame.
+
                     pose_classification = pose_classifier(pose_landmarks)
 
                     # Smooth classification using EMA.

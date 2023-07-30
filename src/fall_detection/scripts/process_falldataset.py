@@ -15,14 +15,14 @@ logger = logging.getLogger("app")
 def cli():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-I",
+        "-i",
         "--input",
         help="input dirpath to read raw downloaded falldataset data.Defaults to current dir",
         required=False,
         default=".",
     )
     parser.add_argument(
-        "-O",
+        "-o",
         "--output",
         help="output dirpath to save downloaded data. If not specified, input dir is used",
         required=False,

@@ -10,7 +10,7 @@ from logger.logger import configure_logging
 
 from fall.data import load_pose_samples_from_dir
 from fall.classification import KnnPoseClassifier
-from fall.embedding import PoseEmbedder
+from fall.embedding import PoseEmbedder, COCO_POSE_KEYPOINTS, BLAZE_POSE_KEYPOINTS
 import pickle
 
 logger = logging.getLogger("app")
@@ -21,7 +21,7 @@ def cli():
 
     parser.add_argument(
         "-i",
-        "--input-file",
+        "--input",
         help="input path to read the images from",
         type=str,
         required=True,
@@ -33,7 +33,27 @@ def cli():
         type=str,
         required=True,
     )
-
+    parser.add_argument(
+        "--n-kps",
+        help="number of keypoints generaly 33 or 17 depending on pose model used",
+        type=int,
+        required=True,
+        default=33,
+    )
+    parser.add_argument(
+        "--n-dim",
+        help="number of dimensions of the inputs. Generarly 3 (x,y,z) or (x,y,score)",
+        type=int,
+        required=True,
+        default=3,
+    )
+    parser.add_argument(
+        "--n-neighbours",
+        help="number of neighbours used to predict in knn algorithm",
+        type=int,
+        required=True,
+        default=10,
+    )
     args = parser.parse_args()
 
     return args
@@ -45,23 +65,30 @@ def main():
         args = cli()
 
         # Initialize embedder.
-        pose_embedder = PoseEmbedder()
+        if args.n_kps == 17:
+            landmark_names = COCO_POSE_KEYPOINTS
+        elif args.n_kps == 33:
+            landmark_names = BLAZE_POSE_KEYPOINTS
+        else:
+            raise ValueError("number of keypoints supported are 17 or 33")
+
+        pose_embedder = PoseEmbedder(landmark_names=landmark_names)
 
         # load csv file with pose samples
         pose_samples = load_pose_samples_from_dir(
             pose_embedder=pose_embedder,
-            landmarks_dir=args.input_file,
-            n_landmarks=33,
-            n_dimensions=3,
+            landmarks_dir=args.input,
+            n_landmarks=args.n_kps,
+            n_dimensions=args.n_dim,
         )
 
         # Initialize classifier.
         pose_classifier = KnnPoseClassifier(
             pose_embedder=pose_embedder,
             top_n_by_max_distance=30,
-            top_n_by_mean_distance=10,
-            n_landmarks=33,
-            n_dimensions=3,
+            top_n_by_mean_distance=args.n_neighbours,
+            n_landmarks=args.n_kps,
+            n_dimensions=args.n_dim,
         )
 
         pose_classifier.fit(pose_samples)

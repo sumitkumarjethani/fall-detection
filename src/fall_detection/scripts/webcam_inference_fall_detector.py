@@ -68,21 +68,9 @@ def run_inference(
             frame.shape[0],
             frame.shape[1],
         )
-        pose_landmarks = np.array(
-            [
-                [
-                    lmk.x * frame_width,
-                    lmk.y * frame_height,
-                    lmk.z * frame_width,
-                ]
-                for lmk in pose_landmarks.landmark
-            ],
-            dtype=np.float32,
+        pose_landmarks = pose_model.pose_landmarks_to_nparray(
+            pose_landmarks, frame_height, frame_width
         )
-        assert pose_landmarks.shape == (
-            33,
-            3,
-        ), "Unexpected landmarks shape: {}".format(pose_landmarks.shape)
 
         # Classify the pose on the current frame.
         pose_classification = pose_classifier(pose_landmarks)
@@ -91,7 +79,6 @@ def run_inference(
         pose_classification_filtered = pose_classification_smoother(pose_classification)
 
         fall_detection = fall_detector(pose_classification_filtered)
-
     else:
         pose_classification = None
         pose_classification_filtered = pose_classification_smoother(dict())

@@ -18,7 +18,7 @@
 - [Script](./src/scripts/download_falldataset.py)
 
 ```bash
-python src/scripts/download_falldataset.py -O ./data
+python src/scripts/download_falldataset.py -o ./data
 ```
 
 #### Procesado del dataset
@@ -26,85 +26,260 @@ python src/scripts/download_falldataset.py -O ./data
 - [Script](./src/scripts/process_falldataset.py)
 
 ```bash
-python src/scripts/process_falldataset.py -I ./data
+python src/scripts/process_falldataset.py -i ./data
 ```
 
 ## Pose Models
 
-#### Movenet Inference
-
+### Movenet Inference
 ```bash
-python scripts/movenet_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg" -m 
+python scripts/movenet_pose_inference.py \
+-i "../../data/fall-sample.png" \
+-o "../../data/fall-sample-output.jpg" \
+-m  "movenet_thunder"
 ```
 
-#### Mediaipe inference
-
+### Mediaipe inference
 ```bash
-python scripts/mediapipe_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg"
+python scripts/mediapipe_pose_inference.py \
+-i "../../data/fall-sample.png" \
+-o "../../data/fall-sample-output.jpg"
 ```
 
-#### Yolo Pose Inferece
-
+### Yolo Pose Inferece
 ```bash
-python scripts/yolo_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg" -m "yolov7-w6-pose.pt"
+python scripts/yolo_pose_inference.py \
+-i "../../data/fall-sample.png" \
+-o "../../data/fall-sample-output.jpg" \
+-m "yolov7-w6-pose.pt"
 ```
 
-#### Webcam Pose Inference
-
+### Webcam Movenet Pose Inference
 ```bash
-python scripts/webcam_pose_inference.py  -m "movenet"
+python scripts/webcam_pose_inference.py  \
+-m "movenet"
 ```
 
-#### Generate Landmarks Dataset
-
-- generate small dataset with mediapipe
+### Webcam Mediapipe Pose Inference
 ```bash
-python scripts/generate_landmarks_dataset.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset_out" -f "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset_csv" -m "mediapipe"
+python scripts/webcam_pose_inference.py  \
+-m "mediapipe"
 ```
 
-- generate small dataset with movenet
+### Webcam Yolo Pose Inference
 ```bash
-python scripts/generate_landmarks_dataset.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/movenet_test_dataset_out" -f "/Users/vito/Documents/TFM-2023/fall-detection/data/movenet_test_dataset_csv" -m "movenet"
+python scripts/webcam_pose_inference.py  \
+-m "yolo"
 ```
 
-- Full Falldataset
+## Generate Landmarks Dataset for Fall Detection
+
+#### Small dataset with mediapipe
 ```bash
-python scripts/generate_landmarks_dataset.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/samples" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/samples_out" -f "/Users/vito/Documents/TFM-2023/fall-detection/data/samples_csv_out" -m "mediapipe" --max-samples 1000
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/test_dataset" \
+-o "../../data/test_dataset_out" \
+-f "../../data/test_dataset_csv" \
+-m "mediapipe"
 ```
 
-#### Train Pose Classification
-
-- test train on small dataset
-
-
+#### Small dataset with movenet
 ```bash
-python scripts/train_pose_classifier.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset_csv" -m "/Users/vito/Documents/TFM-2023/fall-detection/models/test_pose_classification_model.pkl"
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/test_dataset" \
+-o "../../data/movenet_test_dataset_out" \
+-f "../../data/movenet_test_dataset_csv" \
+-m "movenet"
 ```
 
--  train on falldataset dataset
-
+#### Small dataset with yolo
 ```bash
-python scripts/train_pose_classifier.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/samples_csv_out" -m "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_classification_model.pkl"
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/test_dataset" \
+-o "../../data/yolo_test_dataset_out" \
+-f "../../data/yolo_test_dataset_csv" \
+-m "yolo"
 ```
 
-- train linear model
-
+#### Process full dataset
 ```bash
-python scripts/train_estimator_pose_classifier.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/samples_csv_out" -m "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_estimator_classification_model.pkl"
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/samples" \
+-o "../../data/mediapipe_samples_out" \
+-f "../../data/mediapipe_samples_csv_out" \
+-m "mediapipe" \
+--max-samples 6000
 ```
 
-#### Fall Detection
-
+#### process full dataset
 ```bash
-python scripts/video_inference_fall_detector.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri.mp4" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri_out.mp4" -m "mediapipe" -c "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_classification_model.pkl" 
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/samples" \
+-o "../../data/movenet_samples_out" \
+-f "../../data/movenet_samples_csv_out" \
+-m "movenet" \
+--max-samples 6000
+```
+
+#### process full dataset
+```bash
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/samples" \
+-o "../../data/yolo_samples_out" \
+-f "../../data/yolo_samples_csv_out" \
+-m "yolo" \
+--max-samples 6000
+```
+
+## Train Pose Classification
+
+- test train knn on small dataset
+```bash
+python scripts/train_knn_pose_classifier.py \
+-i "../../data/test_dataset_csv" \
+-m "../../models/test_pose_classification_model.pkl" \
+--n-kps 33 \
+--n-dim 3 \
+--n-neighbours 10
+```
+
+-  train knn 
+```bash
+python scripts/train_knn_pose_classifier.py \
+-i "../../data/mediapipe_samples_csv_out" \
+-m "../../models/mediapipe_knn_model.pkl" \
+--n-kps 33 \
+--n-dim 3 \
+--n-neighbours 10
 ```
 
 ```bash
-python scripts/video_inference_fall_detector.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri.mp4" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/videos/uri_out.mp4" -m "mediapipe" -c "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_estimator_classification_model.pkl" 
+python scripts/train_knn_pose_classifier.py \
+-i "../../data/movenet_samples_csv_out" \
+-m "../../models/movenet_knn_model.pkl" \
+--n-kps 17 \
+--n-dim 3 \
+--n-neighbours 10
 ```
 
-- Webcam 
 ```bash
-python scripts/webcam_inference_fall_detector.py -m "mediapipe" -c "/Users/vito/Documents/TFM-2023/fall-detection/models/falldataset_estimator_classification_model.pkl" 
+python scripts/train_knn_pose_classifier.py \
+-i "../../data/yolo_samples_csv_out" \
+-m "../../models/yolo_knn_model.pkl" \
+--n-kps 17 \
+--n-dim 3 \
+--n-neighbours 10
 ```
 
+- train estimator
+```bash
+python scripts/train_estimator_pose_classifier.py \
+-i "../../data/mediapipe_samples_csv_out" \
+-m "../../models/mediapipe_estimator_model.pkl" \
+--n-kps 33 \
+--n-dim 3 \
+```
+
+```bash
+python scripts/train_estimator_pose_classifier.py \
+-i "../../data/movenet_samples_csv_out" \
+-m "../../models/movenet_estimator_model.pkl" \
+--n-kps 17 \
+--n-dim 3 
+```
+
+```bash
+python scripts/train_estimator_pose_classifier.py \
+-i "../../data/yolo_samples_csv_out" \
+-m "../../models/yolo_estimator_model.pkl" \
+--n-kps 17 \
+--n-dim 3 \
+```
+
+## Video Fall Detection 
+
+```bash
+python scripts/video_inference_fall_detector.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/uri_meidapipe_out.mp4" \
+-m "mediapipe" \
+-c "../../models/mediapipe_knn_model.pkl" 
+```
+
+```bash
+python scripts/video_inference_fall_detector.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/uri_movenet_out.mp4" \
+-m "movenet" \
+-c "../../models/movenet_knn_model.pkl" 
+```
+
+```bash
+python scripts/video_inference_fall_detector.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/uri_yolo_out.mp4" \
+-m "yolo" \
+-c "../../models/yolo_knn_model.pkl" 
+```
+
+```bash
+python scripts/video_inference_fall_detector.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/uri_out.mp4" \
+-m "mediapipe" \
+-c "../../models/mediapipe_estimator_model.pkl" 
+```
+
+```bash
+python scripts/video_inference_fall_detector.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/uri_estimator_movenet_out.mp4" \
+-m "movenet" \
+-c "../../models/movenet_estimator_model.pkl" 
+```
+
+```bash
+python scripts/video_inference_fall_detector.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/uri_out.mp4" \
+-m "yolo" \
+-c "../../models/yolo_estimator_model.pkl" 
+```
+
+## WebCam Fall Detection
+
+```bash
+python scripts/webcam_inference_fall_detector.py \
+-m "mediapipe" \
+-c "../../models/mediapipe_knn_model.pkl" 
+```
+
+```bash
+python scripts/webcam_inference_fall_detector.py \
+-m "mediapipe" \
+-c "../../models/mediapipe_estimator_model.pkl" 
+```
+
+```bash
+python scripts/webcam_inference_fall_detector.py \
+-m "movenet" \
+-c "../../models/movenet_knn_model.pkl" 
+```
+
+```bash
+python scripts/webcam_inference_fall_detector.py \
+-m "movenet" \
+-c "../../models/movenet_estimator_model.pkl" 
+```
+
+```bash
+python scripts/webcam_inference_fall_detector.py \
+-m "yolo" \
+-c "../../models/yolo_knn_classification_model.pkl" 
+```
+
+```bash
+python scripts/webcam_inference_fall_detector.py \
+-m "yolo" \
+-c "../../models/yolo_estimator_classification_model.pkl" 
+```
