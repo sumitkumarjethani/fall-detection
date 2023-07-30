@@ -1,10 +1,13 @@
 matplotlib
 opencv-python
+tensorflow_hub
+tensorflow
+mediapipe
 Pillow
 tqdm
 scikit-learn
-torch
-torchvision
 pandas
 pyyaml
 seaborn
+torch
+torchvision

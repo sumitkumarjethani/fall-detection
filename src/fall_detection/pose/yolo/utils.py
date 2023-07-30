@@ -291,17 +291,30 @@ def _draw_edges(denormalized_coordinates, image, threshold=0.11):
     return image
 
 
-def draw_prediction_on_image(
-    image, keypoints, threshold=0.11, input_size=1280, normalized=True
-):
+def get_affine_transform_to_fixed_sizes_with_padding(size, new_sizes):
+    width, height = new_sizes
+    scale = min(height / float(size[1]), width / float(size[0]))
+    M = np.float32([[scale, 0, 0], [0, scale, 0]])
+    M[0][2] = (width - scale * size[0]) / 2
+    M[1][2] = (height - scale * size[1]) / 2
+    return M
+
+
+def draw_prediction_on_image(image, keypoints, threshold=0.11):
     """Draws the keypoints on a image frame"""
     # Denormalize the coordinates : multiply the normalized coordinates by the input_size(width,height)
-    if normalized:
-        denormalized_coordinates = np.squeeze(
-            np.multiply(keypoints, [input_size, input_size, 1])
-        )
-    else:
-        denormalized_coordinates = np.squeeze(keypoints)
+
+    keypoints_with_scores = np.squeeze(keypoints)
+    w, h = image.shape[0], image.shape[1]
+    orig_w, orig_h = w, h
+    M = get_affine_transform_to_fixed_sizes_with_padding((orig_w, orig_h), (640, 960))
+    M = np.vstack((M, [0, 0, 1]))
+    M_inv = np.linalg.inv(M)[:2]
+    # xy_keypoints = keypoints_with_scores[:, :2] * 960
+    xy_keypoints = np.multiply(keypoints_with_scores[:, :2], [640, 960])
+    xy_keypoints = cv2.transform(np.array([xy_keypoints]), M_inv)[0]
+    keypoints_with_scores = np.hstack((xy_keypoints, keypoints_with_scores[:, 2:]))
+    denormalized_coordinates = keypoints_with_scores
 
     # Iterate through the points
     for keypoint in denormalized_coordinates:

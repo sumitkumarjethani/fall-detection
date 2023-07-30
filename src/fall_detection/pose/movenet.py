@@ -66,29 +66,6 @@ KEYPOINT_DICT = {
     "right_ankle": 16,
 }
 
-# # Maps bones to a matplotlib color name.
-# KEYPOINT_EDGE_INDS_TO_COLOR = {
-#     (0, 1): "m",
-#     (0, 2): "c",
-#     (1, 3): "m",
-#     (2, 4): "c",
-#     (0, 5): "m",
-#     (0, 6): "c",
-#     (5, 7): "m",
-#     (7, 9): "m",
-#     (6, 8): "c",
-#     (8, 10): "c",
-#     (5, 6): "y",
-#     (5, 11): "m",
-#     (6, 12): "c",
-#     (11, 12): "y",
-#     (11, 13): "m",
-#     (13, 15): "m",
-#     (12, 14): "c",
-#     (14, 16): "c",
-# }
-
-
 cyan = (255, 255, 0)
 magenta = (255, 0, 255)
 EDGE_COLORS = {
@@ -138,15 +115,31 @@ def _draw_edges(denormalized_coordinates, image, threshold=0.11):
     return image
 
 
-def draw_prediction_on_image(
-    image, keypoints, threshold=0.11, input_size=1280, normalized=True
-):
+def get_affine_transform_to_fixed_sizes_with_padding(size, new_sizes):
+    width, height = new_sizes
+    scale = min(height / float(size[1]), width / float(size[0]))
+    M = np.float32([[scale, 0, 0], [0, scale, 0]])
+    M[0][2] = (width - scale * size[0]) / 2
+    M[1][2] = (height - scale * size[1]) / 2
+    return M
+
+
+def draw_prediction_on_image(image, keypoints, threshold=0.11, normalized=True):
     """Draws the keypoints on a image frame"""
     # Denormalize the coordinates : multiply the normalized coordinates by the input_size(width,height)
     if normalized:
-        denormalized_coordinates = np.squeeze(
-            np.multiply(keypoints, [input_size, input_size, 1])
+        keypoints_with_scores = np.squeeze(keypoints)
+        w, h = image.shape[0], image.shape[1]
+        orig_w, orig_h = w, h
+        M = get_affine_transform_to_fixed_sizes_with_padding(
+            (orig_w, orig_h), (256, 256)
         )
+        M = np.vstack((M, [0, 0, 1]))
+        M_inv = np.linalg.inv(M)[:2]
+        xy_keypoints = keypoints_with_scores[:, :2] * 256
+        xy_keypoints = cv2.transform(np.array([xy_keypoints]), M_inv)[0]
+        keypoints_with_scores = np.hstack((xy_keypoints, keypoints_with_scores[:, 2:]))
+        denormalized_coordinates = keypoints_with_scores
     else:
         denormalized_coordinates = keypoints
 
@@ -173,9 +166,10 @@ def draw_prediction_on_image(
 
 
 def _preprocess_image_for_movenet(image, input_size):
-    input_image = tf.expand_dims(image, axis=0)
-    input_image = tf.image.resize_with_pad(input_image, input_size, input_size)
-    return input_image
+    image = tf.convert_to_tensor(image, dtype=tf.float32)
+    image = tf.expand_dims(image, axis=0)
+    image = tf.image.resize_with_pad(image, input_size, input_size)
+    return image
 
 
 def get_model_url(model_name) -> str:
@@ -217,8 +211,12 @@ class MovenetModel:
         return self.__call__(image)
 
     def draw_landmarks(self, image, pose_landmarks):
-        image = tf.image.resize_with_pad(image, 1280, 1280)
-        return draw_prediction_on_image(image.numpy(), pose_landmarks, input_size=1280)
+        # image = tf.image.resize_with_pad(image, 1280, 1280)
+        return draw_prediction_on_image(image, pose_landmarks)
+
+    def pose_landmarks_to_nparray(self, pose_landmarks, height, width):
+        pose_landmarks = np.squeeze(np.multiply(pose_landmarks, [width, height, 1]))
+        return pose_landmarks
 
 
 class TFLiteMovenetModel:

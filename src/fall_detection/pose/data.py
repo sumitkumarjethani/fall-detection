@@ -92,7 +92,6 @@ class PoseLandmarksGenerator(object):
 
                     # Initialize fresh pose tracker and run it.
                     pose_landmarks = pose_model.predict(input_frame)
-
                     # Save image with pose prediction (if pose was detected).
                     output_frame = input_frame.copy()
 
@@ -115,52 +114,12 @@ class PoseLandmarksGenerator(object):
                             output_frame.shape[0],
                             output_frame.shape[1],
                         )
-                        pose_landmarks = np.array(
-                            [
-                                [
-                                    lmk.x * frame_width,
-                                    lmk.y * frame_height,
-                                    lmk.z * frame_width,
-                                ]
-                                for lmk in pose_landmarks.landmark
-                            ],
-                            dtype=np.float32,
+                        pose_landmarks = pose_model.pose_landmarks_to_nparray(
+                            pose_landmarks, frame_height, frame_width
                         )
-                        assert pose_landmarks.shape == (
-                            33,
-                            3,
-                        ), "Unexpected landmarks shape: {}".format(pose_landmarks.shape)
                         csv_out_writer.writerow(
                             [image_name] + pose_landmarks.flatten().astype(str).tolist()
                         )
-
-                    # # Draw XZ projection and concatenate with the image.
-                    # projection_xz = self._draw_xz_projection(
-                    #     output_frame=output_frame, pose_landmarks=pose_landmarks
-                    # )
-                    # output_frame = np.concatenate((output_frame, projection_xz), axis=1)
-
-    # def _draw_xz_projection(self, output_frame, pose_landmarks, r=0.5, color="red"):
-    #     frame_height, frame_width = output_frame.shape[0], output_frame.shape[1]
-    #     img = Image.new("RGB", (frame_width, frame_height), color="white")
-
-    #     if pose_landmarks is None:
-    #         return np.asarray(img)
-
-    #     # Scale radius according to the image width.
-    #     r *= frame_width * 0.01
-
-    #     draw = ImageDraw.Draw(img)
-    #     for idx_1, idx_2 in mp_pose.POSE_CONNECTIONS:
-    #         # Flip Z and move hips center to the center of the image.
-    #         x1, y1, z1 = pose_landmarks[idx_1] * [1, 1, -1] + [0, 0, frame_height * 0.5]
-    #         x2, y2, z2 = pose_landmarks[idx_2] * [1, 1, -1] + [0, 0, frame_height * 0.5]
-
-    #         draw.ellipse([x1 - r, z1 - r, x1 + r, z1 + r], fill=color)
-    #         draw.ellipse([x2 - r, z2 - r, x2 + r, z2 + r], fill=color)
-    #         draw.line([x1, z1, x2, z2], width=int(r), fill=color)
-
-    #     return np.asarray(img)
 
     def align_images_and_csvs(self, print_removed_items=False):
         """Makes sure that image folders and CSVs have the same sample.

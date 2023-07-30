@@ -5,7 +5,7 @@ import sys
 
 # setting path
 sys.path.append("./")
-sys.path.append("../yolov7")
+sys.path.append("../../yolov7")
 from logger.logger import configure_logging
 from pose.yolo import YoloPoseModel
 from pose.utils import load_image, save_image
@@ -61,13 +61,15 @@ def main():
         logger.info(f"running inference")
         pose_landmarks = model.predict(input_image)
 
-        logger.info(f"drawing inference")
-        output_image = model.draw_landmarks(input_image, pose_landmarks)
+        if pose_landmarks is not None:
+            logger.info(f"drawing inference")
+            output_image = model.draw_landmarks(input_image, pose_landmarks)
 
-        logger.info(f"saving output image {args.output}")
-        save_image(output_image, args.output)
+            logger.info(f"saving output image {args.output}")
+            save_image(output_image, args.output)
         sys.exit(0)
-    except ValueError as e:
+
+    except Exception as e:
         logger.error(str(e))
         sys.exit(1)
 

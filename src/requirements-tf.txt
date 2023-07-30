@@ -1,8 +1,0 @@
-matplotlib
-opencv-python
-tensorflow_hub
-tensorflow
-mediapipe
-Pillow
-tqdm
-scikit-learn

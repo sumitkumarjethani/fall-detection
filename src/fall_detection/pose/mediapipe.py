@@ -6,6 +6,7 @@ except:
         "mediapipe dependency was not found. Make sure you pip installed mediapipe-requirements.txt"
     )
 
+import numpy as np
 from .pose import PoseModel
 import cv2
 
@@ -30,6 +31,23 @@ class MediapipePoseModel(PoseModel):
                 connections=mp_pose.POSE_CONNECTIONS,
             )
         return image
+
+    def pose_landmarks_to_nparray(self, pose_landmarks, height, width):
+        pose_landmarks = np.array(
+            [
+                [
+                    lmk.x * width,
+                    lmk.y * height,
+                    lmk.z * width,
+                ]
+                for lmk in pose_landmarks.landmark
+            ],
+            dtype=np.float32,
+        )
+        assert pose_landmarks.shape == (
+            33,
+            3,
+        ), "Unexpected landmarks shape: {}".format(pose_landmarks.shape)
 
 
 def load_image(image_path):

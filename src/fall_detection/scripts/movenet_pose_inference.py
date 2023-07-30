@@ -7,7 +7,8 @@ import sys
 sys.path.append("./")
 
 from logger.logger import configure_logging
-from pose.movenet import MovenetModel, TFLiteMovenetModel, load_image, save_image
+from pose.movenet import MovenetModel, TFLiteMovenetModel
+from pose.utils import save_image, load_image
 
 
 logger = logging.getLogger("app")
@@ -35,7 +36,7 @@ def cli():
         "--model",
         help="model name to use for the inference.",
         required=False,
-        default="movenet_lightning",
+        default="movenet_thunder",
     )
     args = parser.parse_args()
 

@@ -29,10 +29,12 @@ python src/scripts/download_falldataset.py -O ./data
 python src/scripts/process_falldataset.py -I ./data
 ```
 
+## Pose Models
+
 #### Movenet Inference
 
 ```bash
-python scripts/movenet_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg"
+python scripts/movenet_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg" -m 
 ```
 
 #### Mediaipe inference
@@ -44,15 +46,25 @@ python scripts/mediapipe_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fa
 #### Yolo Pose Inferece
 
 ```bash
-python scripts/yolo_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg" -m "/Users/vito/Documents/TFM-2023/fall-detection/models/yolo-pose/yolov7-w6-pose.pt"
+python scripts/yolo_pose_inference.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample.png" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/fall-sample-output.jpg" -m "yolov7-w6-pose.pt"
 ```
 
+#### Webcam Pose Inference
+
+```bash
+python scripts/webcam_pose_inference.py  -m "movenet"
+```
 
 #### Generate Landmarks Dataset
 
-- Test small script
+- generate small dataset with mediapipe
 ```bash
 python scripts/generate_landmarks_dataset.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset_out" -f "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset_csv" -m "mediapipe"
+```
+
+- generate small dataset with movenet
+```bash
+python scripts/generate_landmarks_dataset.py -i "/Users/vito/Documents/TFM-2023/fall-detection/data/test_dataset" -o "/Users/vito/Documents/TFM-2023/fall-detection/data/movenet_test_dataset_out" -f "/Users/vito/Documents/TFM-2023/fall-detection/data/movenet_test_dataset_csv" -m "movenet"
 ```
 
 - Full Falldataset

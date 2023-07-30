@@ -39,6 +39,17 @@ def cli():
         required=True,
     )
 
+    parser.add_argument(
+        "--n-kps", help="number of keypoints", type=int, required=True, default=33
+    )
+    parser.add_argument(
+        "--n-dim",
+        help="number of dimensions (x, y, z),(x,y,confidence),(x,y)",
+        type=int,
+        required=True,
+        default=3,
+    )
+
     args = parser.parse_args()
 
     return args
@@ -56,8 +67,8 @@ def main():
         pose_samples = load_pose_samples_from_dir(
             pose_embedder=pose_embedder,
             landmarks_dir=args.input_file,
-            n_landmarks=33,
-            n_dimensions=3,
+            n_landmarks=args.n_kps,
+            n_dimensions=args.n_dim,
         )
 
         # Initialize estimator
