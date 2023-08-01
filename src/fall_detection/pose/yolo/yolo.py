@@ -108,4 +108,4 @@ class YoloPoseModel(PoseModel):
         return draw_prediction_on_image(image, pose_landmarks)
 
     def pose_landmarks_to_nparray(self, pose_landmarks, height, width):
-        return pose_landmarks
+        return np.squeeze(pose_landmarks)

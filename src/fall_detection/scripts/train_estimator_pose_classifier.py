@@ -12,7 +12,7 @@ from sklearn.pipeline import make_pipeline
 
 # setting path
 sys.path.append("./")
-
+sys.path.append("../../yolov7")
 from logger.logger import configure_logging
 
 from fall.data import load_pose_samples_from_dir

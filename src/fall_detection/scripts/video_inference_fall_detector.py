@@ -8,7 +8,7 @@ import tqdm
 
 # setting path
 sys.path.append("./")
-
+sys.path.append("../../yolov7")
 from logger.logger import configure_logging
 
 from fall.classification import EMADictSmoothing

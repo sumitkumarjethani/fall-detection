@@ -111,6 +111,7 @@ if __name__ == "__main__":
         pose_model = MediapipePoseModel()
     else:
         pose_model = MovenetModel()
+
     with open(f"{args.classification_model}", "rb") as f:
         pose_classifier = pickle.load(f)
 

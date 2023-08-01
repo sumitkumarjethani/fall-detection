@@ -193,7 +193,7 @@ python scripts/train_estimator_pose_classifier.py \
 -i "../../data/yolo_samples_csv_out" \
 -m "../../models/yolo_estimator_model.pkl" \
 --n-kps 17 \
---n-dim 3 \
+--n-dim 3
 ```
 
 ## Video Fall Detection 
@@ -208,8 +208,8 @@ python scripts/video_inference_fall_detector.py \
 
 ```bash
 python scripts/video_inference_fall_detector.py \
--i "../../data/videos/uri.mp4" \
--o "../../data/videos/uri_movenet_out.mp4" \
+-i "../../data/videos/euge.mp4" \
+-o "../../data/videos/euge_movenet_out.mp4" \
 -m "movenet" \
 -c "../../models/movenet_knn_model.pkl" 
 ```
@@ -232,16 +232,16 @@ python scripts/video_inference_fall_detector.py \
 
 ```bash
 python scripts/video_inference_fall_detector.py \
--i "../../data/videos/uri.mp4" \
--o "../../data/videos/uri_estimator_movenet_out.mp4" \
+-i "../../data/videos/euge.mp4" \
+-o "../../data/videos/euge_estimator_movenet_out.mp4" \
 -m "movenet" \
 -c "../../models/movenet_estimator_model.pkl" 
 ```
 
 ```bash
 python scripts/video_inference_fall_detector.py \
--i "../../data/videos/uri.mp4" \
--o "../../data/videos/uri_out.mp4" \
+-i "../../data/videos/euge.mp4" \
+-o "../../data/videos/euge_yolo_out.mp4" \
 -m "yolo" \
 -c "../../models/yolo_estimator_model.pkl" 
 ```

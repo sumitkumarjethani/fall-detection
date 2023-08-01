@@ -11,6 +11,7 @@ class PoseSample(object):
         self.landmarks = landmarks
         self.class_name = class_name
         self.embedding = embedding
+        self.furniture_bbox = None
 
 
 class PoseSampleOutlier(object):
