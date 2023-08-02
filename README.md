@@ -3,17 +3,17 @@
 
 ## Datasets
 
-### [Falldataset](https://falldataset.com/)
+## [Falldataset](https://falldataset.com/)
 
 #### Requirements:
 - wget
 - tar
 
-#### Code
+### Code
 
 - [Source](./src/datasets/falldataset.py)
 
-#### Descarga del dataset
+### Descarga del falldataset
 
 - [Script](./src/scripts/download_falldataset.py)
 
@@ -21,12 +21,18 @@
 python src/scripts/download_falldataset.py -o ./data
 ```
 
-#### Procesado del dataset
+### Procesado del dataset
 
 - [Script](./src/scripts/process_falldataset.py)
 
 ```bash
 python src/scripts/process_falldataset.py -i ./data
+```
+
+## Convert Yolo Dataset
+
+```bash
+python scripts/convert_yolo_dataset.py --input "../../data/custom_dataset_yolo" --output "../../data/custom_dataset"
 ```
 
 ## Pose Models
@@ -282,4 +288,37 @@ python scripts/webcam_inference_fall_detector.py \
 python scripts/webcam_inference_fall_detector.py \
 -m "yolo" \
 -c "../../models/yolo_estimator_classification_model.pkl" 
+```
+
+
+
+# Steps to Evaluate new Dataset / Model
+
+1. convert dataset to folder dataset
+2. generate keypoints samples
+3. train classifier
+4. validate(TODO)
+5. run inference on example image/video/webcam
+   
+## 1
+
+
+## 2
+
+```bash
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/custom_dataset/train" \
+-o "../../data/yolo_custom_out/train" \
+-f "../../data/yolo_custom_csv_out/train" \
+-m "yolo" \
+--max-samples 3000
+```
+
+```bash
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/custom_dataset/test" \
+-o "../../data/yolo_custom_out/test" \
+-f "../../data/yolo_custom_csv_out/test" \
+-m "yolo" \
+--max-samples 500
 ```
