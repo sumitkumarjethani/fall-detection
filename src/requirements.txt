@@ -11,3 +11,4 @@ pyyaml
 seaborn
 torch
 torchvision
+ultralytics

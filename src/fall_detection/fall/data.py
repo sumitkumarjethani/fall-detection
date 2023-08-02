@@ -23,13 +23,6 @@ class PoseSample(object):
         self.angles_embedding = angles_embedding
 
 
-class PoseSampleOutlier(object):
-    def __init__(self, sample, detected_class, all_classes):
-        self.sample = sample
-        self.detected_class = detected_class
-        self.all_classes = all_classes
-
-
 def load_pose_samples_from_dir(
     pose_embedder,
     n_landmarks=33,
