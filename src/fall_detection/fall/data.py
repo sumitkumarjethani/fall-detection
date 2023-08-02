@@ -6,12 +6,21 @@ from abc import ABC, abstractmethod
 
 
 class PoseSample(object):
-    def __init__(self, name, landmarks, class_name, embedding):
+    def __init__(
+        self,
+        name,
+        landmarks,
+        class_name,
+        embedding,
+        distances_embedding=None,
+        angles_embedding=None,
+    ):
         self.name = name
         self.landmarks = landmarks
         self.class_name = class_name
         self.embedding = embedding
-        self.furniture_bbox = None
+        self.distances_embedding = distances_embedding
+        self.angles_embedding = angles_embedding
 
 
 class PoseSampleOutlier(object):
@@ -28,6 +37,7 @@ def load_pose_samples_from_dir(
     landmarks_dir="./data",
     file_extension="csv",
     file_separator=",",
+    with_angles=False,
 ):
     """Loads pose samples from a given folder.
 
@@ -69,6 +79,8 @@ def load_pose_samples_from_dir(
                         landmarks=landmarks,
                         class_name=class_name,
                         embedding=pose_embedder(landmarks),
+                        distances_embedding=pose_embedder(landmarks),
+                        angles_embedding=pose_embedder(landmarks),
                     )
                 )
 

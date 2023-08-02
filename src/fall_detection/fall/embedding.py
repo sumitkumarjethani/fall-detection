@@ -72,6 +72,30 @@ class PoseEmbedder(object):
         # Names of the landmarks as they appear in the prediction.
         self._landmark_names = landmark_names
 
+    def distances(self, landmarks):
+        # Get pose landmarks.
+        landmarks = np.copy(landmarks)
+
+        # Normalize landmarks.
+        landmarks = self._normalize_pose_landmarks(landmarks)
+
+        # Get embedding.
+        embedding = self._get_pose_distance_embedding(landmarks)
+
+        return embedding
+
+    def angles(self, landmarks):
+        # Get pose landmarks.
+        landmarks = np.copy(landmarks)
+
+        # Normalize landmarks.
+        landmarks = self._normalize_pose_landmarks(landmarks)
+
+        # Get embedding.
+        embedding = self._get_pose_angle_embedding(landmarks)
+
+        return embedding
+
     def __call__(self, landmarks):
         """Normalizes pose landmarks and converts to embedding
 
@@ -108,6 +132,7 @@ class PoseEmbedder(object):
         # Normalize scale.
         pose_size = self._get_pose_size(landmarks, self._torso_size_multiplier)
         landmarks /= pose_size
+
         # Multiplication by 100 is not required, but makes it eaasier to debug.
         landmarks *= 100
 
@@ -148,6 +173,42 @@ class PoseEmbedder(object):
         max_dist = np.max(np.linalg.norm(landmarks - pose_center, axis=1))
 
         return max(torso_size * torso_size_multiplier, max_dist)
+
+    def _get_pose_angle_embedding(self, landmarks):
+        angles = np.array(
+            [
+                self._get_angle_by_names(
+                    landmarks, "left_wrist", "left_elbow", "left_shoulder"
+                ),
+                self._get_angle_by_names(
+                    landmarks, "right_wrist", "right_elbow", "right_shoulder"
+                ),
+                self._get_angle_by_names(
+                    landmarks, "left_elbow", "left_shoulder", "left_hip"
+                ),
+                self._get_angle_by_names(
+                    landmarks, "right_elbow", "right_shoulder", "right_hip"
+                ),
+                self._get_angle_by_names(
+                    landmarks, "left_ankle", "left_knee", "left_hip"
+                ),
+                self._get_angle_by_names(
+                    landmarks, "right_ankle", "right_knee", "right_hip"
+                ),
+                self._get_angle(
+                    lmk_from=self._get_average_by_names(
+                        landmarks, "left_sholder", "right_shoulder"
+                    ),
+                    lmk_vertex=self._get_average_by_names(
+                        landmarks, "left_hip", "right_hip"
+                    ),
+                    lmk_to=self._get_average_by_names(
+                        landmarks, "left_ankle", "right_ankle"
+                    ),
+                ),
+            ]
+        )
+        print(angles)
 
     def _get_pose_distance_embedding(self, landmarks):
         """Converts pose landmarks into 3D embedding.
@@ -207,36 +268,8 @@ class PoseEmbedder(object):
                     self._get_average_by_names(landmarks, "right_wrist", "right_ankle"),
                     landmarks[self._landmark_names.index("right_hip")],
                 ),
-                ## adding body angle embeddings angle
-                # self._get_cosine_distance_by_names(
-                #     landmarks,
-                #     "left_wrist",
-                #     "left_elbow",
-                # ),
-                # self._get_cosine_distance_by_names(
-                #     landmarks, "left_elbow", "left_shoulder"
-                # ),
-                # self._get_cosine_distance_by_names(
-                #     landmarks, "right_wrist", "right_elbow"
-                # ),
-                # self._get_cosine_distance_by_names(
-                #     landmarks, "right_elbow", "right_shoulder"
-                # ),
-                # self._get_cosine_distance_by_names(
-                #     landmarks, "left_elbow", "left_shoulder", "left_hip"
-                # ),
-                # self._get_cosine_distance_by_names(
-                #     landmarks, "right_elbow", "right_shoulder", "right_hip"
-                # ),
-                # self._get_cosine_distance_by_names(
-                #     landmarks, "left_ankle", "left_knee", "left_hip"
-                # ),
-                # self._get_cosine_distance_by_names(
-                #     landmarks, "right_ankle", "right_knee", "right_hip"
-                # ),
             ]
         )
-
         return embedding
 
     def _get_average_by_names(self, landmarks, name_from, name_to):
@@ -252,17 +285,6 @@ class PoseEmbedder(object):
     def _get_distance(self, lmk_from, lmk_to):
         distance = lmk_to - lmk_from
         return distance
-
-    def _get_cosine_distance_by_names(self, landmarks, name_from, name_to):
-        lmk_from = landmarks[self._landmark_names.index(name_from)]
-        lmk_to = landmarks[self._landmark_names.index(name_to)]
-        return self._get_cosine_distance(lmk_from, lmk_to)
-
-    def _get_cosine_distance(self, lmk_from, lmk_to):
-        cos_dis = np.dot(lmk_from, lmk_to) / (
-            np.linalg.norm(lmk_from) * np.linalg.norm(lmk_to)
-        )
-        return cos_dis
 
     def _get_angle_by_names(self, landmarks, name_from, name_vertex, name_to):
         lmk_from = landmarks[self._landmark_names.index(name_from)]
