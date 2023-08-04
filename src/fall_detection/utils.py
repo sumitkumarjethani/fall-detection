@@ -1,5 +1,6 @@
 import os
 import cv2
+import matplotlib as plt
 
 
 def load_image(image_path):
