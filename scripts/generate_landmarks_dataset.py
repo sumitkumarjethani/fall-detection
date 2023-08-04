@@ -1,18 +1,13 @@
 import argparse
-import logging
-import os
 import sys
 
-# setting path
-sys.path.append("./")
-sys.path.append("../../yolov7")
-from fall_detection.logger.logger import configure_logging
-from fall_detection.pose import MediapipePoseModel
-from fall_detection.pose import MovenetModel
-from fall_detection.pose import YoloPoseModel
-from fall_detection.pose import PoseLandmarksGenerator
+from fall_detection.logger.logger import LoggerSingleton
+from fall_detection.pose.mediapipe import MediapipePoseModel
+from fall_detection.pose.movenet import MovenetModel
+from fall_detection.pose.yolo import YoloPoseModel
+from fall_detection.pose.data import PoseLandmarksGenerator
 
-logger = logging.getLogger("app")
+logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -46,9 +41,15 @@ def cli():
         type=str,
         required=True,
         choices=["mediapipe", "movenet", "yolo"],
-        default="mediapipe",
+        default="yolo",
     )
-
+    parser.add_argument(
+        "-p",
+        "--yolo_model_path",
+        help="yolo model path to use for the inference.",
+        required=False,
+        default="yolov8n-pose.pt",
+    )
     parser.add_argument(
         "--max-samples",
         help="max number of samples to use from each class",
@@ -56,25 +57,22 @@ def cli():
         required=False,
         default=None,
     )
-
-    args = parser.parse_args()
-
-    return args
+    return parser.parse_args()
 
 
 def main():
     try:
-        configure_logging()
         args = cli()
 
-        logger.info(f"loading model")
+        logger.info(f"Loading model: {args.model}")
 
         if args.model == "mediapipe":
             model = MediapipePoseModel()
         elif args.model == "movenet":
             model = MovenetModel()
         elif args.model == "yolo":
-            model = YoloPoseModel()
+            yolo_model_path = args.yolo_model_path
+            model = YoloPoseModel(model_path=yolo_model_path)
         else:
             raise ValueError("model name not valid")
 
@@ -84,11 +82,10 @@ def main():
             csvs_out_folder=args.output_file,
             per_pose_class_limit=args.max_samples,
         )
-
         generator(model)
 
         sys.exit(0)
-    except ValueError as e:
+    except Exception as e:
         logger.error(str(e))
         sys.exit(1)
 
