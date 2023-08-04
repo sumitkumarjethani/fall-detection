@@ -110,6 +110,7 @@ class PoseLandmarksGenerator(object):
                         csv_out_writer.writerow(
                             [image_name] + pose_landmarks.flatten().astype(str).tolist()
                         )
+        self.align_images_and_csvs()
 
     def align_images_and_csvs(self, print_removed_items=False):
         """Makes sure that image folders and CSVs have the same sample.
@@ -152,58 +153,3 @@ class PoseLandmarksGenerator(object):
                     os.remove(image_path)
                     if print_removed_items:
                         print("Removed image from folder: ", image_path)
-
-    def analyze_outliers(self, outliers, out_folder):
-        """Classifies each sample agains all other to find outliers.
-
-        If sample is classified differrrently than the original class - it sould
-        either be deleted or more similar samples should be aadded.
-        """
-        for outlier in outliers:
-            image_path = os.path.join(
-                self._images_out_folder, outlier.sample.class_name, outlier.sample.name
-            )
-
-            print("Outlier")
-            print("  sample path =    ", image_path)
-            print("  sample class =   ", outlier.sample.class_name)
-            print("  detected class = ", outlier.detected_class)
-            print("  all classes =    ", outlier.all_classes)
-
-            img = cv2.imread(image_path)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            cv2.imwrite(
-                os.path.join(
-                    out_folder,
-                    "outlier_" + outlier.sample.name,
-                ),
-                img,
-            )
-
-    def remove_outliers(self, outliers):
-        """Removes outliers from the image folders."""
-        for outlier in outliers:
-            image_path = os.path.join(
-                self._images_out_folder, outlier.sample.class_name, outlier.sample.name
-            )
-            os.remove(image_path)
-
-    def print_images_in_statistics(self):
-        """Prints statistics from the input image folder."""
-        self._print_images_statistics(self._images_in_folder, self._pose_class_names)
-
-    def print_images_out_statistics(self):
-        """Prints statistics from the output image folder."""
-        self._print_images_statistics(self._images_out_folder, self._pose_class_names)
-
-    def _print_images_statistics(self, images_folder, pose_class_names):
-        print("Number of images per pose class:")
-        for pose_class_name in pose_class_names:
-            n_images = len(
-                [
-                    n
-                    for n in os.listdir(os.path.join(images_folder, pose_class_name))
-                    if not n.startswith(".")
-                ]
-            )
-            print("  {}: {}".format(pose_class_name, n_images))

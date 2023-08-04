@@ -44,3 +44,17 @@ class MediapipePoseModel(PoseModel):
             dtype=np.float32,
         )
         return pose_landmarks
+
+    def results_to_pose_landmarks(self, results, height, width):
+        pose_landmarks = np.array(
+            [
+                [
+                    lmk.x * width,
+                    lmk.y * height,
+                    lmk.z * width,
+                ]
+                for lmk in results.landmark
+            ],
+            dtype=np.float32,
+        )
+        return pose_landmarks

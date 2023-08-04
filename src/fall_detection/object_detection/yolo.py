@@ -13,10 +13,10 @@ import cv2
 class ObjectDetectionSample:
     class_name: str
     xyxy: np.ndarray
-    xywh: np.ndarray
-    xyxyn: np.ndarray  # box with xyxy format but normalized
-    xywhn: np.ndarray  # box with xywh format but normalized
-    embeddings: np.ndarray
+    # xywh: np.ndarray
+    # xyxyn: np.ndarray  # box with xyxy format but normalized
+    # xywhn: np.ndarray  # box with xywh format but normalized
+    # embeddings: np.ndarray
 
 
 class ObjectDetector(ABC):
@@ -43,9 +43,9 @@ class YoloObjectDetector(ObjectDetector):
             od = ObjectDetectionSample(
                 class_name=cls_name,
                 xyxy=np.squeeze(bb.xyxy.cpu().numpy()),
-                xywh=np.squeeze(bb.xywh.cpu().numpy()),
-                xyxyn=np.squeeze(bb.xyxyn.cpu().numpy()),
-                xywhn=np.squeeze(bb.xywhn.cpu().numpy()),
+                # xywh=np.squeeze(bb.xywh.cpu().numpy()),
+                # xyxyn=np.squeeze(bb.xyxyn.cpu().numpy()),
+                # xywhn=np.squeeze(bb.xywhn.cpu().numpy()),
             )
             out.append(od)
 

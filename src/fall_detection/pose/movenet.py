@@ -118,6 +118,22 @@ def get_affine_transform_to_fixed_sizes_with_padding(size, new_sizes):
     return M
 
 
+def denormalize_keypoints(keypoints, height, width, orig_size=256):
+    w, h = width, height
+    keypoints_with_scores = np.squeeze(keypoints)
+    orig_w, orig_h = w, h
+    M = get_affine_transform_to_fixed_sizes_with_padding(
+        (orig_w, orig_h), (orig_size, orig_size)
+    )
+    M = np.vstack((M, [0, 0, 1]))
+    M_inv = np.linalg.inv(M)[:2]
+    xy_keypoints = keypoints_with_scores[:, :2] * orig_size
+    xy_keypoints = cv2.transform(np.array([xy_keypoints]), M_inv)[0]
+    keypoints_with_scores = np.hstack((xy_keypoints, keypoints_with_scores[:, 2:]))
+    denormalized_coordinates = keypoints_with_scores
+    return denormalized_coordinates
+
+
 def draw_prediction_on_image(image, keypoints, threshold=0.11, normalized=True):
     """Draws the keypoints on a image frame"""
     # Denormalize the coordinates : multiply the normalized coordinates by the input_size(width,height)
@@ -211,6 +227,12 @@ class MovenetModel(PoseModel):
     def pose_landmarks_to_nparray(self, pose_landmarks, height, width):
         pose_landmarks = np.squeeze(np.multiply(pose_landmarks, [width, height, 1]))
         return pose_landmarks
+
+    def results_to_pose_landmarks(self, results, height, width):
+        if "movenet_thunder" == self.model_name:
+            return denormalize_keypoints(results, height, width, 256)
+        else:
+            return denormalize_keypoints(results, height, width, 192)
 
 
 class TFLiteMovenetModel(PoseModel):

@@ -13,3 +13,7 @@ class PoseModel(ABC):
     @abstractmethod
     def pose_landmarks_to_nparray(self, pose_landmarks, height, width):
         pass
+
+    @abstractmethod
+    def results_to_pose_landmarks(self, results):
+        pass

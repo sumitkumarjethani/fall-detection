@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 import pytest
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
@@ -73,25 +74,79 @@ def test_load_pose_models():
     # assert model._model != None
 
 
-def test_load_fall_module_components():
-    from fall_detection.fall import (
-        KnnPoseClassifier,
-        EMADictSmoothing,
-        EstimatorClassifier,
-        PoseSample,
-        load_pose_samples_from_dir,
-        StateDetector,
-        PoseEmbedder,
-        PoseClassificationVisualizer,
+def test_pose_inference_yolo():
+    # TODO: from fall_detection.pose import YoloPoseModel
+    pass
+
+
+@pytest.mark.skip(reason="too expensive to test all the time")
+def test_pose_inference_movenet():
+    from fall_detection.pose import MovenetModel
+
+    image = load_image("./data/fall-sample.png")
+    model = MovenetModel(model_name="movenet_thunder")
+    results = model.predict(image)
+    pose_landmarks = model.results_to_pose_landmarks(
+        results, image.shape[0], image.shape[1]
     )
+    assert pose_landmarks.shape == (17, 3)
 
-    assert True
+
+@pytest.mark.skip(reason="too expensive to test all the time")
+def test_pose_inference_mediapipe():
+    from fall_detection.pose import MediapipePoseModel
+
+    image = load_image("./data/fall-sample.png")
+    model = MediapipePoseModel()
+    results = model.predict(image)
+    pose_landmarks = model.results_to_pose_landmarks(
+        results, image.shape[0], image.shape[1]
+    )
+    assert pose_landmarks.shape == (33, 3)
 
 
+def test_pose_embedder():
+    from fall_detection.fall import PoseEmbedder
+    from fall_detection.fall.embedding import COCO_POSE_KEYPOINTS
+
+    embedder = PoseEmbedder(landmark_names=COCO_POSE_KEYPOINTS)
+    landmarks = np.array(
+        [
+            [0.5, 0.5, 0.5],
+            [1, 1, 1],
+            [2, 2, 2],
+            [3, 3, 3],
+            [4, 4, 4],
+            [5, 5, 5],
+            [6, 6, 6],
+            [7, 7, 7],
+            [8, 8, 8],
+            [9, 9, 9],
+            [10, 10, 10],
+            [11, 11, 11],
+            [12, 12, 12],
+            [13, 13, 13],
+            [14, 14, 14],
+            [15, 15, 15],
+            [16, 16, 16],
+        ],
+        dtype=float,
+    )
+    embeddings = embedder(landmarks)
+    assert embeddings.shape == (25, 3)
+
+    distances = embedder.distances(landmarks)
+    assert distances.shape == (25, 3)
+
+    angles = embedder.angles(landmarks)
+    assert angles.shape == (6,)
+
+
+@pytest.mark.skip(reason="too expensive to test all the time")
 def test_train_and_predict_pipeline():
     print("test train and predict running")
     from fall_detection.pose import MovenetModel, PoseLandmarksGenerator
-    from fall_detection.fall import PoseEmbedder, EstimatorClassifier, PoseSample
+    from fall_detection.fall import PoseEmbedder, EstimatorClassifier
     from fall_detection.fall import load_pose_samples_from_dir
     from fall_detection.fall.embedding import COCO_POSE_KEYPOINTS
 
