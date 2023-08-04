@@ -5,6 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import _is_fitted
+import os
 
 from fall_detection.utils import load_image, save_image
 
@@ -60,25 +61,39 @@ def test_load_pose_models():
     assert model._model != None
 
 
+# @pytest.mark.skip(reason="too expensive to test all the time")
 def test_pose_inference_yolo():
     from fall_detection.pose import YoloPoseModel
 
-    image = load_image("./data/fall-sample.png")
     model = YoloPoseModel(model_path="./models/yolov8n-pose.pt")
-    results = model.predict(image)
-    output_image = model.draw_landmarks(image, results)
-    save_image(output_image, "./data/fall_sample-yolo-pose-inference.jpg")
-    pose_landmarks = model.results_to_pose_landmarks(results)
-    assert pose_landmarks.shape == (17, 2)
+    image_names = [
+        "./data/fall-sample.png",
+        "./data/fall-sample-2.jpeg",
+        "./data/fall-sample-3.jpeg",
+    ]
+    for image_name in image_names:
+        image = load_image(image_name)
+        results = model.predict(image)
+        output_image = model.draw_landmarks(image, results)
+        save_image(
+            output_image,
+            os.path.join(
+                os.path.dirname(image_name), "yolo-" + os.path.basename(image_name)
+            ),
+        )
+        pose_landmarks = model.results_to_pose_landmarks(results)
+        assert pose_landmarks.shape == (17, 2)
 
 
 @pytest.mark.skip(reason="too expensive to test all the time")
 def test_pose_inference_movenet():
     from fall_detection.pose import MovenetModel
 
-    image = load_image("./data/fall-sample.png")
+    image = load_image("./data/fall-sample-2.jpeg")
     model = MovenetModel(model_name="movenet_thunder")
     results = model.predict(image)
+    output_image = model.draw_landmarks(image, results)
+    save_image(output_image, "./data/fall_sample-2-movenet-thunder-pose-inference.jpg")
     pose_landmarks = model.results_to_pose_landmarks(
         results, image.shape[0], image.shape[1]
     )

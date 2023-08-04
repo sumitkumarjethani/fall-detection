@@ -42,4 +42,4 @@ class YoloPoseModel(PoseModel):
         return np.squeeze(pose_landmarks)
 
     def results_to_pose_landmarks(self, results, height=None, width=None):
-        return np.squeeze(results[0].keypoints.xy.cpu().numpy())
+        return np.squeeze(results[0].keypoints[0].xy.cpu().numpy())
