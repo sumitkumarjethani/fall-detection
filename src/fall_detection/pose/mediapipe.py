@@ -22,11 +22,11 @@ class MediapipePoseModel(PoseModel):
             pose_landmarks = result.pose_landmarks
         return pose_landmarks
 
-    def draw_landmarks(self, image, pose_landmarks):
-        if pose_landmarks is not None:
+    def draw_landmarks(self, image, results):
+        if results is not None:
             mp_drawing.draw_landmarks(
                 image=image,
-                landmark_list=pose_landmarks,
+                landmark_list=results,
                 connections=mp_pose.POSE_CONNECTIONS,
             )
         return image

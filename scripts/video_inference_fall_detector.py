@@ -9,8 +9,7 @@ import tqdm
 # setting path
 sys.path.append("./")
 sys.path.append("../../yolov7")
-from logger.logger import configure_logging
-
+from fall_detection.logger.logger import configure_logging
 from fall_detection.fall.classification import EMADictSmoothing
 from fall_detection.fall.embedding import PoseEmbedder
 from fall_detection.fall.detection import StateDetector
@@ -132,7 +131,7 @@ def main():
                 if pose_landmarks is not None:
                     pose_model.draw_landmarks(
                         image=output_frame,
-                        pose_landmarks=pose_landmarks,
+                        results=pose_landmarks,
                     )
 
                 if pose_landmarks is not None:

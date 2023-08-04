@@ -220,9 +220,9 @@ class MovenetModel(PoseModel):
     def predict(self, image):
         return self.__call__(image)
 
-    def draw_landmarks(self, image, pose_landmarks):
+    def draw_landmarks(self, image, results):
         # image = tf.image.resize_with_pad(image, 1280, 1280)
-        return draw_prediction_on_image(image, pose_landmarks)
+        return draw_prediction_on_image(image, results)
 
     def pose_landmarks_to_nparray(self, pose_landmarks, height, width):
         pose_landmarks = np.squeeze(np.multiply(pose_landmarks, [width, height, 1]))

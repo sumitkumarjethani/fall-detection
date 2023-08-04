@@ -7,7 +7,7 @@ class PoseModel(ABC):
         pass
 
     @abstractmethod
-    def draw_landmarks(self, image, pose_landmarks):
+    def draw_landmarks(self, image, results):
         pass
 
     @abstractmethod
@@ -15,5 +15,5 @@ class PoseModel(ABC):
         pass
 
     @abstractmethod
-    def results_to_pose_landmarks(self, results):
+    def results_to_pose_landmarks(self, results, height=None, width=None):
         pass
