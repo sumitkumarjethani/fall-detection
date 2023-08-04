@@ -14,8 +14,8 @@ class MediapipePoseModel(PoseModel):
     def predict(self, image):
         # Initialize fresh pose tracker and run it.
         with mp_pose.Pose(
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5,
+            min_detection_confidence=0.4,
+            min_tracking_confidence=0.4,
             model_complexity=2,
         ) as pose_tracker:
             result = pose_tracker.process(image=image)

@@ -61,15 +61,15 @@ def test_load_pose_models():
     assert model._model != None
 
 
-# @pytest.mark.skip(reason="too expensive to test all the time")
+@pytest.mark.skip(reason="too expensive to test all the time")
 def test_pose_inference_yolo():
     from fall_detection.pose import YoloPoseModel
 
     model = YoloPoseModel(model_path="./models/yolov8n-pose.pt")
     image_names = [
-        "./data/fall-sample.png",
-        "./data/fall-sample-2.jpeg",
-        "./data/fall-sample-3.jpeg",
+        "./tests/test_data/fall-sample.png",
+        "./tests/test_data/fall-sample-2.jpeg",
+        "./tests/test_data/fall-sample-3.jpeg",
     ]
     for image_name in image_names:
         image = load_image(image_name)
@@ -86,31 +86,61 @@ def test_pose_inference_yolo():
 
 
 @pytest.mark.skip(reason="too expensive to test all the time")
-def test_pose_inference_movenet():
+def test_pose_inference_movenet_thunder():
     from fall_detection.pose import MovenetModel
 
-    image = load_image("./data/fall-sample-2.jpeg")
     model = MovenetModel(model_name="movenet_thunder")
-    results = model.predict(image)
-    output_image = model.draw_landmarks(image, results)
-    save_image(output_image, "./data/fall_sample-2-movenet-thunder-pose-inference.jpg")
-    pose_landmarks = model.results_to_pose_landmarks(
-        results, image.shape[0], image.shape[1]
-    )
-    assert pose_landmarks.shape == (17, 3)
+    image_names = [
+        "./tests/test_data/fall-sample.png",
+        "./tests/test_data/fall-sample-2.jpeg",
+        "./tests/test_data/fall-sample-3.jpeg",
+    ]
+    for image_name in image_names:
+        image = load_image(image_name)
+        results = model.predict(image)
+        output_image = model.draw_landmarks(image, results)
+        save_image(
+            output_image,
+            os.path.join(
+                os.path.dirname(image_name),
+                "movenet-thunder-" + os.path.basename(image_name),
+            ),
+        )
+        pose_landmarks = model.results_to_pose_landmarks(
+            results, image.shape[0], image.shape[1]
+        )
+        assert pose_landmarks.shape == (17, 3)
 
 
-@pytest.mark.skip(reason="too expensive to test all the time")
+# @pytest.mark.skip(reason="too expensive to test all the time")
 def test_pose_inference_mediapipe():
     from fall_detection.pose import MediapipePoseModel
 
-    image = load_image("./data/fall-sample.png")
     model = MediapipePoseModel()
-    results = model.predict(image)
-    pose_landmarks = model.results_to_pose_landmarks(
-        results, image.shape[0], image.shape[1]
-    )
-    assert pose_landmarks.shape == (33, 3)
+
+    image_names = [
+        "./tests/test_data/fall-sample.png",
+        "./tests/test_data/fall-sample-2.jpeg",
+        "./tests/test_data/fall-sample-3.jpeg",
+    ]
+    for image_name in image_names:
+        image = load_image(image_name)
+        results = model.predict(image)
+        if results is None:
+            continue
+        output_image = model.draw_landmarks(image, results)
+        save_image(
+            output_image,
+            os.path.join(
+                os.path.dirname(image_name),
+                "mediapipe-" + os.path.basename(image_name),
+            ),
+        )
+        pose_landmarks = model.results_to_pose_landmarks(
+            results, image.shape[0], image.shape[1]
+        )
+
+        assert pose_landmarks.shape == (33, 3)
 
 
 def test_pose_embedder():
