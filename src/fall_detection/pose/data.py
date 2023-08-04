@@ -86,7 +86,7 @@ class PoseLandmarksGenerator(object):
                     output_frame = input_frame.copy()
 
                     if pose_landmarks is not None:
-                        pose_model.draw_landmarks(
+                        output_frame = pose_model.draw_landmarks(
                             image=output_frame,
                             pose_landmarks=pose_landmarks,
                         )
@@ -138,6 +138,7 @@ class PoseLandmarksGenerator(object):
                     csv_out_file, delimiter=",", quoting=csv.QUOTE_MINIMAL
                 )
                 for row in rows:
+                    if len(row) == 0: continue
                     image_name = row[0]
                     image_path = os.path.join(images_out_folder, image_name)
                     if os.path.exists(image_path):
