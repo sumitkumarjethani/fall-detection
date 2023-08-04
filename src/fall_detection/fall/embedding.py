@@ -1,8 +1,4 @@
-import csv
 import numpy as np
-import os
-from typing import List
-from abc import ABC, abstractmethod
 
 # depending on the landmarks shape, use one or other landmark names:
 BLAZE_POSE_KEYPOINTS = [

@@ -1,5 +1,5 @@
 import math
-from ..pose import PoseModel
+from fall_detection.pose import PoseModel
 import torch
 import torchvision
 import cv2

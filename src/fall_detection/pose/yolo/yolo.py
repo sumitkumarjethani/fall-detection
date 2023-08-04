@@ -2,8 +2,9 @@
 Yolov7 Pose detection
 """
 
-import math
-from ..pose import PoseModel
+
+from fall_detection.pose import PoseModel
+
 from .utils import (
     letterbox,
     non_max_suppression_kpt,

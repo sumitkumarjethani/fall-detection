@@ -1,8 +1,6 @@
 import csv
 import numpy as np
 import os
-from typing import List
-from abc import ABC, abstractmethod
 
 
 class PoseSample(object):
@@ -30,7 +28,6 @@ def load_pose_samples_from_dir(
     landmarks_dir="./data",
     file_extension="csv",
     file_separator=",",
-    with_angles=False,
 ):
     """Loads pose samples from a given folder.
 

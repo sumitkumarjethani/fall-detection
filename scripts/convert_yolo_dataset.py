@@ -9,7 +9,7 @@ from typing import Dict
 import yaml
 
 sys.path.append("./")
-from logger.logger import configure_logging
+from fall_detection.logger.logger import configure_logging
 
 logger = logging.getLogger("app")
 

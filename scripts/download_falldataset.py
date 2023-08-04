@@ -5,8 +5,11 @@ import sys
 # setting path
 sys.path.append("./")
 
-from src.logger.logger import configure_logging
-from src.datasets.falldataset import download_dataset_from_url, get_falldataset_urls
+from fall_detection.logger.logger import configure_logging
+from fall_detection.datasets.falldataset import (
+    download_dataset_from_url,
+    get_falldataset_urls,
+)
 
 
 logger = logging.getLogger("app")
@@ -28,7 +31,7 @@ def cli():
         help="Max number of links to download. If not specified. it downloads all available",
         required=False,
         default=None,
-        type=int
+        type=int,
     )
     args = parser.parse_args()
 

@@ -6,9 +6,9 @@ import sys
 # setting path
 sys.path.append("./")
 sys.path.append("../../yolov7")
-from logger.logger import configure_logging
-from pose.yolo import YoloPoseModel
-from pose.utils import load_image, save_image
+from fall_detection.logger.logger import configure_logging
+from fall_detection.pose.yolo import YoloPoseModel
+from fall_detection.utils import load_image, save_image
 
 logger = logging.getLogger("app")
 

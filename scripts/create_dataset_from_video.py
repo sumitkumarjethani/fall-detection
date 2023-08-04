@@ -5,8 +5,8 @@ import sys
 # setting path
 sys.path.append("./")
 
-from logger.logger import configure_logging
-from utils import is_directory, file_exists
+from fall_detection.logger.logger import configure_logging
+from fall_detection.utils import is_directory, file_exists
 
 models = ["default_model"]
 

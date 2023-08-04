@@ -6,11 +6,11 @@ import sys
 # setting path
 sys.path.append("./")
 sys.path.append("../../yolov7")
-from logger.logger import configure_logging
-from pose.mediapipe import MediapipePoseModel
-from pose.movenet import MovenetModel
-from pose.yolo import YoloPoseModel
-from pose.data import PoseLandmarksGenerator
+from fall_detection.logger.logger import configure_logging
+from fall_detection.pose import MediapipePoseModel
+from fall_detection.pose import MovenetModel
+from fall_detection.pose import YoloPoseModel
+from fall_detection.pose import PoseLandmarksGenerator
 
 logger = logging.getLogger("app")
 

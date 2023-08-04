@@ -7,8 +7,7 @@ except:
     )
 
 import numpy as np
-from .pose import PoseModel
-import cv2
+from .base import PoseModel
 
 
 class MediapipePoseModel(PoseModel):
@@ -45,11 +44,3 @@ class MediapipePoseModel(PoseModel):
             dtype=np.float32,
         )
         return pose_landmarks
-
-
-def load_image(image_path):
-    return cv2.imread(image_path)
-
-
-def save_image(image, image_path):
-    return cv2.imwrite(image_path, image)

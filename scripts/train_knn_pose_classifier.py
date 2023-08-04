@@ -2,22 +2,19 @@ import argparse
 import logging
 import os
 import sys
-from sklearn.discriminant_analysis import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import StackingClassifier
-from sklearn.neighbors import KNeighborsClassifier
-
-from sklearn.pipeline import make_pipeline
 
 # setting path
 sys.path.append("./")
-sys.path.append("../../yolov7")
-from logger.logger import configure_logging
 
-from fall.data import load_pose_samples_from_dir
-from fall.classification import EstimatorClassifier
-from fall.embedding import PoseEmbedder, BLAZE_POSE_KEYPOINTS, COCO_POSE_KEYPOINTS
+from fall_detection.logger.logger import configure_logging
+
+from fall_detection.fall.data import load_pose_samples_from_dir
+from fall_detection.fall.classification import KnnPoseClassifier
+from fall_detection.fall.embedding import (
+    PoseEmbedder,
+    COCO_POSE_KEYPOINTS,
+    BLAZE_POSE_KEYPOINTS,
+)
 import pickle
 
 logger = logging.getLogger("app")
@@ -28,7 +25,7 @@ def cli():
 
     parser.add_argument(
         "-i",
-        "--input-file",
+        "--input",
         help="input path to read the images from",
         type=str,
         required=True,
@@ -40,18 +37,27 @@ def cli():
         type=str,
         required=True,
     )
-
     parser.add_argument(
-        "--n-kps", help="number of keypoints", type=int, required=True, default=33
+        "--n-kps",
+        help="number of keypoints generaly 33 or 17 depending on pose model used",
+        type=int,
+        required=True,
+        default=33,
     )
     parser.add_argument(
         "--n-dim",
-        help="number of dimensions (x, y, z),(x,y,confidence),(x,y)",
+        help="number of dimensions of the inputs. Generarly 3 (x,y,z) or (x,y,score)",
         type=int,
         required=True,
         default=3,
     )
-
+    parser.add_argument(
+        "--n-neighbours",
+        help="number of neighbours used to predict in knn algorithm",
+        type=int,
+        required=True,
+        default=10,
+    )
     args = parser.parse_args()
 
     return args
@@ -75,28 +81,19 @@ def main():
         # load csv file with pose samples
         pose_samples = load_pose_samples_from_dir(
             pose_embedder=pose_embedder,
-            landmarks_dir=args.input_file,
+            landmarks_dir=args.input,
             n_landmarks=args.n_kps,
             n_dimensions=args.n_dim,
         )
 
-        # Initialize estimator
-        # model = StackingClassifier(
-        #     estimators=[
-        #         make_pipeline(
-        #             StandardScaler(), LogisticRegression(max_iter=9000, random_state=42)
-        #         ),
-        #         RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42),
-        #     ],
-        #     final_estimator=KNeighborsClassifier(n_neighbors=5),
-        # )
-        # model = make_pipeline(
-        #     StandardScaler(), LogisticRegression(max_iter=9000, random_state=42)
-        # )
-        model = RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42)
-
         # Initialize classifier.
-        pose_classifier = EstimatorClassifier(model, pose_embedder)
+        pose_classifier = KnnPoseClassifier(
+            pose_embedder=pose_embedder,
+            top_n_by_max_distance=30,
+            top_n_by_mean_distance=args.n_neighbours,
+            n_landmarks=args.n_kps,
+            n_dimensions=args.n_dim,
+        )
 
         pose_classifier.fit(pose_samples)
 

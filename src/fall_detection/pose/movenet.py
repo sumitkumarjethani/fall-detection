@@ -1,21 +1,13 @@
 """
 Script to download and load movenet models from tenworflow hub.
 """
-from abc import ABC
-from dataclasses import dataclass
 import os
-from typing import List
-
+from typing import List, Literal, get_args, Tuple
 import tensorflow as tf
 import tensorflow_hub as hub
 import cv2
 import numpy as np
-
-# Import matplotlib libraries
-from matplotlib import pyplot as plt
-from matplotlib.collections import LineCollection
-import matplotlib.patches as patches
-
+from .base import PoseModel
 
 _movenet_models = {
     "movenet_lightning_f16.tflite": "https://tfhub.dev/google/lite-model/movenet/singlepose/lightning/tflite/float16/4?lite-format=tflite",
@@ -44,6 +36,8 @@ _model_names = [
     "movenet_thunder_int8.tflite",
 ]
 
+
+# VALID_ARGUMENTS: Tuple[_model_names, ...] = get_args(_model_names)
 
 # Dictionary that maps from joint names to keypoint indices.
 KEYPOINT_DICT = {
@@ -184,12 +178,12 @@ def get_model_names() -> List[str]:
     return _model_names
 
 
-class MovenetModel:
+class MovenetModel(PoseModel):
     """
     Output is a [1, 1, 17, 3] tensor.
     """
 
-    def __init__(self, model_name: str = "movenet_thunder"):
+    def __init__(self, model_name: Literal["movenet_lightning", "movenet_thunder"]):
         self.model_name = model_name
         self._module = self._load_standard_model(model_name)
         self._input_size = get_model_input_size(model_name)
@@ -219,7 +213,7 @@ class MovenetModel:
         return pose_landmarks
 
 
-class TFLiteMovenetModel:
+class TFLiteMovenetModel(PoseModel):
     def __init__(self, model_name: str, output_dir: str = "."):
         self.model_name = model_name
         self._interpreter = self._load_tflite_model(model_name, output_dir)
@@ -275,15 +269,3 @@ def load_standard_model(model_name: str):
     url = get_model_url(model_name)
     module = hub.load(url)
     return module
-
-
-def load_image(image_path):
-    image = tf.io.read_file(image_path)
-    image = tf.image.decode_image(image)
-    return image
-
-
-def save_image(image, output_path):
-    # Using cv2.imwrite() method
-    # Saving the image
-    cv2.imwrite(output_path, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))

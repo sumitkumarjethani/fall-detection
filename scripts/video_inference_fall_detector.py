@@ -11,13 +11,13 @@ sys.path.append("./")
 sys.path.append("../../yolov7")
 from logger.logger import configure_logging
 
-from fall.classification import EMADictSmoothing
-from fall.embedding import PoseEmbedder
-from fall.detection import StateDetector
-from fall.plot import PoseClassificationVisualizer
-from pose.mediapipe import MediapipePoseModel
-from pose.movenet import MovenetModel
-from pose.yolo import YoloPoseModel
+from fall_detection.fall.classification import EMADictSmoothing
+from fall_detection.fall.embedding import PoseEmbedder
+from fall_detection.fall.detection import StateDetector
+from fall_detection.fall.plot import PoseClassificationVisualizer
+from fall_detection.pose.mediapipe import MediapipePoseModel
+from fall_detection.pose.movenet import MovenetModel
+from fall_detection.pose.yolo import YoloPoseModel
 import pickle
 
 logger = logging.getLogger("app")

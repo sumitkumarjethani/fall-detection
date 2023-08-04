@@ -9,13 +9,12 @@ import tqdm
 # setting path
 sys.path.append("./")
 
-from logger.logger import configure_logging
-
-from fall.classification import EMADictSmoothing
-from fall.detection import StateDetector
-from fall.plot import PoseClassificationVisualizer
-from pose.mediapipe import MediapipePoseModel
-from pose.movenet import MovenetModel
+from fall_detection.logger.logger import configure_logging
+from fall_detection.fall.classification import EMADictSmoothing
+from fall_detection.fall.detection import StateDetector
+from fall_detection.fall.plot import PoseClassificationVisualizer
+from fall_detection.pose.mediapipe import MediapipePoseModel
+from fall_detection.pose.movenet import MovenetModel
 import pickle
 
 logger = logging.getLogger("app")

@@ -1,21 +1,10 @@
 import csv
 import cv2
-from matplotlib import pyplot as plt
-import numpy as np
 import os
-from PIL import Image
 import sys
 import tqdm
 
-from .pose import PoseModel
-
-
-def load_image(image_path):
-    return cv2.imread(image_path)
-
-
-def save_image(image, image_path):
-    return cv2.imwrite(image_path, image)
+from .base import PoseModel
 
 
 class PoseLandmarksGenerator(object):
