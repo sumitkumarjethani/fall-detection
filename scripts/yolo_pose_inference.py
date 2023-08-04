@@ -1,18 +1,14 @@
 import argparse
-import logging
 import os
 import sys
 
 # setting path
 sys.path.append("./")
-sys.path.append("../../yolov7")
-from fall_detection.logger.logger import configure_logging
+from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.pose.yolo import YoloPoseModel
 from fall_detection.utils import load_image, save_image
 
-logger = logging.getLogger("app")
-
-import sys
+logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -37,7 +33,7 @@ def cli():
         "--model",
         help="model path to use for the inference.",
         required=False,
-        default="yolov7-w6-pose.pt",
+        default="yolov8n-pose.pt",
     )
     args = parser.parse_args()
 
@@ -46,7 +42,6 @@ def cli():
 
 def main():
     try:
-        configure_logging()
         args = cli()
         logger.info(f"loading model {args.model}")
 
@@ -59,11 +54,11 @@ def main():
         input_image = load_image(args.input)
 
         logger.info(f"running inference")
-        pose_landmarks = model.predict(input_image)
+        results = model.predict(input_image)
 
-        if pose_landmarks is not None:
+        if results is not None:
             logger.info(f"drawing inference")
-            output_image = model.draw_landmarks(input_image, pose_landmarks)
+            output_image = model.draw_landmarks(input_image, results)
 
             logger.info(f"saving output image {args.output}")
             save_image(output_image, args.output)

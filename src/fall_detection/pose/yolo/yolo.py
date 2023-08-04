@@ -18,7 +18,7 @@ def get_torch_device():
 
 
 class YoloPoseModel(PoseModel):
-    def __init__(self, model_path: str = "./models/yolov8n-pose.pt"):
+    def __init__(self, model_path: str = "yolov8n-pose.pt"):
         self._device = get_torch_device()
         self._model = self._load_model(model_path)
 
@@ -30,16 +30,16 @@ class YoloPoseModel(PoseModel):
 
     @torch.no_grad()
     def _run_model(self, image):
-        return self._model(image, device=self._device)
+        return self._model(image, device=self._device, verbose=False)
 
     def predict(self, image):
         return self._run_model(image)
 
-    def draw_landmarks(self, image, results):
-        return results[0].plot(img=image)
+    def draw_landmarks(self, image, pose_landmarks):
+        return pose_landmarks[0].plot(img=image)
 
     def pose_landmarks_to_nparray(self, pose_landmarks, height, width):
-        return np.squeeze(pose_landmarks)
+        return np.squeeze(pose_landmarks[0].keypoints.data.numpy())
 
     def results_to_pose_landmarks(self, results, height=None, width=None):
         return np.squeeze(results[0].keypoints[0].xy.cpu().numpy())
