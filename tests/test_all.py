@@ -11,7 +11,6 @@ from fall_detection.utils import load_image, save_image
 
 def check_module(modulename):
     if modulename not in sys.modules:
-        print("You have not imported the {} module".format(modulename))
         return False
     return True
 
@@ -49,8 +48,7 @@ def test_import_pose_models():
 def test_load_pose_models():
     from fall_detection.pose import MovenetModel
     from fall_detection.pose import MediapipePoseModel
-
-    # from fall_detection.pose import YoloPoseModel
+    from fall_detection.pose import YoloPoseModel
 
     model = MovenetModel(model_name="movenet_thunder")
     assert model._module != None
@@ -58,10 +56,8 @@ def test_load_pose_models():
     assert model._module != None
     model = MediapipePoseModel()
     assert isinstance(model, MediapipePoseModel)
-
-    # TODO: test when new yolov8 added
-    # model = YoloPoseModel(model_path="yolov7-w6-pose.pt")
-    # assert model._model != None
+    model = YoloPoseModel()
+    assert model._model != None
 
 
 def test_pose_inference_yolo():
