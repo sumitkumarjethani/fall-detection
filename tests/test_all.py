@@ -34,16 +34,6 @@ def test_import_modules():
     assert check_module(pose.__name__) == True
 
 
-def test_full_import_modules():
-    from fall_detection.logger.logger import configure_logging
-    from fall_detection.pose.mediapipe import MediapipePoseModel
-    from fall_detection.pose.movenet import MovenetModel
-    from fall_detection.pose.yolo import YoloPoseModel
-    from fall_detection.pose.data import PoseLandmarksGenerator
-
-    assert True
-
-
 def test_import_pose_models():
     from fall_detection.pose import MovenetModel
     from fall_detection.pose import MediapipePoseModel
@@ -140,6 +130,26 @@ def test_pose_embedder():
 
     angles = embedder.angles(landmarks)
     assert angles.shape == (6,)
+
+
+def test_pose_classification():
+    # TODO
+    assert False
+
+
+def test_classification_rules():
+    # TODO
+    assert False
+
+
+def test_smooth_pose_classification():
+    # TODO
+    assert False
+
+
+def test_state_detection():
+    # TODO
+    assert False
 
 
 @pytest.mark.skip(reason="too expensive to test all the time")
