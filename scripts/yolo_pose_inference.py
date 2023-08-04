@@ -2,8 +2,6 @@ import argparse
 import os
 import sys
 
-# setting path
-sys.path.append("./")
 from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.pose.yolo import YoloPoseModel
 from fall_detection.utils import load_image, save_image
