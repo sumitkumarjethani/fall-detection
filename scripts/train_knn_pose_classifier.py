@@ -1,23 +1,13 @@
 import argparse
-import logging
-import os
 import sys
-
-# setting path
-sys.path.append("./")
-
-from fall_detection.logger.logger import configure_logging
-
-from fall_detection.fall.data import load_pose_samples_from_dir
-from fall_detection.fall.classification import KnnPoseClassifier
-from fall_detection.fall.embedding import (
-    PoseEmbedder,
-    COCO_POSE_KEYPOINTS,
-    BLAZE_POSE_KEYPOINTS,
-)
 import pickle
 
-logger = logging.getLogger("app")
+from fall_detection.logger.logger import LoggerSingleton
+from fall_detection.fall.data import load_pose_samples_from_dir
+from fall_detection.fall.classification import KnnPoseClassifier
+from fall_detection.fall.embedding import (PoseEmbedder, COCO_POSE_KEYPOINTS, BLAZE_POSE_KEYPOINTS)
+
+logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -59,13 +49,11 @@ def cli():
         default=10,
     )
     args = parser.parse_args()
-
     return args
 
 
 def main():
     try:
-        configure_logging()
         args = cli()
 
         # Initialize embedder.
@@ -102,7 +90,6 @@ def main():
 
         sys.exit(0)
     except Exception as e:
-        raise e
         logger.error(str(e))
         sys.exit(1)
 
