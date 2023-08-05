@@ -2,7 +2,7 @@ matplotlib
 opencv-python
 tensorflow_hub
 tensorflow
-mediapipe
+mediapipe==0.10.2
 Pillow
 tqdm
 scikit-learn
