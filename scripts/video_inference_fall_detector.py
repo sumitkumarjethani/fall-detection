@@ -1,25 +1,20 @@
 import argparse
-import logging
-import os
 import sys
 import cv2
 import numpy as np
 import tqdm
 
-# setting path
-sys.path.append("./")
-sys.path.append("../../yolov7")
-from fall_detection.logger.logger import configure_logging
+from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.fall.classification import EMADictSmoothing
 from fall_detection.fall.embedding import PoseEmbedder
 from fall_detection.fall.detection import StateDetector
 from fall_detection.fall.plot import PoseClassificationVisualizer
-from fall_detection.pose.mediapipe import MediapipePoseModel
+#from fall_detection.pose.mediapipe import MediapipePoseModel
 from fall_detection.pose.movenet import MovenetModel
 from fall_detection.pose.yolo import YoloPoseModel
 import pickle
 
-logger = logging.getLogger("app")
+logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -46,28 +41,32 @@ def cli():
         type=str,
         required=True,
         choices=["movenet", "mediapipe", "yolo"],
-        default="movenet",
+        default="yolo",
+    )
+    parser.add_argument(
+        "-p",
+        "--yolo_model_path",
+        help="yolo model path to use for the inference.",
+        required=False,
+        default="yolov8n-pose.pt",
     )
     parser.add_argument(
         "-c",
         "--classification-model",
-        help="model name to save.",
+        help="pose classification model to use.",
         type=str,
         required=True,
     )
 
     args = parser.parse_args()
-
     return args
 
 
 def main():
     try:
-        configure_logging()
         args = cli()
 
         # Open the video.
-
         video_cap = cv2.VideoCapture(args.input)
 
         # Get some video parameters to generate output video with classificaiton.
@@ -79,11 +78,12 @@ def main():
         logger.info(f"loading model")
 
         if args.pose_model == "mediapipe":
-            pose_model = MediapipePoseModel()
+            pose_model = None #MediapipePoseModel()
         elif args.pose_model == "movenet":
             pose_model = MovenetModel()
         elif args.pose_model == "yolo":
-            pose_model = YoloPoseModel()
+            yolo_model_path = args.yolo_model_path
+            pose_model = YoloPoseModel(model_path=yolo_model_path)
         else:
             raise ValueError("model input not valid")
 
@@ -94,9 +94,7 @@ def main():
         pose_classification_smoother = EMADictSmoothing(window_size=10, alpha=0.3)
 
         # Initialize counter.
-        fall_detector = StateDetector(
-            class_name="Fall", enter_threshold=6, exit_threshold=4
-        )
+        fall_detector = StateDetector(class_name="Fall", enter_threshold=6, exit_threshold=4)
 
         # Initialize renderer.
         pose_classification_visualizer = PoseClassificationVisualizer(
@@ -123,28 +121,25 @@ def main():
 
                 # Run pose tracker.
                 input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2RGB)
-                pose_landmarks = pose_model.predict(image=input_frame)
+                results = pose_model.predict(image=input_frame)
 
                 # Draw pose prediction.
                 output_frame = input_frame.copy()
 
-                if pose_landmarks is not None:
-                    pose_model.draw_landmarks(
-                        image=output_frame,
-                        results=pose_landmarks,
-                    )
+                if results is not None:
+                    output_frame = pose_model.draw_landmarks(image=output_frame,results=results)
 
-                if pose_landmarks is not None:
+                if results is not None:
                     # Get landmarks.
                     frame_height, frame_width = (
                         output_frame.shape[0],
                         output_frame.shape[1],
                     )
-                    pose_landmarks = pose_model.pose_landmarks_to_nparray(
-                        pose_landmarks, frame_height, frame_width
+                    pose_landmarks = pose_model.results_to_pose_landmarks(
+                        results, frame_height, frame_width
                     )
-                    # Classify the pose on the current frame.
 
+                    # Classify the pose on the current frame.
                     pose_classification = pose_classifier(pose_landmarks)
 
                     # Smooth classification using EMA.
