@@ -27,8 +27,6 @@ class ConnectionManager:
         self.active_connections.remove(websocket)
 
     async def send_message(self, message: str, state: bool, websocket: WebSocket):
-        # websocket.send_bytes()
-        # await websocket.send_text(message)
         await websocket.send_json(data={"message": message, "state": state})
 
     async def send_image(self, image, websocket: WebSocket):
