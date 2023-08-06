@@ -146,69 +146,24 @@ python scripts/generate_landmarks_dataset.py \
 --max-samples 6000
 ```
 
-## Train Pose Classification
-
-- test train knn on small dataset
-```bash
-python scripts/train_knn_pose_classifier.py \
--i "../../data/test_dataset_csv" \
--m "../../models/test_pose_classification_model.pkl" \
---n-kps 33 \
---n-dim 3 \
---n-neighbours 10
-```
-
--  train knn 
-```bash
-python scripts/train_knn_pose_classifier.py \
--i "../../data/mediapipe_samples_csv_out" \
--m "../../models/mediapipe_knn_model.pkl" \
---n-kps 33 \
---n-dim 3 \
---n-neighbours 10
-```
-
-```bash
-python scripts/train_knn_pose_classifier.py \
--i "../../data/movenet_samples_csv_out" \
--m "../../models/movenet_knn_model.pkl" \
---n-kps 17 \
---n-dim 3 \
---n-neighbours 10
-```
-
-```bash
-python scripts/train_knn_pose_classifier.py \
--i "../../data/yolo_samples_csv_out" \
--m "../../models/yolo_knn_model.pkl" \
---n-kps 17 \
---n-dim 3 \
---n-neighbours 10
-```
-
-- train estimator
+## Train Pose Classification Model
 ```bash
 python scripts/train_estimator_pose_classifier.py \
--i "../../data/mediapipe_samples_csv_out" \
--m "../../models/mediapipe_estimator_model.pkl" \
---n-kps 33 \
---n-dim 3 \
-```
-
-```bash
-python scripts/train_estimator_pose_classifier.py \
--i "../../data/movenet_samples_csv_out" \
--m "../../models/movenet_estimator_model.pkl" \
---n-kps 17 \
---n-dim 3 
-```
-
-```bash
-python scripts/train_estimator_pose_classifier.py \
--i "../../data/yolo_samples_csv_out" \
--m "../../models/yolo_estimator_model.pkl" \
+-i "../../data/yolo_samples_csv" \
+-m "rf" \
+-name "../../models/yolo_rf_pose_classifier_model.pkl" \
 --n-kps 17 \
 --n-dim 3
+```
+
+```bash
+python scripts/train_estimator_pose_classifier.py \
+-i "../../data/yolo_samples_csv" \
+-m "knn" \
+-name "../../models/yolo_knn_pose_classifier_model.pkl" \
+--n-kps 17 \
+--n-dim 3 \
+--n-neighbours 10
 ```
 
 ## Video Fall Detection 
