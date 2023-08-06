@@ -66,7 +66,8 @@ python scripts/image_pose_inference.py \
 ### Webcam Movenet Pose Inference
 ```bash
 python scripts/webcam_pose_inference.py  \
--m "movenet"
+-m "movenet" \
+-mv "movenet_thunder"
 ```
 
 ### Webcam Mediapipe Pose Inference
