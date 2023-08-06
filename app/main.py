@@ -7,6 +7,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import numpy as np
 import cv2
+from fall_detection.object_detection import YoloObjectDetector
+
+object_model = YoloObjectDetector("../models/yolov8n.pt")
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -74,13 +77,11 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
             check, frame = cam.read()
             if not check:
                 break
-            key = cv2.waitKey(1)
-            if key == 27:
-                break
-            image = _encode_image(frame)
-            await manager.send_image(image, websocket)
+            results = object_model.predict(frame)
+            frame = object_model.draw_results(frame, results)
+            encoded_image = _encode_image(frame)
+            await manager.send_image(encoded_image, websocket)
             await sleep(0.1)
-
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     finally:
