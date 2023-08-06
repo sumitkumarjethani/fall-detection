@@ -100,7 +100,7 @@ class RulesChecker:
         self._threshold = threshold
 
     def check(self, objs: List[ObjectDetectionSample]) -> bool:
-        return self.__call__(objs) >= self._threshold
+        return self.__call__(objs) > self._threshold
 
     def __call__(self, objs: List[ObjectDetectionSample]) -> float:
         return np.average(
