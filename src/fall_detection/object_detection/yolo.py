@@ -1,6 +1,7 @@
 """Yolov8 object detection module"""
 
 from abc import ABC, abstractmethod
+import os
 from typing import List
 from dataclasses import dataclass
 import numpy as np
@@ -33,13 +34,28 @@ class ObjectDetector(ABC):
         pass
 
 
-class YoloObjectDetector(ObjectDetector):
-    def __init__(self, model_name: str = "yolov8n.pt"):
-        self._model_name = model_name
-        self._model = self._load_yolo_model(model_name)
+def download_yolo_object(output_path):
+    try:
+        os.system(
+            "wget "
+            + "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt"
+            + " -O "
+            + output_path
+        )
+    except Exception as e:
+        raise Exception(f"could not download yolo pose: {e}")
 
-    def _load_yolo_model(self, model_name: str):
-        return YOLO(model_name)
+
+class YoloObjectDetector(ObjectDetector):
+    def __init__(self, model_path: str = "yolov8n.pt"):
+        self._model_name = model_path
+        self._model = self._load_yolo_model(model_path)
+
+    def _load_yolo_model(self, model_path: str):
+        if not os.path.exists(model_path):
+            download_yolo_object(model_path)
+        model = YOLO(model_path)
+        return model
 
     def predict(self, image):
         results = self._model(image)

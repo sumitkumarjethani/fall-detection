@@ -2,7 +2,7 @@
 Yolov8 Pose detection
 """
 
-from ..base import PoseModel
+from ..base import PoseModel, COCO_POSE_KEYPOINTS
 from .utils import download_yolo_pose
 from ultralytics import YOLO
 
@@ -43,3 +43,7 @@ class YoloPoseModel(PoseModel):
 
     def results_to_pose_landmarks(self, results, height=None, width=None):
         return np.squeeze(results[0].keypoints[0].xy.cpu().numpy())
+
+    @property
+    def landmarks_names(self):
+        return COCO_POSE_KEYPOINTS

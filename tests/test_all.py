@@ -6,6 +6,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import _is_fitted
 import os
+from fall_detection.fall.detection import StateDetector
+from fall_detection.fall.pipeline import Pipeline
 
 from fall_detection.utils import load_image, save_image
 
@@ -61,7 +63,7 @@ def test_load_pose_models():
     assert model._model != None
 
 
-@pytest.mark.skip(reason="too expensive to test all the time")
+# @pytest.mark.skip(reason="too expensive to test all the time")
 def test_pose_inference_yolo():
     from fall_detection.pose import YoloPoseModel
 
@@ -143,13 +145,14 @@ def test_pose_inference_mediapipe():
         assert pose_landmarks.shape == (33, 3)
 
 
+@pytest.mark.skip(reason="too expensive to test all the time")
 def test_object_detection_yolo():
     from fall_detection.object_detection import (
         YoloObjectDetector,
         ObjectDetectionSample,
     )
 
-    model = YoloObjectDetector(model_name="./models/yolov8n.pt")
+    model = YoloObjectDetector(model_path="./models/yolov8n.pt")
     image = load_image("./tests/test_data/fall-sample.png")
     results = model.predict(image)
     assert results is not None
@@ -186,6 +189,7 @@ def test_pose_embedder():
         ],
         dtype=float,
     )
+
     embeddings = embedder(landmarks)
     assert embeddings.shape == (25, 3)
 
@@ -289,6 +293,7 @@ def test_train_and_predict_pipeline():
         csvs_out_folder="./data/test_dataset_csv",
         per_pose_class_limit=4,
     )
+
     pose_sample_generator(pose_model=pose_model)
 
     embedder = PoseEmbedder(landmark_names=COCO_POSE_KEYPOINTS)
@@ -312,14 +317,74 @@ def test_train_and_predict_pipeline():
 
     image = load_image("./data/fall-sample.png")
 
-    pose_landmarks = pose_model.predict(image)
+    pose_results = pose_model.predict(image)
 
     # TODO: revisit this api. Probably can be simplify
-    pose_landmarks = pose_model.pose_landmarks_to_nparray(
-        pose_landmarks, image.shape[0], image.shape[1]
+    pose_landmarks = pose_model.results_to_pose_landmarks(
+        pose_results, image.shape[0], image.shape[1]
     )
     prediction = classifier.predict(pose_landmarks)
 
     assert isinstance(prediction, dict)
     assert "fall" in prediction.keys()
     assert "no-fall" in prediction.keys()
+
+
+@pytest.mark.skip(reason="too expensive to test all the time")
+def test_fall_pipeline():
+    print("test train and predict running")
+    from fall_detection.pose import YoloPoseModel, PoseLandmarksGenerator
+    from fall_detection.object_detection import YoloObjectDetector
+    from fall_detection.fall import PoseEmbedder, EstimatorClassifier
+    from fall_detection.fall import load_pose_samples_from_dir
+    from fall_detection.fall.embedding import COCO_POSE_KEYPOINTS
+
+    pose_model = YoloPoseModel(model_path="./models/yolov8n-pose.pt")
+
+    pose_sample_generator = PoseLandmarksGenerator(
+        images_in_folder="./data/test_dataset",
+        images_out_folder="./data/test_dataset_out",
+        csvs_out_folder="./data/test_dataset_csv",
+        per_pose_class_limit=4,
+    )
+
+    pose_sample_generator(pose_model=pose_model)
+
+    embedder = PoseEmbedder(landmark_names=COCO_POSE_KEYPOINTS)
+
+    classifier = EstimatorClassifier(
+        estimator=make_pipeline(StandardScaler(), LogisticRegression(random_state=42)),
+        pose_embedder=embedder,
+    )
+
+    pose_samples = load_pose_samples_from_dir(
+        pose_embedder=embedder,
+        n_dimensions=3,
+        n_landmarks=17,
+        landmarks_dir="./data/test_dataset_csv",
+        file_extension="csv",
+        file_separator=",",
+    )
+    classifier.fit(pose_samples)
+
+    object_model = YoloObjectDetector(model_path="./models/yolov8n.pt")
+
+    detector = StateDetector(class_name="fall", enter_threshold=6, exit_threshold=4)
+
+    pipeline = Pipeline(
+        pose_model=pose_model,
+        object_model=object_model,
+        classification_model=classifier,
+        detector=detector,
+    )
+    image_names = [
+        "./tests/test_data/fall-sample.png",
+        "./tests/test_data/fall-sample-2.jpeg",
+        "./tests/test_data/fall-sample-3.jpeg",
+    ]
+    for image_name in image_names:
+        image = load_image(image_name)
+        results = pipeline(image)
+        print(results)
+
+    assert False

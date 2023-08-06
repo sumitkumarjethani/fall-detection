@@ -7,7 +7,7 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import cv2
 import numpy as np
-from .base import PoseModel
+from .base import PoseModel, COCO_POSE_KEYPOINTS
 
 _movenet_models = {
     "movenet_lightning_f16.tflite": "https://tfhub.dev/google/lite-model/movenet/singlepose/lightning/tflite/float16/4?lite-format=tflite",
@@ -234,6 +234,10 @@ class MovenetModel(PoseModel):
         else:
             return denormalize_keypoints(results, height, width, 192)
 
+    @property
+    def landmarks_names(self):
+        return COCO_POSE_KEYPOINTS
+
 
 class TFLiteMovenetModel(PoseModel):
     def __init__(self, model_name: str, output_dir: str = "."):
@@ -271,6 +275,10 @@ class TFLiteMovenetModel(PoseModel):
         return draw_prediction_on_image(
             image, pose_landmarks, input_size=self._input_size
         )
+
+    @property
+    def landmarks_names(self):
+        return COCO_POSE_KEYPOINTS
 
 
 def load_tflite_model(model_name: str, output_dir: str):

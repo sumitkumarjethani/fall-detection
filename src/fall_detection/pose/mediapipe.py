@@ -7,7 +7,7 @@ except:
     )
 
 import numpy as np
-from .base import PoseModel
+from .base import PoseModel, BLAZE_POSE_KEYPOINTS
 
 
 class MediapipePoseModel(PoseModel):
@@ -58,3 +58,7 @@ class MediapipePoseModel(PoseModel):
             dtype=np.float32,
         )
         return pose_landmarks
+
+    @property
+    def landmarks_names(self):
+        return BLAZE_POSE_KEYPOINTS

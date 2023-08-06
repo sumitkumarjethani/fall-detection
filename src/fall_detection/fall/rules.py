@@ -88,12 +88,19 @@ class RulesChecker:
     """
 
     def __init__(
-        self, rules: List[ClassificationRule], weights: Optional[List[float]] = None
+        self,
+        rules: List[ClassificationRule],
+        weights: Optional[List[float]] = None,
+        threshold=0.5,
     ):
         self._rules = rules
         self._weights = (
             weights if weights != None else [1 / len(rules) for _ in range(len(rules))]
         )
+        self._threshold = threshold
+
+    def check(self, objs: List[ObjectDetectionSample]) -> bool:
+        return self.__call__(objs) >= self._threshold
 
     def __call__(self, objs: List[ObjectDetectionSample]) -> float:
         return np.average(
