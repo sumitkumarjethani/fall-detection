@@ -112,7 +112,7 @@ def test_pose_inference_movenet_thunder():
         assert pose_landmarks.shape == (17, 3)
 
 
-# @pytest.mark.skip(reason="too expensive to test all the time")
+@pytest.mark.skip(reason="too expensive to test all the time")
 def test_pose_inference_mediapipe():
     from fall_detection.pose import MediapipePoseModel
 
@@ -141,6 +141,22 @@ def test_pose_inference_mediapipe():
         )
 
         assert pose_landmarks.shape == (33, 3)
+
+
+def test_object_detection_yolo():
+    from fall_detection.object_detection import (
+        YoloObjectDetector,
+        ObjectDetectionSample,
+    )
+
+    model = YoloObjectDetector(model_name="./models/yolov8n.pt")
+    image = load_image("./tests/test_data/fall-sample.png")
+    results = model.predict(image)
+    assert results is not None
+    output_image = model.draw_results(image, results)
+    save_image(output_image, "./tests/test_data/fall-sample-object-detection-yolo.png")
+    odsamples = model.results_to_object_detection_samples(results)
+    assert isinstance(odsamples[0], ObjectDetectionSample)
 
 
 def test_pose_embedder():
@@ -186,8 +202,65 @@ def test_pose_classification():
 
 
 def test_classification_rules():
-    # TODO
-    pass
+    from fall_detection.fall.rules import (
+        PersonIsAlone,
+        PersonNotHorizontal,
+        PersonNotOnFurniture,
+    )
+    from fall_detection.fall import RulesChecker
+    from fall_detection.object_detection import ObjectDetectionSample
+
+    rules_checker = RulesChecker(
+        rules=[PersonIsAlone()],
+    )
+    objs = [
+        ObjectDetectionSample(class_name="person", xyxy=np.ones(shape=(4,))),
+    ]
+    result = rules_checker(objs)
+
+    assert 1.0 == result
+
+    rules_checker = RulesChecker(
+        rules=[PersonIsAlone()],
+    )
+    objs = [
+        ObjectDetectionSample(class_name="person", xyxy=np.ones(shape=(4,))),
+        ObjectDetectionSample(class_name="person", xyxy=np.ones(shape=(4,))),
+    ]
+    result = rules_checker(objs)
+
+    assert 0.0 == result
+
+    rules_checker = RulesChecker(
+        rules=[PersonNotOnFurniture()],
+    )
+    objs = [
+        ObjectDetectionSample(class_name="person", xyxy=np.array([2, 2, 5, 5])),
+        ObjectDetectionSample(class_name="bed", xyxy=np.array([1, 1, 10, 10])),
+    ]
+    result = rules_checker(objs)
+
+    assert 0.0 == result
+
+    rules_checker = RulesChecker(
+        rules=[PersonIsAlone(), PersonNotHorizontal(), PersonNotOnFurniture()],
+    )
+    objs = [
+        ObjectDetectionSample(class_name="person", xyxy=np.ones(shape=(4,))),
+        ObjectDetectionSample(class_name="couch", xyxy=np.ones(shape=(4,))),
+        ObjectDetectionSample(class_name="bed", xyxy=np.ones(shape=(4,))),
+    ]
+    result = rules_checker(objs)
+
+    assert 0.67 == np.round(result, 2)
+
+    rules_checker = RulesChecker(
+        rules=[PersonIsAlone(), PersonNotHorizontal(), PersonNotOnFurniture()],
+        weights=[1 / 4, 2 / 4, 1 / 4],
+    )
+    result = rules_checker(objs)
+
+    assert result == 0.75
 
 
 def test_smooth_pose_classification():

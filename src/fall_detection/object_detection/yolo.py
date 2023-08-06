@@ -21,7 +21,15 @@ class ObjectDetectionSample:
 
 class ObjectDetector(ABC):
     @abstractmethod
-    def detect(self, image):
+    def predict(self, image):
+        pass
+
+    @abstractmethod
+    def draw_results(self, image, results):
+        pass
+
+    @abstractmethod
+    def results_to_object_detection_samples(self, results):
         pass
 
 
@@ -33,11 +41,17 @@ class YoloObjectDetector(ObjectDetector):
     def _load_yolo_model(self, model_name: str):
         return YOLO(model_name)
 
-    def detect(self, image) -> List[ObjectDetectionSample]:
+    def predict(self, image):
         results = self._model(image)
-        cls_names = results[0].names[cls]
+        return results[0]
+
+    def draw_results(self, image, results):
+        return results.plot(img=image)
+
+    def results_to_object_detection_samples(self, results):
+        cls_names = results.names
         out = []
-        for bb in results[0].boxes:
+        for bb in results.boxes:
             cls = bb.cls.cpu().numpy()[0]
             cls_name = cls_names[cls]
             od = ObjectDetectionSample(
@@ -48,5 +62,4 @@ class YoloObjectDetector(ObjectDetector):
                 # xywhn=np.squeeze(bb.xywhn.cpu().numpy()),
             )
             out.append(od)
-
         return out

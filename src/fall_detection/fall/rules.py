@@ -61,8 +61,8 @@ class PersonNotOnFurniture(ClassificationRule):
             [o.xyxy for o in objs if o.class_name in self._furniture_class_names]
         )
         persons_bb = np.array([o.xyxy for o in objs if o.class_name == "person"])
-        if persons_bb.shape[0] > 0 and furnitures_bb.shape[0] > 0:
-            return not self._is_person_on_furniture(persons_bb, furnitures_bb)
+        if persons_bb.shape[0] == 1 and furnitures_bb.shape[0] > 0:
+            return not self._is_person_on_furniture(persons_bb[0], furnitures_bb)
         return True
 
 
@@ -92,7 +92,7 @@ class RulesChecker:
     ):
         self._rules = rules
         self._weights = (
-            weights if weights != None else [1 / len(rules) for _ in len(rules)]
+            weights if weights != None else [1 / len(rules) for _ in range(len(rules))]
         )
 
     def __call__(self, objs: List[ObjectDetectionSample]) -> float:
