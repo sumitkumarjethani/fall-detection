@@ -1,16 +1,10 @@
 import argparse
 import sys
-from sklearn.discriminant_analysis import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import StackingClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.pipeline import make_pipeline
-
 from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.fall.data import load_pose_samples_from_dir
-from fall_detection.fall.classification import EstimatorClassifier
-from fall_detection.fall.embedding import (PoseEmbedder, BLAZE_POSE_KEYPOINTS,COCO_POSE_KEYPOINTS)
+from fall_detection.fall.classification import EstimatorClassifier, KnnPoseClassifier
+from fall_detection.fall.embedding import (PoseEmbedder, BLAZE_POSE_KEYPOINTS, COCO_POSE_KEYPOINTS)
 import pickle
 
 logger = LoggerSingleton("app").get_logger()
@@ -21,7 +15,7 @@ def cli():
 
     parser.add_argument(
         "-i",
-        "--input-file",
+        "--input_file",
         help="input path to read the images from",
         type=str,
         required=True,
@@ -29,24 +23,40 @@ def cli():
     parser.add_argument(
         "-m",
         "--model",
-        help="model name to save.",
+        help="model to train.",
+        type=str,
+        choices=["knn", "rf"],
+        default="rf",
+    )
+    parser.add_argument(
+        "-name",
+        "--output_model_name",
+        help="trained model name.",
         type=str,
         required=True,
     )
-
     parser.add_argument(
-        "--n-kps", help="number of keypoints", type=int, required=True, default=33
+        "--n-kps",
+        help="number of keypoints generaly 33 or 17 depending on pose model used",
+        type=int,
+        required=True,
+        default=33,
     )
     parser.add_argument(
         "--n-dim",
-        help="number of dimensions (x, y, z),(x,y,confidence),(x,y)",
+        help="number of dimensions of the inputs. Generarly 3 (x,y,z) or (x,y,score)",
         type=int,
         required=True,
         default=3,
     )
-
-    args = parser.parse_args()
-    return args
+    parser.add_argument(
+        "--n-neighbours",
+        help="number of neighbours used to predict in knn algorithm",
+        type=int,
+        required=False,
+        default=10,
+    )
+    return parser.parse_args()
 
 
 def main():
@@ -71,26 +81,20 @@ def main():
             n_dimensions=args.n_dim,
         )
 
-        # Initialize estimator
-        # model = StackingClassifier(
-        #     estimators=[
-        #         make_pipeline(
-        #             StandardScaler(), LogisticRegression(max_iter=9000, random_state=42)
-        #         ),
-        #         RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42),
-        #     ],
-        #     final_estimator=KNeighborsClassifier(n_neighbors=5),
-        # )
-        # model = make_pipeline(
-        #     StandardScaler(), LogisticRegression(max_iter=9000, random_state=42)
-        # )
-        model = RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42)
+        # Initialize pose classifier.
+        if args.model == "knn":
+            pose_classifier = KnnPoseClassifier(pose_embedder=pose_embedder, top_n_by_max_distance=30,
+                                                top_n_by_mean_distance=args.n_neighbours, n_landmarks=args.n_kps,
+                                                n_dimensions=args.n_dim)
+        elif args.model == "rf":
+            pose_classifier = EstimatorClassifier(
+                RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42), pose_embedder)
+        else:
+            raise ValueError("Supported trainable models are KNN or RF")
 
-        # Initialize classifier.
-        pose_classifier = EstimatorClassifier(model, pose_embedder)
         pose_classifier.fit(pose_samples)
 
-        with open(f"{args.model}", "wb") as f:
+        with open(f"{args.output_model_name}", "wb") as f:
             pickle.dump(pose_classifier, f)
 
         sys.exit(0)
