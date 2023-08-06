@@ -30,6 +30,7 @@ class EstimatorClassifier(PoseClassifier):
         self._model = estimator
 
     def fit(self, pose_samples: List[PoseSample]):
+        print(f"fitting on {len(pose_samples)}  pose samples")
         X = np.array([ps.embedding for ps in pose_samples]).reshape(
             len(pose_samples), -1
         )

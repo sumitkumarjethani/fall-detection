@@ -80,32 +80,30 @@ class PoseLandmarksGenerator(object):
                     input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2RGB)
 
                     # Initialize fresh pose tracker and run it.
-                    pose_landmarks = pose_model.predict(input_frame)
+                    results = pose_model.predict(input_frame)
 
                     # Save image with pose prediction (if pose was detected).
                     output_frame = input_frame.copy()
 
-                    if pose_landmarks is not None:
+                    if results is not None:
                         output_frame = pose_model.draw_landmarks(
                             image=output_frame,
-                            pose_landmarks=pose_landmarks,
+                            results=results,
                         )
 
                     output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGB2BGR)
 
-                    cv2.imwrite(
-                        os.path.join(images_out_folder, image_name), output_frame
-                    )
+                    cv2.imwrite(os.path.join(images_out_folder, image_name), output_frame)
 
                     # Save landmarks if pose was detected.
-                    if pose_landmarks is not None:
+                    if results is not None:
                         # Get landmarks.
                         frame_height, frame_width = (
                             output_frame.shape[0],
                             output_frame.shape[1],
                         )
-                        pose_landmarks = pose_model.pose_landmarks_to_nparray(
-                            pose_landmarks, frame_height, frame_width
+                        pose_landmarks = pose_model.results_to_pose_landmarks(
+                            results, frame_height, frame_width
                         )
                         csv_out_writer.writerow(
                             [image_name] + pose_landmarks.flatten().astype(str).tolist()
@@ -127,6 +125,7 @@ class PoseLandmarksGenerator(object):
             with open(csv_out_path) as csv_out_file:
                 csv_out_reader = csv.reader(csv_out_file, delimiter=",")
                 for row in csv_out_reader:
+                    if len(row) == 0: continue
                     rows.append(row)
 
             # Image names left in CSV.
@@ -138,7 +137,6 @@ class PoseLandmarksGenerator(object):
                     csv_out_file, delimiter=",", quoting=csv.QUOTE_MINIMAL
                 )
                 for row in rows:
-                    if len(row) == 0: continue
                     image_name = row[0]
                     image_path = os.path.join(images_out_folder, image_name)
                     if os.path.exists(image_path):

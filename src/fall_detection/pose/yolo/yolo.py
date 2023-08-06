@@ -33,16 +33,16 @@ class YoloPoseModel(PoseModel):
         return self._model(image, device=self._device, verbose=False)
 
     def predict(self, image):
-        return self._run_model(image)
+        results = self._run_model(image)
+        if results is None or results[0].keypoints.shape[1] == 0:
+            return None
+        return results
 
-    def draw_landmarks(self, image, pose_landmarks):
-        return pose_landmarks[0].plot(img=image)
-
-    def pose_landmarks_to_nparray(self, pose_landmarks, height, width):
-        return np.squeeze(pose_landmarks[0].keypoints.data.numpy())
+    def draw_landmarks(self, image, results):
+        return results[0].plot(img=image)
 
     def results_to_pose_landmarks(self, results, height=None, width=None):
-        return np.squeeze(results[0].keypoints[0].xy.cpu().numpy())
+        return np.squeeze(results[0].keypoints[0].data.numpy())
 
     @property
     def landmarks_names(self):

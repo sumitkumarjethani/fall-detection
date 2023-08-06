@@ -1,30 +1,19 @@
 import argparse
-import logging
-import os
 import sys
 from sklearn.discriminant_analysis import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import StackingClassifier
 from sklearn.neighbors import KNeighborsClassifier
-
 from sklearn.pipeline import make_pipeline
 
-# setting path
-sys.path.append("./")
-sys.path.append("../../yolov7")
-from fall_detection.logger.logger import configure_logging
-
+from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.fall.data import load_pose_samples_from_dir
 from fall_detection.fall.classification import EstimatorClassifier
-from fall_detection.fall.embedding import (
-    PoseEmbedder,
-    BLAZE_POSE_KEYPOINTS,
-    COCO_POSE_KEYPOINTS,
-)
+from fall_detection.fall.embedding import (PoseEmbedder, BLAZE_POSE_KEYPOINTS,COCO_POSE_KEYPOINTS)
 import pickle
 
-logger = logging.getLogger("app")
+logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -57,13 +46,11 @@ def cli():
     )
 
     args = parser.parse_args()
-
     return args
 
 
 def main():
     try:
-        configure_logging()
         args = cli()
 
         # Initialize embedder.
@@ -101,7 +88,6 @@ def main():
 
         # Initialize classifier.
         pose_classifier = EstimatorClassifier(model, pose_embedder)
-
         pose_classifier.fit(pose_samples)
 
         with open(f"{args.model}", "wb") as f:
@@ -109,7 +95,6 @@ def main():
 
         sys.exit(0)
     except Exception as e:
-        raise e
         logger.error(str(e))
         sys.exit(1)
 

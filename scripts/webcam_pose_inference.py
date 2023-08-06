@@ -56,12 +56,12 @@ def main():
             check, frame = cam.read()
 
             if check:
-                pose_landmarks = pose_model.predict(frame)
+                results = pose_model.predict(frame)
             else:
                 continue
 
-            if pose_landmarks is not None:
-                frame = pose_model.draw_landmarks(frame, pose_landmarks)
+            if results is not None:
+                frame = pose_model.draw_landmarks(frame, results)
 
             cv2.imshow("video", frame)
 
