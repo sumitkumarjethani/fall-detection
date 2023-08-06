@@ -13,9 +13,6 @@ function _arrayBufferToBase64(buffer) {
 function showImage(data) {
   var img = document.getElementById("fall-image");
   img.src = "data:image/png;base64, " + data;
-  // if (img.src === "http://127.0.0.1:8000/#") {
-  //   img.src = "data:image/png;base64, " + data;
-  // }
 }
 
 function connectWebSocket(event) {
@@ -55,6 +52,7 @@ function connectWebSocket(event) {
     cell3.innerHTML = `<span class="badge text-bg-danger">Fall</span>`;
     var imageContainer = document.getElementById("image-container");
     imageContainer.className = "container";
+
     showImage(event.data);
     // var content = document.createTextNode(body.message)
     // results.value = content
