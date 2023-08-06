@@ -23,9 +23,7 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
 
-    async def send_personal_message(
-        self, message: str, state: bool, websocket: WebSocket
-    ):
+    async def send_message(self, message: str, state: bool, websocket: WebSocket):
         # websocket.send_bytes()
         # await websocket.send_text(message)
         await websocket.send_json(data={"message": message, "state": state})
