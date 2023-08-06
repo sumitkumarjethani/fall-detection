@@ -6,11 +6,10 @@ import tqdm
 
 from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.fall.classification import EMADictSmoothing
-from fall_detection.fall.embedding import PoseEmbedder
 from fall_detection.fall.detection import StateDetector
 from fall_detection.fall.plot import PoseClassificationVisualizer
-#from fall_detection.pose.mediapipe import MediapipePoseModel
-from fall_detection.pose.movenet import MovenetModel
+from fall_detection.pose.mediapipe import MediapipePoseModel
+from fall_detection.pose.movenet import MovenetModel, TFLiteMovenetModel
 from fall_detection.pose.yolo import YoloPoseModel
 import pickle
 
@@ -23,14 +22,14 @@ def cli():
     parser.add_argument(
         "-i",
         "--input",
-        help="input path to read the images from",
+        help="input path to read the video from",
         type=str,
         required=True,
     )
     parser.add_argument(
         "-o",
         "--output",
-        help="input path to read the images from",
+        help="output path to save the video",
         type=str,
         required=True,
     )
@@ -42,6 +41,21 @@ def cli():
         required=True,
         choices=["movenet", "mediapipe", "yolo"],
         default="yolo",
+    )
+    parser.add_argument(
+        "-mv",
+        "--movenet_version",
+        help="specific movenet model name to use for pose inference.",
+        required=False,
+        default="movenet_thunder",
+        choices=[
+            "movenet_lightning",
+            "movenet_thunder",
+            "movenet_lightning_f16.tflite",
+            "movenet_thunder_f16.tflite",
+            "movenet_lightning_int8.tflite",
+            "movenet_thunder_int8.tflite",
+        ]
     )
     parser.add_argument(
         "-p",
@@ -78,9 +92,11 @@ def main():
         logger.info(f"loading model")
 
         if args.pose_model == "mediapipe":
-            pose_model = None #MediapipePoseModel()
+            pose_model = MediapipePoseModel()
         elif args.pose_model == "movenet":
-            pose_model = MovenetModel()
+            movenet_version = args.movenet_version
+            pose_model = TFLiteMovenetModel(movenet_version) \
+                if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
         elif args.pose_model == "yolo":
             yolo_model_path = args.yolo_model_path
             pose_model = YoloPoseModel(model_path=yolo_model_path)
@@ -155,7 +171,7 @@ def main():
                     pose_classification_filtered = None
                     fall_detection = fall_detector.state
 
-                print(pose_classification_filtered)
+                logger.info(pose_classification_filtered)
 
                 # Draw classification plot and repetition counter.
                 output_frame = pose_classification_visualizer(

@@ -181,6 +181,7 @@ python scripts/video_inference_fall_detector.py \
 -i "../../data/videos/euge.mp4" \
 -o "../../data/videos/euge_movenet_out.mp4" \
 -m "movenet" \
+-mv "movenet_thunder" \
 -c "../../models/movenet_knn_model.pkl" 
 ```
 
@@ -189,31 +190,8 @@ python scripts/video_inference_fall_detector.py \
 -i "../../data/videos/uri.mp4" \
 -o "../../data/videos/uri_yolo_out.mp4" \
 -m "yolo" \
+-p "../../models/yolov7-w6-pose.pt" \
 -c "../../models/yolo_knn_model.pkl" 
-```
-
-```bash
-python scripts/video_inference_fall_detector.py \
--i "../../data/videos/uri.mp4" \
--o "../../data/videos/uri_out.mp4" \
--m "mediapipe" \
--c "../../models/mediapipe_estimator_model.pkl" 
-```
-
-```bash
-python scripts/video_inference_fall_detector.py \
--i "../../data/videos/euge.mp4" \
--o "../../data/videos/euge_estimator_movenet_out.mp4" \
--m "movenet" \
--c "../../models/movenet_estimator_model.pkl" 
-```
-
-```bash
-python scripts/video_inference_fall_detector.py \
--i "../../data/videos/euge.mp4" \
--o "../../data/videos/euge_yolo_out.mp4" \
--m "yolo" \
--c "../../models/yolo_estimator_model.pkl" 
 ```
 
 ## WebCam Fall Detection
@@ -254,8 +232,6 @@ python scripts/webcam_inference_fall_detector.py \
 -c "../../models/yolo_estimator_classification_model.pkl" 
 ```
 
-
-
 # Steps to Evaluate new Dataset / Model
 
 1. convert dataset to folder dataset
@@ -263,26 +239,3 @@ python scripts/webcam_inference_fall_detector.py \
 3. train classifier
 4. validate(TODO)
 5. run inference on example image/video/webcam
-   
-## 1
-
-
-## 2
-
-```bash
-python scripts/generate_landmarks_dataset.py \
--i "../../data/custom_dataset/train" \
--o "../../data/yolo_custom_out/train" \
--f "../../data/yolo_custom_csv_out/train" \
--m "yolo" \
---max-samples 3000
-```
-
-```bash
-python scripts/generate_landmarks_dataset.py \
--i "../../data/custom_dataset/test" \
--o "../../data/yolo_custom_out/test" \
--f "../../data/yolo_custom_csv_out/test" \
--m "yolo" \
---max-samples 500
-```
