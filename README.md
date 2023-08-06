@@ -99,7 +99,8 @@ python scripts/generate_landmarks_dataset.py \
 -i "../../data/test_dataset" \
 -o "../../data/movenet_test_dataset_out" \
 -f "../../data/movenet_test_dataset_csv" \
--m "movenet"
+-m "movenet" \
+-mv "movenet_thunder"
 ```
 
 #### Small dataset with yolo
@@ -108,7 +109,8 @@ python scripts/generate_landmarks_dataset.py \
 -i "../../data/test_dataset" \
 -o "../../data/yolo_test_dataset_out" \
 -f "../../data/yolo_test_dataset_csv" \
--m "yolo"
+-m "yolo" \
+-p "../../models/yolov7-w6-pose.pt"
 ```
 
 #### Process full dataset
@@ -128,6 +130,7 @@ python scripts/generate_landmarks_dataset.py \
 -o "../../data/movenet_samples_out" \
 -f "../../data/movenet_samples_csv_out" \
 -m "movenet" \
+-mv "movenet_thunder" \
 --max-samples 6000
 ```
 
@@ -138,6 +141,7 @@ python scripts/generate_landmarks_dataset.py \
 -o "../../data/yolo_samples_out" \
 -f "../../data/yolo_samples_csv_out" \
 -m "yolo" \
+-p "../../models/yolov7-w6-pose.pt" \
 --max-samples 6000
 ```
 

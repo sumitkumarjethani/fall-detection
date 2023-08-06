@@ -3,7 +3,7 @@ import sys
 
 from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.pose.mediapipe import MediapipePoseModel
-from fall_detection.pose.movenet import MovenetModel
+from fall_detection.pose.movenet import MovenetModel, TFLiteMovenetModel
 from fall_detection.pose.yolo import YoloPoseModel
 from fall_detection.pose.data import PoseLandmarksGenerator
 
@@ -44,6 +44,21 @@ def cli():
         default="yolo",
     )
     parser.add_argument(
+        "-mv",
+        "--movenet_version",
+        help="specific movenet model name to use for pose inference.",
+        required=False,
+        default="movenet_thunder",
+        choices=[
+            "movenet_lightning",
+            "movenet_thunder",
+            "movenet_lightning_f16.tflite",
+            "movenet_thunder_f16.tflite",
+            "movenet_lightning_int8.tflite",
+            "movenet_thunder_int8.tflite",
+        ]
+    )
+    parser.add_argument(
         "-p",
         "--yolo_model_path",
         help="yolo model path to use for the inference.",
@@ -69,7 +84,9 @@ def main():
         if args.model == "mediapipe":
             model = MediapipePoseModel()
         elif args.model == "movenet":
-            model = MovenetModel()
+            movenet_version = args.movenet_version
+            model = TFLiteMovenetModel(movenet_version) \
+                if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
         elif args.model == "yolo":
             yolo_model_path = args.yolo_model_path
             model = YoloPoseModel(model_path=yolo_model_path)
