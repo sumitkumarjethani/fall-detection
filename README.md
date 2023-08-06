@@ -37,27 +37,30 @@ python scripts/convert_yolo_dataset.py --input "../../data/custom_dataset_yolo" 
 
 ## Pose Models
 
-### Movenet Inference
+### Movenet image pose inference
 ```bash
-python scripts/movenet_pose_inference.py \
+python scripts/image_pose_inference.py \
 -i "../../data/fall-sample.png" \
 -o "../../data/fall-sample-output.jpg" \
--m  "movenet_thunder"
+-m "movenet" \
+-mv  "movenet_thunder"
 ```
 
-### Mediaipe inference
+### Mediapipe image pose inference
 ```bash
-python scripts/mediapipe_pose_inference.py \
--i "../../data/fall-sample.png" \
--o "../../data/fall-sample-output.jpg"
-```
-
-### Yolo Pose Inferece
-```bash
-python scripts/yolo_pose_inference.py \
+python scripts/image_pose_inference.py \
 -i "../../data/fall-sample.png" \
 -o "../../data/fall-sample-output.jpg" \
--m "yolov7-w6-pose.pt"
+-m "mediapipe"
+```
+
+### Yolo Image pose inference
+```bash
+python scripts/image_pose_inference.py \
+-i "../../data/fall-sample.png" \
+-o "../../data/fall-sample-output.jpg" \
+-m "yolo" \
+-p "../../models/yolov7-w6-pose.pt"
 ```
 
 ### Webcam Movenet Pose Inference
@@ -75,7 +78,8 @@ python scripts/webcam_pose_inference.py  \
 ### Webcam Yolo Pose Inference
 ```bash
 python scripts/webcam_pose_inference.py  \
--m "yolo"
+-m "yolo" \
+-p "../../models/yolov7-w6-pose.pt"
 ```
 
 ## Generate Landmarks Dataset for Fall Detection
