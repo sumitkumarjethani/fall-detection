@@ -2,15 +2,17 @@ import numpy as np
 from typing import List
 from abc import ABC, abstractmethod
 from sklearn.base import BaseEstimator
-
 from fall_detection.fall.embedding import PoseEmbedder
-
 from .data import PoseSample
 
 
 class PoseClassifier(ABC):
     @abstractmethod
     def fit(self, pose_samples):
+        raise NotImplemented()
+
+    @abstractmethod
+    def predict_pose_samples(self, pose_samples):
         raise NotImplemented()
 
     @abstractmethod
@@ -22,21 +24,30 @@ class PoseClassifier(ABC):
 
 
 class EstimatorClassifier(PoseClassifier):
-    def __init__(
-        self, estimator: BaseEstimator, pose_embedder: PoseEmbedder, n_output_scaler=10
-    ):
+    def __init__(self, estimator: BaseEstimator, pose_embedder: PoseEmbedder,
+                 n_output_scaler=10, n_landmarks=33, n_dimensions=3):
         self._pose_embedder = pose_embedder
         self._n_output_scaler = n_output_scaler
         self._model = estimator
+        self._n_landmarks = n_landmarks
+        self._n_dimensions = n_dimensions
 
     def fit(self, pose_samples: List[PoseSample]):
-        print(f"fitting on {len(pose_samples)}  pose samples")
+        print(f"fitting on {len(pose_samples)} pose samples")
         X = np.array([ps.embedding for ps in pose_samples]).reshape(
             len(pose_samples), -1
         )
         y = np.array([ps.class_name for ps in pose_samples])
         self._model.fit(X, y)
         return self
+
+    def predict_pose_samples(self, pose_samples: List[PoseSample]):
+        print(f"predict on {len(pose_samples)} pose samples")
+        X = np.array([ps.embedding for ps in pose_samples]).reshape(
+            len(pose_samples), -1
+        )
+        y_pred = self._model.predict(X)
+        return y_pred
 
     def predict(self, pose_landmarks: np.ndarray):
         pose_embedding = self._pose_embedder(pose_landmarks).reshape(1, -1)
@@ -72,6 +83,9 @@ class KnnPoseClassifier(PoseClassifier):
     def fit(self, pose_samples):
         print(f"fitting on {len(pose_samples)}  pose samples")
         self._pose_samples = pose_samples
+
+    def predict_pose_samples(self, pose_samples: List[PoseSample]):
+        raise NotImplemented()
 
     def predict(self, pose_landmarks):
         """Classifies given pose.
