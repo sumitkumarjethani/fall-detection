@@ -85,7 +85,8 @@ class KnnPoseClassifier(PoseClassifier):
         self._pose_samples = pose_samples
 
     def predict_pose_samples(self, pose_samples: List[PoseSample]):
-        raise NotImplemented()
+        y_preds = [self.predict(pose_sample.landmarks) for pose_sample in pose_samples]
+        return np.array([max(y_pred, key=y_pred.get) for y_pred in y_preds])
 
     def predict(self, pose_landmarks):
         """Classifies given pose.
