@@ -8,10 +8,14 @@ from fastapi.staticfiles import StaticFiles
 import numpy as np
 import cv2
 from fall_detection.object_detection import YoloObjectDetector
+from fall_detection.pose import YoloPoseModel
 
 object_model = YoloObjectDetector("../models/yolov8n.pt")
 
+pose_model = YoloPoseModel("../models/yolov8n-pose.pt")
+
 app = FastAPI()
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -27,8 +31,6 @@ class ConnectionManager:
         self.active_connections.remove(websocket)
 
     async def send_message(self, message: str, state: bool, websocket: WebSocket):
-        # websocket.send_bytes()
-        # await websocket.send_text(message)
         await websocket.send_json(data={"message": message, "state": state})
 
     async def send_image(self, image, websocket: WebSocket):
@@ -39,12 +41,6 @@ manager = ConnectionManager()
 
 
 def _encode_image(image):
-    img_buffer = cv2.imencode(".jpg", image)[1]
-    return base64.b64encode(img_buffer).decode("utf-8")
-
-
-def get_fake_image():
-    image = cv2.imread("../data/yolo-fall-sample.png")
     img_buffer = cv2.imencode(".jpg", image)[1]
     return base64.b64encode(img_buffer).decode("utf-8")
 
@@ -77,10 +73,15 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
             check, frame = cam.read()
             if not check:
                 break
-            results = object_model.predict(frame)
-            frame = object_model.draw_results(frame, results)
+            obj_results = object_model.predict(frame)
+            pose_results = pose_model.predict(frame)
+            if obj_results is not None:
+                frame = object_model.draw_results(frame, obj_results)
+            if pose_results is not None:
+                frame = pose_model.draw_landmarks(frame, pose_results)
             encoded_image = _encode_image(frame)
             await manager.send_image(encoded_image, websocket)
+            # await manager.send_message()
             await sleep(0.1)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
