@@ -88,7 +88,9 @@ def main():
                                                 n_dimensions=args.n_dim)
         elif args.model == "rf":
             pose_classifier = EstimatorClassifier(
-                RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42), pose_embedder)
+                RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42),
+                pose_embedder, n_landmarks=args.n_kps, n_dimensions=args.n_dim
+            )
         else:
             raise ValueError("Supported trainable models are KNN or RF")
 
