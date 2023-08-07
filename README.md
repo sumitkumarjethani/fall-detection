@@ -166,6 +166,14 @@ python scripts/train_estimator_pose_classifier.py \
 --n-neighbours 10
 ```
 
+## Evaluate Pose Classification Model
+```bash
+python scripts/evaluate_pose_classifier.py \
+-i "../../data/yolo_samples_csv" \
+-i "../../metrics/yolo_rf.txt" \
+-c "../../models/mediapipe_knn_model.pkl"
+```
+
 ## Video Fall Detection 
 
 ```bash
