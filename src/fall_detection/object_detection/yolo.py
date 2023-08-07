@@ -64,7 +64,9 @@ class YoloObjectDetector(ObjectDetector):
     def draw_results(self, image, results):
         return results.plot(img=image)
 
-    def results_to_object_detection_samples(self, results):
+    def results_to_object_detection_samples(
+        self, results
+    ) -> List[ObjectDetectionSample]:
         cls_names = results.names
         out = []
         for bb in results.boxes:
