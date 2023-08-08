@@ -1,9 +1,10 @@
 import io
+import requests
+import matplotlib.pyplot as plt
+import cv2
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
-import requests
-import matplotlib.pyplot as plt
 
 
 class PoseClassificationVisualizer(object):
@@ -141,3 +142,16 @@ class PoseClassificationVisualizer(object):
         plt.close()
 
         return img
+
+
+def plot_fall_text(image, fall):
+    text_color = (0, 0, 255) if fall else (0, 255, 0)
+    fall_text = "Fall" if fall else "No Fall"
+
+    _, image_width = image.shape[:2] 
+    fall_text_position = (image_width - 150, 30)
+
+    return cv2.putText(
+        image, fall_text, fall_text_position,
+        cv2.FONT_HERSHEY_SIMPLEX, 1, text_color, 2)
+
