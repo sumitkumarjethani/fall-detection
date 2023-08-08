@@ -6,8 +6,6 @@ from typing import List
 from dataclasses import dataclass
 import numpy as np
 from ultralytics import YOLO
-from ultralytics.engine.results import Results
-import cv2
 
 
 @dataclass
