@@ -1,6 +1,7 @@
 import os
 import cv2
 import matplotlib as plt
+import torch
 
 
 def load_image(image_path):
@@ -28,3 +29,8 @@ def show_image(img, figsize=(10, 10)):
     plt.figure(figsize=figsize)
     plt.imshow(img)
     plt.show()
+
+
+def get_torch_device():
+    return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+

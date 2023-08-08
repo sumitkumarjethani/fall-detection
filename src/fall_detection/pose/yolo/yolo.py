@@ -4,19 +4,19 @@ Yolov8 Pose detection
 
 from ..base import PoseModel, COCO_POSE_KEYPOINTS
 from ultralytics import YOLO
-
-import torch
 import numpy as np
+import torch
 import os
 
 
+# TODO: remove and use from utils
 def get_torch_device():
     # if torch.backends.mps.is_available() and torch.backends.mps.is_built():
     #     return torch.device("mps")
     return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def download_yolo_pose(output_path):
+def download_yolo_pose_model(output_path):
     try:
         os.system(
             "wget "
@@ -35,7 +35,7 @@ class YoloPoseModel(PoseModel):
 
     def _load_model(self, model_path):
         if not os.path.exists(model_path):
-            download_yolo_pose(model_path)
+            download_yolo_pose_model(model_path)
         model = YOLO(model_path)
         return model
 

@@ -1,11 +1,12 @@
 """Yolov8 object detection module"""
-
-from abc import ABC, abstractmethod
 import os
+import numpy as np
+
 from typing import List
 from dataclasses import dataclass
-import numpy as np
+from abc import ABC, abstractmethod
 from ultralytics import YOLO
+from ..utils import get_torch_device
 
 
 @dataclass
@@ -32,7 +33,7 @@ class ObjectDetector(ABC):
         pass
 
 
-def download_yolo_object(output_path):
+def download_yolo_object_model(output_path):
     try:
         os.system(
             "wget "
@@ -46,17 +47,18 @@ def download_yolo_object(output_path):
 
 class YoloObjectDetector(ObjectDetector):
     def __init__(self, model_path: str = "yolov8n.pt"):
+        self._device = get_torch_device()
         self._model_name = model_path
         self._model = self._load_yolo_model(model_path)
 
     def _load_yolo_model(self, model_path: str):
         if not os.path.exists(model_path):
-            download_yolo_object(model_path)
+            download_yolo_object_model(model_path)
         model = YOLO(model_path)
         return model
 
     def predict(self, image):
-        results = self._model(image)
+        results = self._model(image, device=self._device, verbose=False)
         return results[0]
 
     def draw_results(self, image, results):
