@@ -4,9 +4,3 @@ from .detection import StateDetector
 from .embedding import PoseEmbedder
 from .plot import PoseClassificationVisualizer
 from .rules import ClassificationRule, RulesChecker
-
-# from . import detection
-# from . import classification
-# from . import data
-# from . import plot
-# from . import embedding
