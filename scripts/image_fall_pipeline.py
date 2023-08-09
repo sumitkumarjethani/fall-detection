@@ -3,7 +3,7 @@ import sys
 import pickle
 
 from fall_detection.fall.pipeline import Pipeline
-#from fall_detection.pose.mediapipe import MediapipePoseModel
+from fall_detection.pose.mediapipe import MediapipePoseModel
 from fall_detection.pose.movenet import MovenetModel, TFLiteMovenetModel
 from fall_detection.pose.yolo import YoloPoseModel
 from fall_detection.object_detection.yolo import YoloObjectDetector
@@ -92,7 +92,7 @@ def main():
         logger.info(f"Loading pose model: {pose_model_name}")
 
         if pose_model_name == "mediapipe":
-            pose_model = None   #MediapipePoseModel()
+            pose_model = MediapipePoseModel()
         elif pose_model_name == "movenet":
             movenet_version = args.movenet_version
             pose_model = TFLiteMovenetModel(movenet_version) \
