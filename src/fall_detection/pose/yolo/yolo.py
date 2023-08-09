@@ -1,7 +1,6 @@
 """
 Yolov8 Pose detection
 """
-
 from ..base import PoseModel, COCO_POSE_KEYPOINTS
 from ultralytics import YOLO
 import numpy as np
@@ -9,7 +8,7 @@ import torch
 import os
 
 
-# TODO: remove and use from utils
+# TODO: remove and use from common utils
 def get_torch_device():
     # if torch.backends.mps.is_available() and torch.backends.mps.is_built():
     #     return torch.device("mps")
@@ -40,11 +39,8 @@ class YoloPoseModel(PoseModel):
         return model
 
     @torch.no_grad()
-    def _run_model(self, image):
-        return self._model(image, device=self._device, verbose=False)
-
     def predict(self, image):
-        results = self._run_model(image)
+        results = self._model(image, device=self._device, verbose=False)
         if results is None or results[0].keypoints.shape[1] == 0 or results[0].boxes.conf[0] < 0.6:
             return None
         return results
