@@ -6,17 +6,6 @@ function showImage(data) {
   img.src = "data:image/png;base64, " + data;
 }
 
-function showStream(idx) {
-  console.log("Websocket: " + idx)
-  console.log(ws_conns)
-
-  if (idx >= 0 && idx < ws_conns.length) {
-    selectedWebSocket = ws_conns[idx];
-  } else {
-    selectedWebSocket = null
-  }
-}
-
 function connectWebSocket(event) {
   event.preventDefault();
 
@@ -34,8 +23,6 @@ function connectWebSocket(event) {
   var cell0 = row.insertCell(0);
   var cell1 = row.insertCell(1);
   var cell2 = row.insertCell(2);
-  var cell3 = row.insertCell(3);
-  var cell4 = row.insertCell(4);
 
   var ws = new WebSocket(
     `ws://localhost:8000/ws?user_id=${userIdInput.value}&conn_url=${connUrlInput.value}`
@@ -48,17 +35,12 @@ function connectWebSocket(event) {
   cell0.innerHTML = ws_conns.length;
   cell1.innerHTML = userIdInput.value;
   cell2.innerHTML = connUrlInput.value;
-  cell3.innerHTML = `<span class="badge text-bg-success">Not Fall</span>`;
-  cell4.innerHTML = `<button class="btn btn-primary show-image-btn" onclick="showStream(${ws_conns.length-1})">Show stream</button>`;
-
+  
   ws.onmessage = function (event) {
-    if (selectedWebSocket === ws) {
-      cell3.innerHTML = `<span class="badge text-bg-danger">Fall</span>`;
-      var imageContainer = document.getElementById("image-container");
-      //imageContainer.className = "container";
-      //showImage(JSON.parse(event.data).image);
-      console.log(JSON.parse(event.data).message);
-    }
+    var imageContainer = document.getElementById("image-container");
+    imageContainer.className = "container";
+    console.log(event);
+    showImage(event.data);
   };
   userIdInput.value = "";
   connUrlInput.value = "";
