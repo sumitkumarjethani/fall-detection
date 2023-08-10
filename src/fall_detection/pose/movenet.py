@@ -209,16 +209,13 @@ class MovenetModel(PoseModel):
         module = hub.load(url)
         return module
 
-    def __call__(self, image):
+    def predict(self, image):
         image = _preprocess_image_for_movenet(image, self._input_size)
         model = self._module.signatures["serving_default"]
         image = tf.cast(image, dtype=tf.int32)
         outputs = model(image)
         keypoints_with_scores = outputs["output_0"].numpy()
         return keypoints_with_scores
-
-    def predict(self, image):
-        return self.__call__(image)
 
     def draw_landmarks(self, image, results):
         # image = tf.image.resize_with_pad(image, 1280, 1280)
@@ -254,9 +251,9 @@ class TFLiteMovenetModel(PoseModel):
 
         interpreter = tf.lite.Interpreter(model_path="model.tflite")
         interpreter.allocate_tensors()
-        return interpreter
+        return interpreter        
 
-    def __call__(self, image):
+    def predict(self, image):
         image = _preprocess_image_for_movenet(image, self._input_size)
         image = tf.cast(image, dtype=tf.uint8)
         input_details = self._interpreter.get_input_details()
@@ -267,9 +264,6 @@ class TFLiteMovenetModel(PoseModel):
         # Get the model prediction.
         keypoints_with_scores = self._interpreter.get_tensor(output_details[0]["index"])
         return keypoints_with_scores
-
-    def predict(self, image):
-        return self.__call__(image)
 
     def draw_landmarks(self, image, pose_landmarks):
         return draw_prediction_on_image(

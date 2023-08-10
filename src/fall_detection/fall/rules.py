@@ -3,9 +3,6 @@ from typing import List, Optional
 from abc import ABC, abstractmethod
 from ..object_detection.yolo import ObjectDetectionSample
 
-# from ultralytics import YOLO
-# from ultralytics.engine.results import Results as YoloResults
-
 
 class ClassificationRule(ABC):
     @abstractmethod

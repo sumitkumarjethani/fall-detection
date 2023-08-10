@@ -1,20 +1,30 @@
 """
 Yolov8 Pose detection
 """
-
 from ..base import PoseModel, COCO_POSE_KEYPOINTS
-from .utils import download_yolo_pose
 from ultralytics import YOLO
-
-import torch
 import numpy as np
+import torch
 import os
 
 
+# TODO: remove and use from common utils
 def get_torch_device():
     # if torch.backends.mps.is_available() and torch.backends.mps.is_built():
     #     return torch.device("mps")
     return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+
+def download_yolo_pose_model(output_path):
+    try:
+        os.system(
+            "wget "
+            + "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n-pose.pt"
+            + " -O "
+            + output_path
+        )
+    except Exception as e:
+        raise Exception(f"could not download yolo pose: {e}")
 
 
 class YoloPoseModel(PoseModel):
@@ -24,16 +34,13 @@ class YoloPoseModel(PoseModel):
 
     def _load_model(self, model_path):
         if not os.path.exists(model_path):
-            download_yolo_pose(model_path)
+            download_yolo_pose_model(model_path)
         model = YOLO(model_path)
         return model
 
     @torch.no_grad()
-    def _run_model(self, image):
-        return self._model(image, device=self._device, verbose=False)
-
     def predict(self, image):
-        results = self._run_model(image)
+        results = self._model(image, device=self._device, verbose=False)
         if (
             results is None
             or results[0].keypoints.shape[1] == 0

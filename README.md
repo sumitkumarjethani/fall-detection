@@ -19,7 +19,7 @@
 
 ```bash
 python download_falldataset.py \
--o ../data/falldataset
+-o ../data/falldataset \
 --train \
 --valid \
 --test
@@ -243,6 +243,20 @@ python scripts/webcam_inference_fall_detector.py \
 -m "yolo" \
 -c "../../models/yolo_estimator_classification_model.pkl" 
 ```
+
+## Fall Pipeline
+
+### Yolo Image Fall Pipeline
+```bash
+python scripts/image_fall_pipeline.py \
+-i "../../data/fall_sample_4.png" \
+-o "../../data/fall_sample_4_out.png" \
+--pose-model-name "yolo" \
+--yolo-pose-model-path "../../models/yolov8n-pose.pt" \
+--yolo-object-model-path "../../models/yolov8n.pt" \
+--pose-classifier "../../models/yolo_rf_pose_classifier_model.pkl" 
+```
+
 
 # Steps to Evaluate new Dataset / Model
 
