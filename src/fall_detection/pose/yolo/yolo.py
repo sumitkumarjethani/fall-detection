@@ -34,7 +34,11 @@ class YoloPoseModel(PoseModel):
 
     def predict(self, image):
         results = self._run_model(image)
-        if results is None or results[0].keypoints.shape[1] == 0 or results[0].boxes.conf[0] < 0.6:
+        if (
+            results is None
+            or results[0].keypoints.shape[1] == 0
+            or results[0].boxes.conf[0] < 0.6
+        ):
             return None
         return results
 

@@ -92,9 +92,11 @@ def load_pickled_model(path):
 
 if __name__ == "__main__":
     image_model = load_model("../models/fall-image-classification.keras")
-    object_model = YoloObjectDetector("../models/yolov8n.pt")
-    pose_model = YoloPoseModel("../models/yolov8n-pose.pt")
-    smoother = EMADictSmoothing(window_size=10, alpha=0.3)
+    # image_model = load_model("../models/fall-image-classification-2.keras")
+
+    # object_model = YoloObjectDetector("../models/yolov8n.pt")
+    # pose_model = YoloPoseModel("../models/yolov8n-pose.pt")
+    smoother = EMADictSmoothing(window_size=10, alpha=0.2)
 
     # pose_classifier = load_pickled_model("../models/yolo_estimator_model.pkl")
 
@@ -104,21 +106,22 @@ if __name__ == "__main__":
         if not check:
             continue
 
-        obj_results = object_model.predict(frame)
+        # obj_results = object_model.predict(frame)
 
-        objs = object_model.results_to_object_detection_samples(obj_results)
+        # objs = object_model.results_to_object_detection_samples(obj_results)
 
-        if "person" in [obj.class_name for obj in objs]:
-            img_preds = run_inference(image_model, frame)
-        else:
-            img_preds = {
-                "Fall": 0,
-                "NoFall": 10,
-            }
+        # if "person" in [obj.class_name for obj in objs]:
+        #     img_preds = run_inference(image_model, frame)
+        # else:
+        #     img_preds = {
+        #         "Fall": 0,
+        #         "NoFall": 10,
+        #     }
 
+        img_preds = run_inference(image_model, frame)
         smooth_preds = smoother(img_preds)
 
-        pose_results = pose_model.predict(frame)
+        # pose_results = pose_model.predict(frame)
 
         # if pose_results is not None:
         #     pose_landmarks = pose_model.results_to_pose_landmarks(
@@ -129,11 +132,11 @@ if __name__ == "__main__":
 
         # smooth_preds = smoother(pose_preds)
 
-        if pose_results is not None:
-            frame = pose_model.draw_landmarks(frame, pose_results)
+        # if pose_results is not None:
+        # frame = pose_model.draw_landmarks(frame, pose_results)
 
-        if obj_results is not None:
-            frame = object_model.draw_results(frame, obj_results)
+        # if obj_results is not None:
+        # frame = object_model.draw_results(frame, obj_results)
 
         frame = draw_prediction(frame, smooth_preds)
 

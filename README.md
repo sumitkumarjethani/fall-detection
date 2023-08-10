@@ -18,7 +18,11 @@
 - [Script](./src/scripts/download_falldataset.py)
 
 ```bash
-python src/scripts/download_falldataset.py -o ./data
+python download_falldataset.py \
+-o ../data/falldataset
+--train \
+--valid \
+--test
 ```
 
 ### Procesado del dataset

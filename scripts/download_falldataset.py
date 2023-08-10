@@ -1,37 +1,48 @@
 import argparse
 import logging
+import os
 import sys
 
-# setting path
-sys.path.append("./")
-
-from fall_detection.logger.logger import configure_logging
 from fall_detection.datasets.falldataset import (
     download_dataset_from_url,
     get_falldataset_urls,
+    get_falldataset_train_urls,
+    get_falldataset_valid_urls,
+    get_falldataset_test_urls,
 )
 
+from fall_detection.logger.logger import LoggerSingleton
 
-logger = logging.getLogger("app")
+logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-O",
+        "-o",
         "--output",
         help="output dirpath to save downloaded data. Defaults to current dir",
         required=False,
         default=".",
     )
     parser.add_argument(
-        "-N",
-        "--nmax",
-        help="Max number of links to download. If not specified. it downloads all available",
-        required=False,
-        default=None,
-        type=int,
+        "--train",
+        help="in train split sholuld be included",
+        default=True,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--valid",
+        help="in valid split sholuld be included",
+        default=True,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--test",
+        help="in test split sholuld be included",
+        default=True,
+        action="store_true",
     )
     args = parser.parse_args()
 
@@ -40,14 +51,23 @@ def cli():
 
 def main():
     try:
-        configure_logging()
         args = cli()
         urls = get_falldataset_urls()
-        if args.nmax:
-            urls = urls[: args.nmax]
-        for url in urls:
-            download_dataset_from_url(url, args.output)
-
+        if args.train:
+            output_dir = os.path.join(args.output, "train")
+            urls = get_falldataset_train_urls()
+            for url in urls:
+                download_dataset_from_url(url, output_dir)
+        if args.valid:
+            output_dir = os.path.join(args.output, "valid")
+            urls = get_falldataset_valid_urls()
+            for url in urls:
+                download_dataset_from_url(url, output_dir)
+        if args.test:
+            output_dir = os.path.join(args.output, "test")
+            urls = get_falldataset_test_urls()
+            for url in urls:
+                download_dataset_from_url(url, output_dir)
     except ValueError as e:
         logger.error(str(e))
         sys.exit(1)

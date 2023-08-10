@@ -11,6 +11,7 @@ import uuid
 
 # dataset urls
 _dataset_urls = [
+    # train
     "https://falldataset.com/data/1301/1301.tar.gz",
     "https://falldataset.com/data/1790/1790.tar.gz",
     "https://falldataset.com/data/722/722.tar.gz",
@@ -25,8 +26,39 @@ _dataset_urls = [
     "https://falldataset.com/data/731/731.tar.gz",
     "https://falldataset.com/data/1219/1219.tar.gz",
     "https://falldataset.com/data/1954/1954.tar.gz",
+    "https://falldataset.com/data/1954/581.tar.gz",
+    # validate
     "https://falldataset.com/data/1176/1176.tar.gz",
     "https://falldataset.com/data/2123/2123.tar.gz",
+    # test
+    "https://falldataset.com/data/832/832.tar.gz",
+    "https://falldataset.com/data/786/786.tar.gz",
+    "https://falldataset.com/data/925/925.tar.gz",
+]
+
+_train_urls = [
+    "https://falldataset.com/data/1301/1301.tar.gz",
+    "https://falldataset.com/data/1790/1790.tar.gz",
+    "https://falldataset.com/data/722/722.tar.gz",
+    "https://falldataset.com/data/1378/1378.tar.gz",
+    "https://falldataset.com/data/1392/1392.tar.gz",
+    "https://falldataset.com/data/807/807.tar.gz",
+    "https://falldataset.com/data/758/758.tar.gz",
+    "https://falldataset.com/data/1843/1843.tar.gz",
+    "https://falldataset.com/data/569/569.tar.gz",
+    "https://falldataset.com/data/1260/1260.tar.gz",
+    "https://falldataset.com/data/489/489.tar.gz",
+    "https://falldataset.com/data/731/731.tar.gz",
+    "https://falldataset.com/data/1219/1219.tar.gz",
+    "https://falldataset.com/data/1954/1954.tar.gz",
+    "https://falldataset.com/data/1954/581.tar.gz",
+]
+_valid_urls = [
+    "https://falldataset.com/data/1176/1176.tar.gz",
+    "https://falldataset.com/data/2123/2123.tar.gz",
+]
+
+_test_urls = [
     "https://falldataset.com/data/832/832.tar.gz",
     "https://falldataset.com/data/786/786.tar.gz",
     "https://falldataset.com/data/925/925.tar.gz",
@@ -69,11 +101,26 @@ def get_falldataset_urls() -> List[str]:
     return _dataset_urls
 
 
+def get_falldataset_train_urls() -> List[str]:
+    return _train_urls
+
+
+def get_falldataset_valid_urls() -> List[str]:
+    return _valid_urls
+
+
+def get_falldataset_test_urls() -> List[str]:
+    return _test_urls
+
+
 def get_firname_from_url(url: str) -> str:
     return os.path.basename(url).split(".")[0]
 
 
 def download_dataset_from_url(url: str, output_dir: str) -> None:
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+
     temp_tar_file = os.path.join(output_dir, "temp.tar.gz")
     try:
         os.system("wget " + url + " -O " + temp_tar_file)
@@ -159,7 +206,6 @@ def process_dataset(
         with open(labels_path, newline="", mode="r") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-
                 src_image_number = str(row["index"]).zfill(4)
                 src_image_filename = f"rgb_{src_image_number}.png"
                 src_image_path = os.path.join(images_dir, src_image_filename)
