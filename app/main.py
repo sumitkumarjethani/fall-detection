@@ -12,10 +12,16 @@ from fall_detection.fall.pipeline import Pipeline
 
 
 # model variables
-yolo_pose_model = YoloPoseModel(model_path="C:/Users/sumit/OneDrive/Escritorio/models/yolov8n-pose.pt")
-yolo_object_model = YoloObjectDetector(model_path="C:/Users/sumit/OneDrive/Escritorio/models/yolov8n.pt")
+yolo_pose_model = YoloPoseModel(
+    model_path="C:/Users/sumit/OneDrive/Escritorio/models/yolov8n-pose.pt"
+)
+yolo_object_model = YoloObjectDetector(
+    model_path="C:/Users/sumit/OneDrive/Escritorio/models/yolov8n.pt"
+)
 
-with open("C:/Users/sumit/OneDrive/Escritorio/models/yolo_rf_pose_clasifier_model.pkl", "rb") as f:
+with open(
+    "C:/Users/sumit/OneDrive/Escritorio/models/yolo_rf_pose_clasifier_model.pkl", "rb"
+) as f:
     pose_classification_model = pickle.load(f)
 
 # app variables
@@ -36,12 +42,12 @@ async def get():
 async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
     await manager.connect(websocket)
     try:
-        cam = cv2.VideoCapture(int(conn_url) if len(conn_url)==1 else conn_url)
-        
+        cam = cv2.VideoCapture(int(conn_url) if len(conn_url) == 1 else conn_url)
+
         pipeline = Pipeline(
             pose_model=yolo_pose_model,
             classification_model=pose_classification_model,
-            object_model=yolo_object_model
+            object_model=yolo_object_model,
         )
 
         while True:
