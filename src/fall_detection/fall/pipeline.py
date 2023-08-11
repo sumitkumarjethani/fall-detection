@@ -1,10 +1,10 @@
 """Fall detection pipeline"""
 
 from typing import Optional
-from fall_detection.fall.classification import (EMADictSmoothing, PoseClassifier)
+from fall_detection.fall.classification import EMADictSmoothing, PoseClassifier
 from fall_detection.fall.detection import StateDetector
 from fall_detection.fall.embedding import PoseEmbedder
-from fall_detection.fall.rules import (PersonIsAlone, PersonNotOnFurniture, RulesChecker)
+from fall_detection.fall.rules import PersonIsAlone, PersonNotOnFurniture, RulesChecker
 from fall_detection.object_detection.yolo import ObjectDetector
 from fall_detection.pose.base import PoseModel
 from fall_detection.fall.plot import plot_fall_text
@@ -18,8 +18,8 @@ class Pipeline:
         classification_model: PoseClassifier,
         detector: Optional[StateDetector] = None,
         detect_class: str = "fall",
-        enter_threshold: int = 9,
-        exit_threshold: int = 5,
+        enter_threshold: int = 6,
+        exit_threshold: int = 4,
         window_size: int = 10,
         alpha: float = 0.2,
         rules_checker: Optional[RulesChecker] = None,
@@ -62,26 +62,34 @@ class Pipeline:
         )
 
     def _run(self, image):
-        input_image = image.copy()
+        # image = image.copy()
 
         # detect and draw objects
         objs_results = self._object_model.predict(image)
-        objs = self._object_model.results_to_object_detection_samples(results=objs_results)
 
-        input_image = self._object_model.draw_results(input_image, objs_results)
+        objs = self._object_model.results_to_object_detection_samples(
+            results=objs_results,
+        )
 
-        # check manual rules
-        if not self._rules_checker.check(objs):
-            return plot_fall_text(input_image, False)
+        # # check manual rules
+        # if not self._rules_checker.check(objs):
+        #     print("pipeline: return on rules")
+        #     if objs_results is not None:
+        #         image = self._object_model.draw_results(image, objs_results)
+        #     return plot_fall_text(image, False)
 
         # detect and draw pose
-        pose_results = self._pose_model(image)
-        input_image = self._pose_model.draw_landmarks(input_image, pose_results)
+        pose_results = self._pose_model.predict(image)
 
         if pose_results is None:
-            return plot_fall_text(input_image, False)
+            print("pipeline: no pose detected")
+            if objs_results is not None:
+                image = self._object_model.draw_results(image, objs_results)
+            return plot_fall_text(image, False)
 
-        pose_landmarks = self._pose_model.results_to_pose_landmarks(pose_results)
+        pose_landmarks = self._pose_model.results_to_pose_landmarks(
+            pose_results, image.shape[0], image.shape[1]
+        )
 
         # classify pose
         classification_result = self._classification_model(pose_landmarks)
@@ -90,14 +98,20 @@ class Pipeline:
         smooth_classification_result = self._classification_smoother(
             classification_result
         )
+        print(smooth_classification_result)
 
         # detect state
         detection = self._detector(smooth_classification_result)
 
+        if objs_results is not None:
+            image = self._object_model.draw_results(image, objs_results)
+        if pose_results is not None:
+            image = self._pose_model.draw_landmarks(image, pose_results)
+
         if detection == 0:
-            return plot_fall_text(input_image, False)
+            return plot_fall_text(image, False)
         else:
-            return plot_fall_text(input_image, True)
+            return plot_fall_text(image, True)
 
     def __call__(self, image):
-        self._run(image)
+        return self._run(image)

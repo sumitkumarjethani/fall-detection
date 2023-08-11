@@ -4,7 +4,11 @@ from sklearn.ensemble import RandomForestClassifier
 from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.fall.data import load_pose_samples_from_dir
 from fall_detection.fall.classification import EstimatorClassifier, KnnPoseClassifier
-from fall_detection.fall.embedding import (PoseEmbedder, BLAZE_POSE_KEYPOINTS, COCO_POSE_KEYPOINTS)
+from fall_detection.fall.embedding import (
+    PoseEmbedder,
+    BLAZE_POSE_KEYPOINTS,
+    COCO_POSE_KEYPOINTS,
+)
 import pickle
 
 logger = LoggerSingleton("app").get_logger()
@@ -83,13 +87,19 @@ def main():
 
         # Initialize pose classifier.
         if args.model == "knn":
-            pose_classifier = KnnPoseClassifier(pose_embedder=pose_embedder, top_n_by_max_distance=30,
-                                                top_n_by_mean_distance=args.n_neighbours, n_landmarks=args.n_kps,
-                                                n_dimensions=args.n_dim)
+            pose_classifier = KnnPoseClassifier(
+                pose_embedder=pose_embedder,
+                top_n_by_max_distance=30,
+                top_n_by_mean_distance=args.n_neighbours,
+                n_landmarks=args.n_kps,
+                n_dimensions=args.n_dim,
+            )
         elif args.model == "rf":
             pose_classifier = EstimatorClassifier(
-                RandomForestClassifier(n_estimators=100, max_depth=6, random_state=42),
-                pose_embedder, n_landmarks=args.n_kps, n_dimensions=args.n_dim
+                RandomForestClassifier(n_estimators=100, random_state=42),
+                pose_embedder,
+                n_landmarks=args.n_kps,
+                n_dimensions=args.n_dim,
             )
         else:
             raise ValueError("Supported trainable models are KNN or RF")

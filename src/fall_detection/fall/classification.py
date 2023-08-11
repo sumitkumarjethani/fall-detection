@@ -24,8 +24,14 @@ class PoseClassifier(ABC):
 
 
 class EstimatorClassifier(PoseClassifier):
-    def __init__(self, estimator: BaseEstimator, pose_embedder: PoseEmbedder,
-                 n_output_scaler=10, n_landmarks=33, n_dimensions=3):
+    def __init__(
+        self,
+        estimator: BaseEstimator,
+        pose_embedder: PoseEmbedder,
+        n_output_scaler=10,
+        n_landmarks=33,
+        n_dimensions=3,
+    ):
         self._pose_embedder = pose_embedder
         self._n_output_scaler = n_output_scaler
         self._model = estimator

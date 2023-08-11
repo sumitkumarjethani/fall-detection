@@ -19,7 +19,7 @@
 
 ```bash
 python download_falldataset.py \
--o ../data/falldataset \
+-o ./data/falldataset \
 --train \
 --valid \
 --test
@@ -30,13 +30,22 @@ python download_falldataset.py \
 - [Script](./src/scripts/process_falldataset.py)
 
 ```bash
-python src/scripts/process_falldataset.py -i ./data
+python ./scripts/process_falldataset.py \
+-i ./data/falldataset/train \
+-o ./data/falldataset-processed/train
+```
+```bash
+python ./scripts/process_falldataset.py \
+-i ./data/falldataset/test \
+-o ./data/falldataset-processed/test
 ```
 
 ## Convert Yolo Dataset
 
 ```bash
-python scripts/convert_yolo_dataset.py --input "../../data/custom_dataset_yolo" --output "../../data/custom_dataset"
+python scripts/convert_yolo_dataset.py \
+--input "../../data/custom_dataset_yolo" \
+--output "../../data/custom_dataset"
 ```
 
 ## Pose Models
@@ -142,20 +151,20 @@ python scripts/generate_landmarks_dataset.py \
 #### process full dataset
 ```bash
 python scripts/generate_landmarks_dataset.py \
--i "../../data/samples" \
--o "../../data/yolo_samples_out" \
--f "../../data/yolo_samples_csv_out" \
+-i "./data/falldataset-processed/test" \
+-o "./data/falldataset-yolo/test/out" \
+-f "./data/falldataset-yolo/test/csv_out" \
 -m "yolo" \
--p "../../models/yolov7-w6-pose.pt" \
+-p "./models/yolov8n-pose.pt" \
 --max-samples 6000
 ```
 
 ## Train Pose Classification Model
 ```bash
 python scripts/train_estimator_pose_classifier.py \
--i "../../data/yolo_samples_csv" \
+-i "./data/falldataset-yolo/train/csv_out" \
 -m "rf" \
--name "../../models/yolo_rf_pose_classifier_model.pkl" \
+-name "./models/yolo_rf_pose_classifier_falldataset.pkl" \
 --n-kps 17 \
 --n-dim 3
 ```
@@ -176,6 +185,13 @@ python scripts/evaluate_pose_classifier.py \
 -i "../../data/yolo_samples_csv" \
 -i "../../metrics/yolo_rf.txt" \
 -c "../../models/mediapipe_knn_model.pkl"
+```
+
+```bash
+python scripts/evaluate_pose_classifier.py \
+-i "./data/falldataset-yolo/test/csv_out" \
+-o "./metrics/yolo_rf-falldataset.txt" \
+-c "./models/yolo_rf_pose_classifier_falldataset.pkl"
 ```
 
 ## Video Fall Detection 

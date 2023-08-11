@@ -3,13 +3,11 @@ import logging
 import sys
 
 # setting path
-sys.path.append("./")
+from fall_detection.logger.logger import LoggerSingleton
 
-from fall_detection.logger.logger import configure_logging
 from fall_detection.datasets.falldataset import process_dataset
 
-
-logger = logging.getLogger("app")
+logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -36,7 +34,6 @@ def cli():
 
 def main():
     try:
-        configure_logging()
         args = cli()
         process_dataset(input_dir=args.input, output_dir=args.output)
     except ValueError as e:

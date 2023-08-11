@@ -55,7 +55,7 @@ def cli():
             "movenet_thunder_f16.tflite",
             "movenet_lightning_int8.tflite",
             "movenet_thunder_int8.tflite",
-        ]
+        ],
     )
     parser.add_argument(
         "-p",
@@ -95,8 +95,11 @@ def main():
             pose_model = MediapipePoseModel()
         elif args.pose_model == "movenet":
             movenet_version = args.movenet_version
-            pose_model = TFLiteMovenetModel(movenet_version) \
-                if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
+            pose_model = (
+                TFLiteMovenetModel(movenet_version)
+                if movenet_version.endswith("tflite")
+                else MovenetModel(movenet_version)
+            )
         elif args.pose_model == "yolo":
             yolo_model_path = args.yolo_model_path
             pose_model = YoloPoseModel(model_path=yolo_model_path)
@@ -110,7 +113,9 @@ def main():
         pose_classification_smoother = EMADictSmoothing(window_size=10, alpha=0.3)
 
         # Initialize counter.
-        fall_detector = StateDetector(class_name="Fall", enter_threshold=6, exit_threshold=4)
+        fall_detector = StateDetector(
+            class_name="Fall", enter_threshold=6, exit_threshold=4
+        )
 
         # Initialize renderer.
         pose_classification_visualizer = PoseClassificationVisualizer(
@@ -143,7 +148,9 @@ def main():
                 output_frame = input_frame.copy()
 
                 if results is not None:
-                    output_frame = pose_model.draw_landmarks(image=output_frame,results=results)
+                    output_frame = pose_model.draw_landmarks(
+                        image=output_frame, results=results
+                    )
 
                 if results is not None:
                     # Get landmarks.

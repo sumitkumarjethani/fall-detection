@@ -50,6 +50,8 @@ class YoloObjectDetector(ObjectDetector):
         self._device = get_torch_device()
         self._model_name = model_path
         self._model = self._load_yolo_model(model_path)
+        self._conf = 0.6
+        self._classes = [0, 59, 57, 56]
 
     def _load_yolo_model(self, model_path: str):
         if not os.path.exists(model_path):
@@ -58,7 +60,13 @@ class YoloObjectDetector(ObjectDetector):
         return model
 
     def predict(self, image):
-        results = self._model(image, device=self._device, verbose=False)
+        results = self._model(
+            image,
+            device=self._device,
+            verbose=False,
+            conf=self._conf,
+            classes=self._classes,
+        )
         return results[0]
 
     def draw_results(self, image, results):

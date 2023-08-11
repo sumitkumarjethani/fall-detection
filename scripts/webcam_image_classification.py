@@ -91,8 +91,8 @@ def load_pickled_model(path):
 
 
 if __name__ == "__main__":
-    image_model = load_model("../models/fall-image-classification.keras")
-    # image_model = load_model("../models/fall-image-classification-2.keras")
+    # image_model = load_model("../models/fall-image-classification.keras")
+    image_model = load_model("../models/fall-image-classification-2.keras")
 
     # object_model = YoloObjectDetector("../models/yolov8n.pt")
     # pose_model = YoloPoseModel("../models/yolov8n-pose.pt")
@@ -100,7 +100,10 @@ if __name__ == "__main__":
 
     # pose_classifier = load_pickled_model("../models/yolo_estimator_model.pkl")
 
-    cam = cv2.VideoCapture(0)
+    # cam = cv2.VideoCapture(0)
+    cam = cv2.VideoCapture(
+        "rtsp://falldetection:falldetection@192.168.1.133:554/stream1"
+    )
     while True:
         check, frame = cam.read()
         if not check:

@@ -58,12 +58,15 @@ def main():
             pose_embedder=pose_classifier._pose_embedder,
             landmarks_dir=args.input_file,
             n_landmarks=pose_classifier._n_landmarks,
-            n_dimensions=pose_classifier._n_dimensions
+            n_dimensions=pose_classifier._n_dimensions,
         )
 
         logger.info("Predicting pose samples...")
-        y = np.where(np.array([ps.class_name for ps in pose_samples]) == "fall", 1, 0)
-        y_pred = np.where(pose_classifier.predict_pose_samples(pose_samples) == "fall", 1, 0)
+        y = np.where(np.array([ps.class_name for ps in pose_samples]) == "Fall", 1, 0)
+
+        y_pred = np.where(
+            pose_classifier.predict_pose_samples(pose_samples) == "Fall", 1, 0
+        )
 
         logger.info(f"Writing metrics in {args.output_file} ...")
         with open(args.output_file, "w") as f:
