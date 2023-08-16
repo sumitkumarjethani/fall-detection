@@ -8,7 +8,7 @@ setup(
     name="fall_detection",
     version="0.1",
     description="Fall Detection",
-    author="Vito Stamatti",
+    author="Vito Stamatti, Sumit Kumar Jethani Jethani",
     license="MIT",
     packages=find_packages(),
     # install_requires=requirements,
