@@ -2,13 +2,10 @@ import argparse
 import os
 import sys
 
-from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.pose.yolo import YoloPoseModel
 from fall_detection.pose.mediapipe import MediapipePoseModel
 from fall_detection.pose.movenet import MovenetModel, TFLiteMovenetModel
 from fall_detection.utils import load_image, save_image
-
-logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -17,29 +14,29 @@ def cli():
     parser.add_argument(
         "-i",
         "--input",
-        help="input image to read the image in a jpg/png format.",
+        help="input image to read in a jpg/png format.",
         type=str,
         required=True,
     )
     parser.add_argument(
         "-o",
         "--output",
-        help="output path to save the image with draw inference.",
+        help="output path to save the image with drawn pose inference.",
         type=str,
         required=True,
     )
     parser.add_argument(
-        "-m",
-        "--model",
+        "--pose-model-name",
+        "--pose-model-name",
         help="pose model to use.",
         type=str,
         choices=["mediapipe", "movenet", "yolo"],
         default="yolo",
     )
     parser.add_argument(
-        "-mv",
+        "--movenet-version",
         "--movenet_version",
-        help="specific movenet model name to use for pose inference.",
+        help="specific movenet model to use for pose inference.",
         required=False,
         default="movenet_thunder",
         choices=[
@@ -52,9 +49,9 @@ def cli():
         ]
     )
     parser.add_argument(
-        "-p",
-        "--yolo_model_path",
-        help="yolo model path to use for the inference.",
+        "--yolo-pose-model-path",
+        "--yolo-pose-model-path",
+        help="yolo pose model path to use for the inference.",
         required=False,
         default="yolov8n-pose.pt",
     )
@@ -64,41 +61,41 @@ def cli():
 def main():
     try:
         args = cli()
-        model = args.model
+        pose_model_name = args.pose_model_name
 
-        logger.info(f"loading model: {model}")
+        print(f"Loading pose model: {pose_model_name}")
 
-        if model == "mediapipe":
+        if pose_model_name == "mediapipe":
             pose_model = MediapipePoseModel()
-        elif model == "movenet":
+        elif pose_model_name == "movenet":
             movenet_version = args.movenet_version
             pose_model = TFLiteMovenetModel(movenet_version)\
                 if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
-        elif model == "yolo":
-            yolo_model_path = args.yolo_model_path
-            pose_model = YoloPoseModel(model_path=yolo_model_path)
+        elif pose_model_name == "yolo":
+            yolo_pose_model_path = args.yolo_pose_model_path
+            pose_model = YoloPoseModel(model_path=yolo_pose_model_path)
         else:
-            raise ValueError("model input not valid")
+            raise ValueError("Model input not valid")
 
         if not os.path.exists(args.input):
-            raise Exception(f"input image {args.input} not found.")
+            raise Exception(f"Input image {args.input} not found.")
 
-        logger.info(f"loading input image {args.input}")
+        print(f"Loading input image: {args.input}")
         input_image = load_image(args.input)
 
-        logger.info(f"running inference")
+        print(f"Running inference")
         results = pose_model.predict(input_image)
 
         if results is not None:
-            logger.info(f"drawing inference")
+            print(f"Drawing inference")
             output_image = pose_model.draw_landmarks(input_image, results)
 
-            logger.info(f"saving output image {args.output}")
+            print(f"Saving output image: {args.output}")
             save_image(output_image, args.output)
 
         sys.exit(0)
     except Exception as e:
-        logger.error(str(e))
+        print(str(e))
         sys.exit(1)
 
 
