@@ -11,10 +11,6 @@ from fall_detection.datasets.falldataset import (
     get_falldataset_test_urls,
 )
 
-from fall_detection.logger.logger import LoggerSingleton
-
-logger = LoggerSingleton("app").get_logger()
-
 
 def cli():
     parser = argparse.ArgumentParser()
@@ -69,7 +65,7 @@ def main():
             for url in urls:
                 download_dataset_from_url(url, output_dir)
     except ValueError as e:
-        logger.error(str(e))
+        print(str(e))
         sys.exit(1)
 
 
