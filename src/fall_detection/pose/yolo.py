@@ -1,18 +1,12 @@
 """
 Yolov8 Pose detection
 """
-from ..base import PoseModel, COCO_POSE_KEYPOINTS
+from .base import PoseModel, COCO_POSE_KEYPOINTS
 from ultralytics import YOLO
+from ..utils import get_torch_device
 import numpy as np
 import torch
 import os
-
-
-# TODO: remove and use from common utils
-def get_torch_device():
-    # if torch.backends.mps.is_available() and torch.backends.mps.is_built():
-    #     return torch.device("mps")
-    return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def download_yolo_pose_model(output_path):
@@ -44,16 +38,16 @@ class YoloPoseModel(PoseModel):
         if (
             results is None
             or results[0].keypoints.shape[1] == 0
-            or results[0].boxes.conf[0] < 0.6
+            or results[0].boxes.conf[0] < 0.01  # TODO: change threshold of person
         ):
             return None
-        return results
+        return results[0]
 
     def draw_landmarks(self, image, results):
-        return results[0].plot(img=image)
+        return results.plot(img=image)
 
     def results_to_pose_landmarks(self, results, height=None, width=None):
-        return np.squeeze(results[0].keypoints[0].data.numpy())
+        return np.squeeze(results.keypoints[0].data.numpy())
 
     @property
     def landmarks_names(self):

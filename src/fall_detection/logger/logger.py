@@ -1,7 +1,7 @@
 import logging
 
 
-class LoggerSingleton:
+class Logger:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
