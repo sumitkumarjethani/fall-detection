@@ -1,13 +1,13 @@
 """Fall detection pipeline"""
 
 from typing import Optional
-from fall_detection.fall.classification import EMADictSmoothing, PoseClassifier
-from fall_detection.fall.detection import StateDetector
-from fall_detection.fall.embedding import PoseEmbedder
-from fall_detection.fall.rules import PersonIsAlone, PersonNotOnFurniture, RulesChecker
-from fall_detection.object_detection.yolo import ObjectDetector
-from fall_detection.pose.base import PoseModel
-from fall_detection.fall.plot import plot_fall_text
+from .classification import EMADictSmoothing, PoseClassifier
+from .detection import StateDetector
+from .embedding import PoseEmbedder
+from .rules import PersonIsAlone, PersonNotOnFurniture, RulesChecker
+from ..object_detection.yolo import ObjectDetector
+from ..pose.base import PoseModel
+from ..fall.plot import plot_fall_text
 
 
 class Pipeline:
@@ -21,7 +21,7 @@ class Pipeline:
         enter_threshold: int = 6,
         exit_threshold: int = 4,
         window_size: int = 10,
-        alpha: float = 0.2,
+        alpha: float = 0.3,
         rules_checker: Optional[RulesChecker] = None,
     ):
         self._pose_model = pose_model
@@ -57,23 +57,16 @@ class Pipeline:
         )
 
     def _create_pose_embedder(self):
-        return PoseEmbedder(
-            landmark_names=self._pose_model.landmarks_names,
-        )
+        return PoseEmbedder(landmark_names=self._pose_model.landmarks_names)
 
     def _run(self, image):
-        # image = image.copy()
-
         # detect and draw objects
         objs_results = self._object_model.predict(image)
-
-        objs = self._object_model.results_to_object_detection_samples(
-            results=objs_results,
-        )
+        objs = self._object_model.results_to_object_detection_samples(results=objs_results)
 
         # # check manual rules
         # if not self._rules_checker.check(objs):
-        #     print("pipeline: return on rules")
+        #     print("Pipeline: exiting because manual rules not satisfied")
         #     if objs_results is not None:
         #         image = self._object_model.draw_results(image, objs_results)
         #     return plot_fall_text(image, False)
@@ -82,7 +75,6 @@ class Pipeline:
         pose_results = self._pose_model.predict(image)
 
         if pose_results is None:
-            print("pipeline: no pose detected")
             if objs_results is not None:
                 image = self._object_model.draw_results(image, objs_results)
             return plot_fall_text(image, False)
