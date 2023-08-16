@@ -5,6 +5,9 @@ import sys
 import tqdm
 
 from .base import PoseModel
+from ..logger.logger import Logger
+
+logger = Logger("fall-detection").get_logger()
 
 
 class PoseLandmarksGenerator(object):
@@ -53,7 +56,7 @@ class PoseLandmarksGenerator(object):
             os.makedirs(self._csvs_out_folder)
 
         for pose_class_name in self._pose_class_names:
-            print("Processing Images ", pose_class_name, file=sys.stderr)
+            logger.info("Processing Images ", pose_class_name, file=sys.stderr)
 
             # Paths for the pose class.
             images_in_folder = os.path.join(self._images_in_folder, pose_class_name)
@@ -143,7 +146,7 @@ class PoseLandmarksGenerator(object):
                         image_names_in_csv.append(image_name)
                         csv_out_writer.writerow(row)
                     elif print_removed_items:
-                        print("Removed image from CSV: ", image_path)
+                        logger.info("Removed image from CSV: ", image_path)
 
             # Remove images without corresponding line in CSV.
             for image_name in os.listdir(images_out_folder):
@@ -151,4 +154,4 @@ class PoseLandmarksGenerator(object):
                     image_path = os.path.join(images_out_folder, image_name)
                     os.remove(image_path)
                     if print_removed_items:
-                        print("Removed image from folder: ", image_path)
+                        logger.info("Removed image from folder: ", image_path)
