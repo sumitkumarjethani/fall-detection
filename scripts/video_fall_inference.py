@@ -3,17 +3,13 @@ import sys
 import cv2
 import numpy as np
 import tqdm
-
-from fall_detection.logger.logger import LoggerSingleton
+import pickle
 from fall_detection.fall.classification import EMADictSmoothing
 from fall_detection.fall.detection import StateDetector
 from fall_detection.fall.plot import PoseClassificationVisualizer
 from fall_detection.pose.mediapipe import MediapipePoseModel
 from fall_detection.pose.movenet import MovenetModel, TFLiteMovenetModel
 from fall_detection.pose.yolo import YoloPoseModel
-import pickle
-
-logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -34,8 +30,8 @@ def cli():
         required=True,
     )
     parser.add_argument(
-        "-m",
-        "--pose-model",
+        "--pose-model-name",
+        "--pose-model-name",
         help="pose model name",
         type=str,
         required=True,
@@ -43,9 +39,9 @@ def cli():
         default="yolo",
     )
     parser.add_argument(
-        "-mv",
+        "--movenet-version",
         "--movenet_version",
-        help="specific movenet model name to use for pose inference.",
+        help="specific movenet model to use for pose inference.",
         required=False,
         default="movenet_thunder",
         choices=[
@@ -55,23 +51,22 @@ def cli():
             "movenet_thunder_f16.tflite",
             "movenet_lightning_int8.tflite",
             "movenet_thunder_int8.tflite",
-        ],
+        ]
     )
     parser.add_argument(
-        "-p",
-        "--yolo_model_path",
-        help="yolo model path to use for the inference.",
+        "--yolo-pose-model-path",
+        "--yolo-pose-model-path",
+        help="yolo pose model path to use for the inference.",
         required=False,
         default="yolov8n-pose.pt",
     )
     parser.add_argument(
-        "-c",
-        "--classification-model",
+        "--pose-classifier",
+        "--pose-classifier",
         help="pose classification model to use.",
         type=str,
         required=True,
     )
-
     args = parser.parse_args()
     return args
 
@@ -79,6 +74,7 @@ def cli():
 def main():
     try:
         args = cli()
+        pose_model_name = args.pose_model_name
 
         # Open the video.
         video_cap = cv2.VideoCapture(args.input)
@@ -89,37 +85,32 @@ def main():
         video_width = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         video_height = int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-        logger.info(f"loading model")
+        print(f"Loading pose model: {pose_model_name}")
 
-        if args.pose_model == "mediapipe":
+        if pose_model_name == "mediapipe":
             pose_model = MediapipePoseModel()
-        elif args.pose_model == "movenet":
+        elif pose_model_name == "movenet":
             movenet_version = args.movenet_version
-            pose_model = (
-                TFLiteMovenetModel(movenet_version)
-                if movenet_version.endswith("tflite")
-                else MovenetModel(movenet_version)
-            )
-        elif args.pose_model == "yolo":
-            yolo_model_path = args.yolo_model_path
-            pose_model = YoloPoseModel(model_path=yolo_model_path)
+            pose_model = TFLiteMovenetModel(movenet_version) \
+                if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
+        elif pose_model_name == "yolo":
+            yolo_pose_model_path = args.yolo_pose_model_path
+            pose_model = YoloPoseModel(model_path=yolo_pose_model_path)
         else:
-            raise ValueError("model input not valid")
+            raise ValueError("Model input not valid")
 
-        with open(f"{args.classification_model}", "rb") as f:
+        with open(f"{args.pose_classifier}", "rb") as f:
             pose_classifier = pickle.load(f)
-
+        
         # Initialize EMA smoothing.
         pose_classification_smoother = EMADictSmoothing(window_size=10, alpha=0.3)
 
         # Initialize counter.
-        fall_detector = StateDetector(
-            class_name="Fall", enter_threshold=6, exit_threshold=4
-        )
+        fall_detector = StateDetector(class_name="fall", enter_threshold=6, exit_threshold=4)
 
         # Initialize renderer.
         pose_classification_visualizer = PoseClassificationVisualizer(
-            class_name="Fall",
+            class_name="fall",
             plot_x_max=video_n_frames,
             plot_y_max=10,
         )
@@ -178,7 +169,7 @@ def main():
                     pose_classification_filtered = None
                     fall_detection = fall_detector.state
 
-                logger.info(pose_classification_filtered)
+                print(pose_classification_filtered)
 
                 # Draw classification plot and repetition counter.
                 output_frame = pose_classification_visualizer(
@@ -196,10 +187,9 @@ def main():
 
         # Close output video.
         out_video.release()
-
         sys.exit(0)
     except ValueError as e:
-        logger.error(str(e))
+        print(str(e))
         sys.exit(1)
 
 
