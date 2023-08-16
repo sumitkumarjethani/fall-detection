@@ -1,16 +1,9 @@
 """Converts a set of videos of certain classes into a image dataset"""
 
-
 import argparse
 import os
-import shutil
-from typing import Dict
-
 import cv2
-from fall_detection.logger.logger import LoggerSingleton
-from fall_detection.utils import save_image
-
-logger = LoggerSingleton("app").get_logger()
+from fall_detection.utils import is_directory, save_image
 
 
 def cli():
@@ -34,7 +27,6 @@ def cli():
 
 
 def video_into_images(input, output, frames_freq=1, max_frames=10):
-    print(input, output)
     video_cap = cv2.VideoCapture(input)
 
     video_total_frames = video_cap.get(cv2.CAP_PROP_FRAME_COUNT)
@@ -52,8 +44,7 @@ def video_into_images(input, output, frames_freq=1, max_frames=10):
 
         if n_frames % frames_freq == 0:
             output_name = output + f"_frame_{n_frames}.jpg"
-            print(output_name)
-            cv2.imwrite(output_name, frame)
+            save_image(output_name, frame)
         n_frames += 1
 
 
@@ -62,12 +53,11 @@ def main(input_dir, output_dir):
         os.mkdir(output_dir)
 
     for dir in os.listdir(input_dir):
-        if os.path.isdir(os.path.join(input_dir, dir)):
+        if is_directory(os.path.join(input_dir, dir)):
             output_subdir = os.path.join(output_dir, dir)
             if not os.path.exists(output_subdir):
                 os.mkdir(output_subdir)
             input_subdir = os.path.join(input_dir, dir)
-            print(input_dir, output_dir)
             for file in os.listdir(input_subdir):
                 input_file_path = os.path.join(input_dir, dir, file)
                 output_file_path = os.path.join(
