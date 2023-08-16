@@ -2,23 +2,20 @@ import argparse
 import sys
 import cv2
 
-from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.fall.classification import EMADictSmoothing
 from fall_detection.fall.detection import StateDetector
 from fall_detection.pose.mediapipe import MediapipePoseModel
-from fall_detection.pose.movenet import MovenetModel
+from fall_detection.pose.movenet import MovenetModel, TFLiteMovenetModel
 from fall_detection.pose.yolo import YoloPoseModel
 import pickle
-
-logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-m",
-        "--pose-model",
+        "--pose-model-name",
+        "--pose-model-name",
         help="pose model name",
         type=str,
         required=True,
@@ -26,15 +23,30 @@ def cli():
         default="yolo",
     )
     parser.add_argument(
-        "-p",
-        "--yolo_model_path",
-        help="yolo model path to use for the inference.",
+        "--movenet-version",
+        "--movenet_version",
+        help="specific movenet model to use for pose inference.",
+        required=False,
+        default="movenet_thunder",
+        choices=[
+            "movenet_lightning",
+            "movenet_thunder",
+            "movenet_lightning_f16.tflite",
+            "movenet_thunder_f16.tflite",
+            "movenet_lightning_int8.tflite",
+            "movenet_thunder_int8.tflite",
+        ]
+    )
+    parser.add_argument(
+        "--yolo-pose-model-path",
+        "--yolo-pose-model-path",
+        help="yolo pose model path to use for the inference.",
         required=False,
         default="yolov8n-pose.pt",
     )
     parser.add_argument(
-        "-c",
-        "--classification-model",
+        "--pose-classifier",
+        "--pose-classifier",
         help="pose classification model to use.",
         type=str,
         required=True,
@@ -45,30 +57,33 @@ def cli():
 def main():
     try:
         args = cli()
+        pose_model_name = args.pose_model_name
 
         # Open the webcam
         cam = cv2.VideoCapture(0)
 
-        logger.info(f"loading pose model")
+        print(f"Loading pose model: {pose_model_name}")
 
-        if args.pose_model == "mediapipe":
+        if pose_model_name == "mediapipe":
             pose_model = MediapipePoseModel()
-        elif args.pose_model == "movenet":
-            pose_model = MovenetModel()
-        elif args.pose_model == "yolo":
-            yolo_model_path = args.yolo_model_path
-            pose_model = YoloPoseModel(model_path=yolo_model_path)
+        elif pose_model_name == "movenet":
+            movenet_version = args.movenet_version
+            pose_model = TFLiteMovenetModel(movenet_version) \
+                if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
+        elif pose_model_name == "yolo":
+            yolo_pose_model_path = args.yolo_pose_model_path
+            pose_model = YoloPoseModel(model_path=yolo_pose_model_path)
         else:
-            raise ValueError("model input not valid")
+            raise ValueError("Model input not valid")
 
-        with open(f"{args.classification_model}", "rb") as f:
+        with open(f"{args.pose_classifier}", "rb") as f:
             pose_classifier = pickle.load(f)
 
         # Initialize EMA smoothing.
         pose_classification_smoother = EMADictSmoothing(window_size=10, alpha=0.3)
 
         # Initialize counter.
-        fall_detector = StateDetector(class_name="Fall", enter_threshold=6, exit_threshold=4)
+        fall_detector = StateDetector(class_name="fall", enter_threshold=6, exit_threshold=4)
 
         while True:
             success, input_frame = cam.read()
@@ -101,7 +116,7 @@ def main():
                 pose_classification_filtered = None
                 fall_detection = fall_detector.state
 
-            logger.info(pose_classification_filtered)
+            print(pose_classification_filtered)
 
             cv2.putText(
                 output_frame, str(pose_classification_filtered), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
@@ -116,7 +131,7 @@ def main():
         cam.release()
         cv2.destroyAllWindows()
     except ValueError as e:
-        logger.error(str(e))
+        print(str(e))
         sys.exit(1)
 
 
