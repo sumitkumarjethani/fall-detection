@@ -2,30 +2,26 @@ import argparse
 import sys
 import cv2
 
-from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.pose.mediapipe import MediapipePoseModel
 from fall_detection.pose.movenet import MovenetModel, TFLiteMovenetModel
 from fall_detection.pose.yolo import YoloPoseModel
-
-
-logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-m",
-        "--model",
-        help="model name to save.",
+        "--pose-model-name",
+        "--pose-model-name",
+        help="pose model to use.",
         type=str,
         choices=["mediapipe", "movenet", "yolo"],
         default="yolo",
     )
     parser.add_argument(
-        "-mv",
+        "--movenet-version",
         "--movenet_version",
-        help="specific movenet model name to use for pose inference.",
+        help="specific movenet model to use for pose inference.",
         required=False,
         default="movenet_thunder",
         choices=[
@@ -38,9 +34,9 @@ def cli():
         ]
     )
     parser.add_argument(
-        "-p",
-        "--yolo_model_path",
-        help="yolo model path to use for the inference.",
+        "--yolo-pose-model-path",
+        "--yolo-pose-model-path",
+        help="yolo pose model path to use for the inference.",
         required=False,
         default="yolov8n-pose.pt",
     )
@@ -50,21 +46,21 @@ def cli():
 def main():
     try:
         args = cli()
-        model = args.model
+        pose_model_name = args.pose_model_name
 
-        logger.info(f"loading model: {model}")
+        print(f"Loading pose model: {pose_model_name}")
 
-        if model == "mediapipe":
+        if pose_model_name == "mediapipe":
             pose_model = MediapipePoseModel()
-        elif model == "movenet":
+        elif pose_model_name == "movenet":
             movenet_version = args.movenet_version
             pose_model = TFLiteMovenetModel(movenet_version) \
                 if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
-        elif model == "yolo":
-            yolo_model_path = args.yolo_model_path
-            pose_model = YoloPoseModel(model_path=yolo_model_path)
+        elif pose_model_name == "yolo":
+            yolo_pose_model_path = args.yolo_pose_model_path
+            pose_model = YoloPoseModel(model_path=yolo_pose_model_path)
         else:
-            raise ValueError("model input not valid")
+            raise ValueError("Model input not valid")
 
         cam = cv2.VideoCapture(0)
         while True:
@@ -88,7 +84,7 @@ def main():
         cv2.destroyAllWindows()
 
     except Exception as e:
-        logger.error(str(e))
+        print(str(e))
         sys.exit(1)
 
 
