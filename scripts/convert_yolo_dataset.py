@@ -4,9 +4,6 @@ import os
 import shutil
 import yaml
 from typing import Dict
-from fall_detection.logger.logger import LoggerSingleton
-
-logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -68,6 +65,6 @@ def main(input_dir: str, output_dir: str):
 if __name__ == "__main__":
     args = cli()
 
-    logger.debug(f"converting dataset from {args.input}")
+    print(f"Converting dataset from {args.input}")
     main(args.input, args.output)
-    logger.debug(f"saving dataset to {args.output}")
+    print(f"Saving dataset to {args.output}")
