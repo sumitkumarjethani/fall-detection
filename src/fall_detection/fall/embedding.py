@@ -1,4 +1,7 @@
 import numpy as np
+from ..logger.logger import Logger
+
+logger = Logger("fall-detection").get_logger()
 
 # depending on the landmarks shape, use one or other landmark names:
 BLAZE_POSE_KEYPOINTS = [
@@ -283,7 +286,7 @@ class PoseEmbedder(object):
         return distance
 
     def _get_angle_by_names(self, landmarks, name_from, name_vertex, name_to):
-        print(name_from, name_vertex, name_to)
+        logger.info(name_from, name_vertex, name_to)
         lmk_from = landmarks[self._landmark_names.index(name_from)]
         lmk_vertex = landmarks[self._landmark_names.index(name_vertex)]
         lmk_to = landmarks[self._landmark_names.index(name_to)]

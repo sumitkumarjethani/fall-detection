@@ -4,7 +4,9 @@ from abc import ABC, abstractmethod
 from sklearn.base import BaseEstimator
 from fall_detection.fall.embedding import PoseEmbedder
 from .data import PoseSample
+from ..logger.logger import Logger
 
+logger = Logger("fall-detection").get_logger()
 
 class PoseClassifier(ABC):
     @abstractmethod
@@ -39,7 +41,7 @@ class EstimatorClassifier(PoseClassifier):
         self._n_dimensions = n_dimensions
 
     def fit(self, pose_samples: List[PoseSample]):
-        print(f"fitting on {len(pose_samples)} pose samples")
+        logger.info(f"Fitting on {len(pose_samples)} pose samples")
         X = np.array([ps.embedding for ps in pose_samples]).reshape(
             len(pose_samples), -1
         )
@@ -48,7 +50,7 @@ class EstimatorClassifier(PoseClassifier):
         return self
 
     def predict_pose_samples(self, pose_samples: List[PoseSample]):
-        print(f"predict on {len(pose_samples)} pose samples")
+        logger.info(f"Predict on {len(pose_samples)} pose samples")
         X = np.array([ps.embedding for ps in pose_samples]).reshape(
             len(pose_samples), -1
         )
@@ -87,10 +89,11 @@ class KnnPoseClassifier(PoseClassifier):
         self._pose_samples = []
 
     def fit(self, pose_samples):
-        print(f"fitting on {len(pose_samples)}  pose samples")
+        logger.info(f"Fitting on {len(pose_samples)} pose samples")
         self._pose_samples = pose_samples
 
     def predict_pose_samples(self, pose_samples: List[PoseSample]):
+        logger.info(f"Predicting on {len(pose_samples)} pose samples")
         y_preds = [self.predict(pose_sample.landmarks) for pose_sample in pose_samples]
         return np.array([max(y_pred, key=y_pred.get) for y_pred in y_preds])
 

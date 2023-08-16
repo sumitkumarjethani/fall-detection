@@ -1,17 +1,11 @@
 import argparse
 import sys
+import pickle
+import os
 from sklearn.ensemble import RandomForestClassifier
-from fall_detection.logger.logger import LoggerSingleton
 from fall_detection.fall.data import load_pose_samples_from_dir
 from fall_detection.fall.classification import EstimatorClassifier, KnnPoseClassifier
-from fall_detection.fall.embedding import (
-    PoseEmbedder,
-    BLAZE_POSE_KEYPOINTS,
-    COCO_POSE_KEYPOINTS,
-)
-import pickle
-
-logger = LoggerSingleton("app").get_logger()
+from fall_detection.fall.embedding import (PoseEmbedder, BLAZE_POSE_KEYPOINTS, COCO_POSE_KEYPOINTS)
 
 
 def cli():
@@ -19,13 +13,20 @@ def cli():
 
     parser.add_argument(
         "-i",
-        "--input_file",
-        help="input path to read the images from",
+        "--input",
+        help="input path to read the landmarks from",
         type=str,
         required=True,
     )
     parser.add_argument(
-        "-m",
+        "-o",
+        "--output",
+        help="output path to save the trained model",
+        type=str,
+        required=True,
+    )
+    parser.add_argument(
+        "--model",
         "--model",
         help="model to train.",
         type=str,
@@ -33,9 +34,9 @@ def cli():
         default="rf",
     )
     parser.add_argument(
-        "-name",
-        "--output_model_name",
-        help="trained model name.",
+        "--model-name",
+        "--model-name",
+        help="trained model name to save.",
         type=str,
         required=True,
     )
@@ -73,14 +74,14 @@ def main():
         elif args.n_kps == 33:
             landmark_names = BLAZE_POSE_KEYPOINTS
         else:
-            raise ValueError("number of keypoints supported are 17 or 33")
+            raise ValueError("Number of keypoints supported are 17 or 33")
 
         pose_embedder = PoseEmbedder(landmark_names=landmark_names)
 
         # load csv file with pose samples
         pose_samples = load_pose_samples_from_dir(
             pose_embedder=pose_embedder,
-            landmarks_dir=args.input_file,
+            landmarks_dir=args.input,
             n_landmarks=args.n_kps,
             n_dimensions=args.n_dim,
         )
@@ -106,12 +107,16 @@ def main():
 
         pose_classifier.fit(pose_samples)
 
-        with open(f"{args.output_model_name}", "wb") as f:
+        # Create output folder if not exists.
+        if not os.path.exists(args.output):
+            os.makedirs(args.output)
+
+        with open(os.path.join(args.output, f"{args.model_name}.pkl"), "wb") as f:
             pickle.dump(pose_classifier, f)
 
         sys.exit(0)
     except Exception as e:
-        logger.error(str(e))
+        print(str(e))
         sys.exit(1)
 
 
