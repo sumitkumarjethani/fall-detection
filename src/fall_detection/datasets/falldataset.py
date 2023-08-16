@@ -1,13 +1,12 @@
-"""
-Utility module to load and prepare de dataset from 
-falldataset.com
-"""
-
+"""Utility module to load and prepare de dataset from  falldataset.com"""
 import os
-from typing import Dict, List, Optional, AnyStr
 import csv
 import shutil
-import uuid
+from ..logger.logger import Logger
+from typing import Dict, List, Optional
+
+logger = Logger("fall-detection").get_logger()
+
 
 # dataset urls
 _dataset_urls = [
@@ -223,5 +222,5 @@ def process_dataset(
                 dst_image_path = os.path.join(
                     output_dir, class_name, dst_image_filename
                 )
-                print("copying:    ", src_image_path, "     to:     ", dst_image_path)
+                logger.info(f"copying: {src_image_path} to: {dst_image_path}")
                 shutil.copy(src=src_image_path, dst=dst_image_path)

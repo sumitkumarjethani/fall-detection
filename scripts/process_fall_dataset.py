@@ -1,13 +1,6 @@
 import argparse
-import logging
 import sys
-
-# setting path
-from fall_detection.logger.logger import LoggerSingleton
-
 from fall_detection.datasets.falldataset import process_dataset
-
-logger = LoggerSingleton("app").get_logger()
 
 
 def cli():
@@ -28,7 +21,6 @@ def cli():
     )
 
     args = parser.parse_args()
-
     return args
 
 
@@ -37,7 +29,7 @@ def main():
         args = cli()
         process_dataset(input_dir=args.input, output_dir=args.output)
     except ValueError as e:
-        logger.error(str(e))
+        print(str(e))
         sys.exit(1)
 
 
