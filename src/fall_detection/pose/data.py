@@ -79,7 +79,6 @@ class PoseLandmarksGenerator(object):
                 for image_name in tqdm.tqdm(image_names):
                     # Load image.
                     input_frame = cv2.imread(os.path.join(images_in_folder, image_name))
-                    input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2RGB)
 
                     # Initialize fresh pose tracker and run it.
                     results = pose_model.predict(input_frame)
@@ -92,8 +91,6 @@ class PoseLandmarksGenerator(object):
                             image=output_frame,
                             results=results,
                         )
-
-                    output_frame = cv2.cvtColor(output_frame, cv2.COLOR_RGB2BGR)
 
                     cv2.imwrite(os.path.join(images_out_folder, image_name), output_frame)
 
