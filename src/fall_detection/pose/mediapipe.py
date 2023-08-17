@@ -7,11 +7,19 @@ except:
     )
 
 import numpy as np
+import cv2
 from .base import PoseModel, BLAZE_POSE_KEYPOINTS
+
+def _preprocess_image_for_mediapipe(image):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    return image
 
 
 class MediapipePoseModel(PoseModel):
     def predict(self, image):
+        # Preprocess image for mediapipe
+        image = _preprocess_image_for_mediapipe(image)
+
         # Initialize fresh pose tracker and run it.
         with mp_pose.Pose(
             min_detection_confidence=0.4,

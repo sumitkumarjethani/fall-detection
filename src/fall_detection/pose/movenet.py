@@ -176,6 +176,7 @@ def draw_prediction_on_image(image, keypoints, threshold=0.11, normalized=True):
 
 
 def _preprocess_image_for_movenet(image, input_size):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     image = tf.convert_to_tensor(image, dtype=tf.float32)
     image = tf.expand_dims(image, axis=0)
     image = tf.image.resize_with_pad(image, input_size, input_size)
