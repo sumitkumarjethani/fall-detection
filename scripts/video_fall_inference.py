@@ -132,7 +132,6 @@ def main():
                     break
 
                 # Run pose tracker.
-                input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2RGB)
                 results = pose_model.predict(image=input_frame)
 
                 # Draw pose prediction.
@@ -180,7 +179,7 @@ def main():
                 )
 
                 # Save the output frame.
-                out_video.write(cv2.cvtColor(np.array(output_frame), cv2.COLOR_RGB2BGR))
+                out_video.write(np.array(output_frame))
 
                 frame_idx += 1
                 pbar.update()
