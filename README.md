@@ -1,283 +1,356 @@
-# Realtime fall detection
-
+# Fall Detection System
 
 ## Datasets
 
-## [Falldataset](https://falldataset.com/)
+### Fall Dataset
 
-#### Requirements:
-- wget
-- tar
+[**Fall dataset**](https://falldataset.com/)
 
-### Code
+- **Code:** [Source](./src/fall_detection/datasets/falldataset.py)
 
-- [Source](./src/datasets/falldataset.py)
-
-### Descarga del falldataset
-
-- [Script](./src/scripts/download_falldataset.py)
+- **Download fall dataset:**
 
 ```bash
-python download_falldataset.py \
+python ./scripts/download_fall_dataset.py
 -o ./data/falldataset \
 --train \
 --valid \
 --test
 ```
 
-### Procesado del dataset
-
-- [Script](./src/scripts/process_falldataset.py)
+- **Process fall dataset:**
 
 ```bash
-python ./scripts/process_falldataset.py \
--i ./data/falldataset/train \
--o ./data/falldataset-processed/train
+python ./scripts/process_fall_dataset.py \
+-i ./data/fall_dataset/train \
+-o ./data/fall_dataset-processed/train
 ```
+
 ```bash
-python ./scripts/process_falldataset.py \
--i ./data/falldataset/test \
--o ./data/falldataset-processed/test
+python ./scripts/process_fall_dataset.py \
+-i ./data/fall_dataset/test \
+-o ./data/fall_dataset-processed/test
 ```
 
-## Convert Yolo Dataset
-
+### Convert Roboflow Yolo Dataset
 ```bash
 python scripts/convert_yolo_dataset.py \
 --input "../../data/custom_dataset_yolo" \
 --output "../../data/custom_dataset"
 ```
 
+### Generate Landmarks Dataset for Fall Detection
+
+**Movenet:**
+```bash
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/personal-dataset" \
+-o "../../data/movenet-personal-dataset-out" \
+-f "../../data/movenet-personal-dataset-csv" \
+--pose-model-name "movenet" \
+--movenet-version "movenet_thunder"
+```
+
+**Mediapipe:**
+```bash
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/personal-dataset" \
+-o "../../data/mediapipe-personal-dataset-out" \
+-f "../../data/mediapipe-personal-dataset-csv" \
+--pose-model-name "mediapipe"
+```
+
+**Yolo:**
+```bash
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/personal-dataset" \
+-o "../../data/yolo-personal-dataset-out" \
+-f "../../data/yolo-personal-dataset-csv" \
+--pose-model-name "yolo"
+--yolo-pose-model-path "../../models/yolov8n-pose.pt"
+```
+
 ## Pose Models
 
-### Movenet image pose inference
+### Image Pose Inference
+
+**Movenet:**
 ```bash
 python scripts/image_pose_inference.py \
--i "../../data/fall-sample.png" \
--o "../../data/fall-sample-output.jpg" \
--m "movenet" \
--mv  "movenet_thunder"
+-i "../../data/fall_sample.jpg" \
+-o "../../data/fall_sample_out.jpg" \
+--pose-model-name "movenet" \
+--movenet-version "movenet_thunder"
 ```
 
-### Mediapipe image pose inference
+**Mediapipe:**
 ```bash
 python scripts/image_pose_inference.py \
--i "../../data/fall-sample.png" \
--o "../../data/fall-sample-output.jpg" \
--m "mediapipe"
+-i "../../data/fall_sample.jpg" \
+-o "../../data/fall_sample_out.jpg" \
+--pose-model-name "mediapipe"
 ```
 
-### Yolo Image pose inference
+**Yolo:**
 ```bash
 python scripts/image_pose_inference.py \
--i "../../data/fall-sample.png" \
--o "../../data/fall-sample-output.jpg" \
--m "yolo" \
--p "../../models/yolov7-w6-pose.pt"
+-i "../../data/fall_sample.jpg" \
+-o "../../data/fall_sample_out.jpg" \
+--pose-model-name "yolo"
+--yolo-pose-model-path "../../models/yolov8n-pose.pt"
 ```
 
-### Webcam Movenet Pose Inference
+### Webcam Pose Inference
+
+**Movenet:**
 ```bash
-python scripts/webcam_pose_inference.py  \
--m "movenet" \
--mv "movenet_thunder"
+python scripts/webcam_pose_inference.py \
+--pose-model-name "movenet" \
+--movenet-version "movenet_thunder"
 ```
 
-### Webcam Mediapipe Pose Inference
+**Mediapipe:**
 ```bash
-python scripts/webcam_pose_inference.py  \
--m "mediapipe"
+python scripts/webcam_pose_inference.py \
+--pose-model-name "mediapipe"
 ```
 
-### Webcam Yolo Pose Inference
+**Yolo:**
 ```bash
-python scripts/webcam_pose_inference.py  \
--m "yolo" \
--p "../../models/yolov7-w6-pose.pt"
+python scripts/webcam_pose_inference.py \
+--pose-model-name "yolo"
+--yolo-pose-model-path "../../models/yolov8n-pose.pt"
 ```
 
-## Generate Landmarks Dataset for Fall Detection
+## Train Pose Classifier
 
-#### Small dataset with mediapipe
-```bash
-python scripts/generate_landmarks_dataset.py \
--i "../../data/test_dataset" \
--o "../../data/test_dataset_out" \
--f "../../data/test_dataset_csv" \
--m "mediapipe"
-```
+### Random Forest
 
-#### Small dataset with movenet
+**Movenet:**
 ```bash
-python scripts/generate_landmarks_dataset.py \
--i "../../data/test_dataset" \
--o "../../data/movenet_test_dataset_out" \
--f "../../data/movenet_test_dataset_csv" \
--m "movenet" \
--mv "movenet_thunder"
-```
-
-#### Small dataset with yolo
-```bash
-python scripts/generate_landmarks_dataset.py \
--i "../../data/test_dataset" \
--o "../../data/yolo_test_dataset_out" \
--f "../../data/yolo_test_dataset_csv" \
--m "yolo" \
--p "../../models/yolov7-w6-pose.pt"
-```
-
-#### Process full dataset
-```bash
-python scripts/generate_landmarks_dataset.py \
--i "../../data/samples" \
--o "../../data/mediapipe_samples_out" \
--f "../../data/mediapipe_samples_csv_out" \
--m "mediapipe" \
---max-samples 6000
-```
-
-#### process full dataset
-```bash
-python scripts/generate_landmarks_dataset.py \
--i "../../data/samples" \
--o "../../data/movenet_samples_out" \
--f "../../data/movenet_samples_csv_out" \
--m "movenet" \
--mv "movenet_thunder" \
---max-samples 6000
-```
-
-#### process full dataset
-```bash
-python scripts/generate_landmarks_dataset.py \
--i "./data/falldataset-processed/test" \
--o "./data/falldataset-yolo/test/out" \
--f "./data/falldataset-yolo/test/csv_out" \
--m "yolo" \
--p "./models/yolov8n-pose.pt" \
---max-samples 6000
-```
-
-## Train Pose Classification Model
-```bash
-python scripts/train_estimator_pose_classifier.py \
--i "./data/falldataset-yolo/train/csv_out" \
--m "rf" \
--name "./models/yolo_rf_pose_classifier_falldataset.pkl" \
+python scripts/train_pose_classifier.py \
+-i "../../data/movenet-personal-dataset-csv" \
+-o "../../models" \
+--model "rf" \
+--model-name "movenet_rf_pose_classifier" \
 --n-kps 17 \
 --n-dim 3
 ```
 
+**Mediapipe:**
 ```bash
-python scripts/train_estimator_pose_classifier.py \
--i "../../data/yolo_samples_csv" \
--m "knn" \
--name "../../models/yolo_knn_pose_classifier_model.pkl" \
+python scripts/train_pose_classifier.py \
+-i "../../data/mediapipe-personal-dataset-csv" \
+-o "../../models" \
+--model "rf" \
+--model-name "mediapipe_rf_pose_classifier" \
+--n-kps 33 \
+--n-dim 3
+```
+
+**Yolo:**
+```bash
+python scripts/train_pose_classifier.py \
+-i "../../data/yolo-personal-dataset-csv" \
+-o "../../models" \
+--model "rf" \
+--model-name "yolo_rf_pose_classifier" \
+--n-kps 17 \
+--n-dim 3
+```
+
+### KNN
+
+**Movenet:**
+```bash
+python scripts/train_pose_classifier.py \
+-i "../../data/movenet-personal-dataset-csv" \
+-o "../../models" \
+--model "knn" \
+--model-name "movenet_knn_pose_classifier" \
 --n-kps 17 \
 --n-dim 3 \
 --n-neighbours 10
 ```
 
-## Evaluate Pose Classification Model
+**Mediapipe:**
+```bash
+python scripts/train_pose_classifier.py \
+-i "../../data/mediapipe-personal-dataset-csv" \
+-o "../../models" \
+--model "knn" \
+--model-name "mediapipe_knn_pose_classifier" \
+--n-kps 33 \
+--n-dim 3 \
+--n-neighbours 10
+```
+
+**Yolo:**
+```bash
+python scripts/train_pose_classifier.py \
+-i "../../data/yolo-personal-dataset-csv" \
+-o "../../models" \
+--model "knn" \
+--model-name "yolo_knn_pose_classifier" \
+--n-kps 17 \
+--n-dim 3 \
+--n-neighbours 10
+```
+
+## Evaluate Pose Classifier
+
+### Random Forest
+
+**Movenet:**
 ```bash
 python scripts/evaluate_pose_classifier.py \
--i "../../data/yolo_samples_csv" \
--i "../../metrics/yolo_rf.txt" \
--c "../../models/mediapipe_knn_model.pkl"
+-i "../../data/movenet-personal-dataset-csv/test" \
+-o "../../metrics/" \
+-f "movenet_rf_personal_dataset" \
+--pose-classifier "../../models/movenet_rf_pose_classifier.pkl"
 ```
 
+**Mediapipe:**
 ```bash
 python scripts/evaluate_pose_classifier.py \
--i "./data/falldataset-yolo/test/csv_out" \
--o "./metrics/yolo_rf-falldataset.txt" \
--c "./models/yolo_rf_pose_classifier_falldataset.pkl"
+-i "../../data/mediapipe-personal-dataset-csv/test" \
+-o "../../metrics/" \
+-f "mediapipe_rf_personal_dataset" \
+--pose-classifier "../../models/mediapipe_rf_pose_classifier.pkl"
 ```
 
-## Video Fall Detection 
-
+**Yolo:**
 ```bash
-python scripts/video_inference_fall_detector.py \
+python scripts/evaluate_pose_classifier.py \
+-i "../../data/yolo-personal-dataset-csv/test" \
+-o "../../metrics/" \
+-f "yolo_rf_personal_dataset" \
+--pose-classifier "../../models/yolo_rf_pose_classifier.pkl"
+```
+
+### KNN
+
+**Movenet:**
+```bash
+python scripts/evaluate_pose_classifier.py \
+-i "../../data/movenet-personal-dataset-csv/test" \
+-o "../../metrics/" \
+-f "movenet_knn_personal_dataset" \
+--pose-classifier "../../models/movenet_knn_pose_classifier.pkl"
+```
+
+**Mediapipe:**
+```bash
+python scripts/evaluate_pose_classifier.py \
+-i "../../data/mediapipe-personal-dataset-csv/test" \
+-o "../../metrics/" \
+-f "mediapipe_knn_personal_dataset" \
+--pose-classifier "../../models/mediapipe_knn_pose_classifier.pkl"
+```
+
+**Yolo:**
+```bash
+python scripts/evaluate_pose_classifier.py \
+-i "../../data/yolo-personal-dataset-csv/test" \
+-o "../../metrics/" \
+-f "yolo_knn_personal_dataset" \
+--pose-classifier "../../models/yolo_knn_pose_classifier.pkl"
+```
+
+## Video Fall Inference 
+
+**Movenet:**
+```bash
+python scripts/video_fall_inference.py \
 -i "../../data/videos/uri.mp4" \
--o "../../data/videos/uri_meidapipe_out.mp4" \
--m "mediapipe" \
--c "../../models/mediapipe_knn_model.pkl" 
+-o "../../data/videos/movenet_uri_out.mp4" \
+--pose-model-name "movenet" \
+--movenet-version "movenet_thunder" \
+--pose-classifier "../../models/movenet_rf_pose_classifier.pkl" 
 ```
 
+**Mediapipe:**
 ```bash
-python scripts/video_inference_fall_detector.py \
--i "../../data/videos/euge.mp4" \
--o "../../data/videos/euge_movenet_out.mp4" \
--m "movenet" \
--mv "movenet_thunder" \
--c "../../models/movenet_knn_model.pkl" 
-```
-
-```bash
-python scripts/video_inference_fall_detector.py \
+python scripts/video_fall_inference.py \
 -i "../../data/videos/uri.mp4" \
--o "../../data/videos/uri_yolo_out.mp4" \
--m "yolo" \
--p "../../models/yolov7-w6-pose.pt" \
--c "../../models/yolo_knn_model.pkl" 
+-o "../../data/videos/mediapipe_uri_out.mp4" \
+--pose-model-name "mediapipe" \
+--pose-classifier "../../models/mediapipe_rf_pose_classifier.pkl" 
 ```
 
-## WebCam Fall Detection
-
+**Yolo:**
 ```bash
-python scripts/webcam_inference_fall_detector.py \
--m "mediapipe" \
--c "../../models/mediapipe_knn_model.pkl" 
+python scripts/video_fall_inference.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/yolo_uri_out.mp4" \
+--pose-model-name "yolo" \
+--yolo-pose-model-path "../../models/yolov8n-pose.pt" \
+--pose-classifier "../../models/yolo_rf_pose_classifier.pkl" 
 ```
 
+## WebCam Fall Inference
+
+**Movenet:**
 ```bash
-python scripts/webcam_inference_fall_detector.py \
--m "mediapipe" \
--c "../../models/mediapipe_estimator_model.pkl" 
+python scripts/webcam_fall_inference.py \
+--pose-model-name "movenet" \
+--movenet-version "movenet_thunder" \
+--pose-classifier "../../models/movenet_rf_pose_classifier.pkl" 
 ```
 
+**Mediapipe:**
 ```bash
-python scripts/webcam_inference_fall_detector.py \
--m "movenet" \
--c "../../models/movenet_knn_model.pkl" 
+python scripts/webcam_fall_inference.py \
+--pose-model-name "mediapipe" \
+--pose-classifier "../../models/mediapipe_rf_pose_classifier.pkl" 
 ```
 
+**Yolo:**
 ```bash
-python scripts/webcam_inference_fall_detector.py \
--m "movenet" \
--c "../../models/movenet_estimator_model.pkl" 
+python scripts/webcam_fall_inference.py \
+--pose-model-name "yolo" \
+--yolo-pose-model-path "../../models/yolov8n-pose.pt" \
+--pose-classifier "../../models/yolo_rf_pose_classifier.pkl" 
 ```
 
+## Fall Detector Pipeline
+
+**Movenet:**
 ```bash
-python scripts/webcam_inference_fall_detector.py \
--m "yolo" \
--c "../../models/yolo_knn_classification_model.pkl" 
+python scripts/video_fall_pipeline.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/movenet_uri_pipeline_out.mp4" \
+--pose-model-name "movenet" \
+--movenet-version "movenet_thunder" \
+--yolo-object-model-path "../../models/yolov8n.pt" \
+--pose-classifier "../../models/movenet_rf_pose_classifier.pkl" 
 ```
 
+**Mediapipe:**
 ```bash
-python scripts/webcam_inference_fall_detector.py \
--m "yolo" \
--c "../../models/yolo_estimator_classification_model.pkl" 
+python scripts/video_fall_pipeline.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/mediapipe_uri_pipeline_out.mp4" \
+--pose-model-name "mediapipe" \
+--yolo-object-model-path "../../models/yolov8n.pt" \
+--pose-classifier "../../models/mediapipe_rf_pose_classifier.pkl" 
 ```
 
-## Fall Pipeline
-
-### Yolo Image Fall Pipeline
+**Yolo:**
 ```bash
-python scripts/image_fall_pipeline.py \
--i "../../data/fall_sample_4.png" \
--o "../../data/fall_sample_4_out.png" \
+python scripts/video_fall_pipeline.py \
+-i "../../data/videos/uri.mp4" \
+-o "../../data/videos/yolo_uri_pipeline_out.mp4" \
 --pose-model-name "yolo" \
 --yolo-pose-model-path "../../models/yolov8n-pose.pt" \
 --yolo-object-model-path "../../models/yolov8n.pt" \
---pose-classifier "../../models/yolo_rf_pose_classifier_model.pkl" 
+--pose-classifier "../../models/yolo_rf_pose_classifier.pkl" 
 ```
 
+## Steps to Evaluate new Dataset / Model
 
-# Steps to Evaluate new Dataset / Model
-
-1. convert dataset to folder dataset
-2. generate keypoints samples
-3. train classifier
-4. validate(TODO)
-5. run inference on example image/video/webcam
+1. Convert dataset to folder dataset (Optional)
+2. Generate landmarks dataset
+3. Train pose classifier
+4. Evaluate Pose classifier
+5. Run pipeline inference on example image/video/webcam
