@@ -1,0 +1,7 @@
+ip = "xxx.xxx.x.xxx"
+port = 554
+user = "falldetection"
+password = "falldetection"
+
+url1 = rtsp://user:password@ip:port/stream1"  -> High quality
+url2 = rtsp://user:password@ip:port/stream2"  -> Low quality
