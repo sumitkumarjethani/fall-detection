@@ -64,20 +64,21 @@ class Pipeline:
         objs_results = self._object_model.predict(image)
         objs = self._object_model.results_to_object_detection_samples(results=objs_results)
 
-        # # check manual rules
-        # if not self._rules_checker.check(objs):
-        #     print("Pipeline: exiting because manual rules not satisfied")
-        #     if objs_results is not None:
-        #         image = self._object_model.draw_results(image, objs_results)
-        #     return plot_fall_text(image, False)
+        # check manual rules
+        if not self._rules_checker.check(objs):
+            print("Pipeline: rules failed")
+            if objs_results is not None:
+                image = self._object_model.draw_results(image, objs_results)
+            return plot_fall_text(image, self._detector._pose_entered)
 
         # detect and draw pose
         pose_results = self._pose_model.predict(image)
 
         if pose_results is None:
+            print("Pipeline: pose failed")
             if objs_results is not None:
                 image = self._object_model.draw_results(image, objs_results)
-            return plot_fall_text(image, False)
+            return plot_fall_text(image, self._detector._pose_entered)
 
         pose_landmarks = self._pose_model.results_to_pose_landmarks(
             pose_results, image.shape[0], image.shape[1]
