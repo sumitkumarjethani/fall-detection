@@ -91,7 +91,6 @@ def main():
                 break
 
             # Run pose tracker.
-            input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2RGB)
             results = pose_model.predict(image=input_frame)
 
             # Draw pose prediction.
