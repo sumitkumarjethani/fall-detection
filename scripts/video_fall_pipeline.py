@@ -127,22 +127,20 @@ def main():
 
         frame_idx = 0
         output_frame = None
-        # with tqdm.tqdm(total=video_n_frames, position=0, leave=True) as pbar:
-        while True:
-            # Get next frame of the video.
-            success, input_frame = video_cap.read()
-            if not success:
-                break
-            
-            # TODO: ¿Porque carajo esto?
-            input_frame = cv2.cvtColor(input_frame, cv2.COLOR_BGR2RGB)
-            output_frame = pipeline._run(image=input_frame)
+        with tqdm.tqdm(total=video_n_frames, position=0, leave=True) as pbar:
+            while True:
+                # Get next frame of the video.
+                success, input_frame = video_cap.read()
+                if not success:
+                    break
+                
+                output_frame = pipeline._run(image=input_frame)
 
-            # Save the output frame.
-            out_video.write(output_frame)
+                # Save the output frame.
+                out_video.write(output_frame)
 
-            frame_idx += 1
-            # pbar.update()
+                frame_idx += 1
+                pbar.update()
 
         # Close output video.
         out_video.release()
