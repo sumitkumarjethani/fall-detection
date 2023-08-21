@@ -62,7 +62,9 @@ class Pipeline:
     def _run(self, image):
         # detect and draw objects
         objs_results = self._object_model.predict(image)
-        objs = self._object_model.results_to_object_detection_samples(results=objs_results)
+        objs = self._object_model.results_to_object_detection_samples(
+            results=objs_results
+        )
 
         # check manual rules
         if not self._rules_checker.check(objs):
@@ -91,7 +93,6 @@ class Pipeline:
         smooth_classification_result = self._classification_smoother(
             classification_result
         )
-        print(smooth_classification_result)
 
         # detect state
         detection = self._detector(smooth_classification_result)
