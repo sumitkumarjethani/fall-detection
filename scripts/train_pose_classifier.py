@@ -44,15 +44,13 @@ def cli():
         "--n-kps",
         help="number of keypoints generaly 33 or 17 depending on pose model used",
         type=int,
-        required=True,
-        default=33,
+        default=17,
     )
     parser.add_argument(
         "--n-dim",
-        help="number of dimensions of the inputs. Generarly 3 (x,y,z) or (x,y,score)",
+        help="number of dimensions to use for the pose embedder. Generarly 2 (x,y) or (x,y,z) for mediapipe pose model",
         type=int,
-        required=True,
-        default=3,
+        default=2,
     )
     parser.add_argument(
         "--n-neighbours",
@@ -76,14 +74,13 @@ def main():
         else:
             raise ValueError("Number of keypoints supported are 17 or 33")
 
-        pose_embedder = PoseEmbedder(landmark_names=landmark_names)
+        pose_embedder = PoseEmbedder(landmark_names=landmark_names, dims=args.n_dim)
 
         # load csv file with pose samples
         pose_samples = load_pose_samples_from_dir(
             pose_embedder=pose_embedder,
             landmarks_dir=args.input,
             n_landmarks=args.n_kps,
-            n_dimensions=args.n_dim,
         )
 
         # Initialize pose classifier.
@@ -93,14 +90,12 @@ def main():
                 top_n_by_max_distance=30,
                 top_n_by_mean_distance=args.n_neighbours,
                 n_landmarks=args.n_kps,
-                n_dimensions=args.n_dim,
             )
         elif args.model == "rf":
             pose_classifier = EstimatorClassifier(
                 RandomForestClassifier(n_estimators=100, random_state=42),
                 pose_embedder,
                 n_landmarks=args.n_kps,
-                n_dimensions=args.n_dim,
             )
         else:
             raise ValueError("Supported trainable models are KNN or RF")

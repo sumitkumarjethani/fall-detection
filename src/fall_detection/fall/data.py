@@ -24,7 +24,6 @@ class PoseSample(object):
 def load_pose_samples_from_dir(
     pose_embedder,
     n_landmarks=33,
-    n_dimensions=2,
     landmarks_dir="./data",
     file_extension="csv",
     file_separator=",",
@@ -59,10 +58,10 @@ def load_pose_samples_from_dir(
             for row in csv_reader:
                 if len(row) == 0: continue
                 assert (
-                    len(row) == n_landmarks * n_dimensions + 1
+                    len(row) == n_landmarks * 3 + 1
                 ), "Wrong number of values: {}".format(len(row))
                 landmarks = np.array(row[1:], np.float32).reshape(
-                    [n_landmarks, n_dimensions]
+                    [n_landmarks, 3]
                 )
                 pose_samples.append(
                     PoseSample(
