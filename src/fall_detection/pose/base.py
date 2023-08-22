@@ -24,6 +24,10 @@ class PoseAugmentation(ABC):
     def apply(self, image):
         pass
 
+    @abstractmethod
+    def get_pose_augmentaion_name(self):
+        pass
+
     def __call__(self, image):
         return self.apply(image)
 

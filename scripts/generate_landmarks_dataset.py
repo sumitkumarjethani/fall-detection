@@ -4,6 +4,7 @@ import sys
 from fall_detection.pose.mediapipe import MediapipePoseModel
 from fall_detection.pose.movenet import MovenetModel, TFLiteMovenetModel
 from fall_detection.pose.yolo import YoloPoseModel
+from fall_detection.pose.augmentation import HorizontalFlip, Rotate, Zoom
 from fall_detection.pose.data import PoseLandmarksGenerator
 
 
@@ -68,6 +69,27 @@ def cli():
         required=False,
         default=None,
     )
+    parser.add_argument(
+        "--horizontal-flip",
+        "--horizontal-flip",
+        help="apply horizontal flip data augmentation to image while generating landmarks",
+        action="store_true",
+        required=False,
+    )
+    parser.add_argument(
+        "--rotate",
+        "--rotate",
+        help="apply rotate data augmentation to image while generating landmarks",
+        type=float,
+        required=False
+    )
+    parser.add_argument(
+        "--zoom",
+        "--zoom",
+        help="apply zoom data augmentation to image while generating landmarks",
+        type=float,
+        required=False
+    )
     return parser.parse_args()
 
 
@@ -89,11 +111,23 @@ def main():
             model = YoloPoseModel(model_path=yolo_pose_model_path)
         else:
             raise ValueError("Model name not valid")
+        
+        pose_augmentators = []
+
+        if args.horizontal_flip:
+            pose_augmentators.append(HorizontalFlip())
+        if args.rotate:
+            pose_augmentators.append(Rotate(args.rotate))
+        if args.zoom:
+            pose_augmentators.append(Zoom(args.zoom))
+        
+        print(f"Pose augmentions to apply per image: {len(pose_augmentators)}")
 
         generator = PoseLandmarksGenerator(
             images_in_folder=args.input_images,
             images_out_folder=args.output_images,
             csvs_out_folder=args.output_file,
+            pose_augmentators=pose_augmentators,
             per_pose_class_limit=args.max_samples,
         )
         generator(model)
