@@ -19,6 +19,15 @@ class PoseModel(ABC):
         raise NotImplementedError()
 
 
+class PoseAugmentation(ABC):
+    @abstractmethod
+    def apply(self, image):
+        pass
+
+    def __call__(self, image):
+        return self.apply(image)
+
+
 # depending on the landmarks shape, use one or other landmark names:
 BLAZE_POSE_KEYPOINTS = [
     "nose",
