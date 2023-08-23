@@ -56,13 +56,12 @@ def load_pose_samples_from_dir(
         with open(os.path.join(landmarks_dir, file_name)) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=file_separator)
             for row in csv_reader:
-                if len(row) == 0: continue
+                if len(row) == 0:
+                    continue
                 assert (
                     len(row) == n_landmarks * 3 + 1
                 ), "Wrong number of values: {}".format(len(row))
-                landmarks = np.array(row[1:], np.float32).reshape(
-                    [n_landmarks, 3]
-                )
+                landmarks = np.array(row[1:], np.float32).reshape([n_landmarks, 3])
                 pose_samples.append(
                     PoseSample(
                         name=row[0],

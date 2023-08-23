@@ -44,7 +44,7 @@ def video_into_images(input, output, frames_freq=1, max_frames=10):
 
         if n_frames % frames_freq == 0:
             output_name = output + f"_frame_{n_frames}.jpg"
-            save_image(output_name, frame)
+            save_image(frame, output_name)
         n_frames += 1
 
 

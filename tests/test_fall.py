@@ -199,7 +199,7 @@ def test_fall_pipeline():
 
     pose_sample_generator(pose_model=pose_model)
 
-    embedder = PoseEmbedder(landmark_names=COCO_POSE_KEYPOINTS)
+    embedder = PoseEmbedder(landmark_names=COCO_POSE_KEYPOINTS, dims=2)
 
     classifier = EstimatorClassifier(
         estimator=make_pipeline(StandardScaler(), LogisticRegression(random_state=42)),
@@ -208,7 +208,6 @@ def test_fall_pipeline():
 
     pose_samples = load_pose_samples_from_dir(
         pose_embedder=embedder,
-        n_dimensions=3,
         n_landmarks=17,
         landmarks_dir="./tests/test_data/test_dataset_csv",
         file_extension="csv",
