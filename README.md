@@ -2,10 +2,6 @@
 
 ## Datasets
 
-```bash
-wget https://github.com/sumitkumarjethani/fall-detection/releases/download/v0.1/videos-dataset-train-raw.zip
-```
-
 ### Fall Dataset
 
 [**Fall dataset**](https://falldataset.com/)
@@ -42,6 +38,12 @@ python scripts/convert_yolo_dataset.py \
 --input "../../data/custom_dataset_yolo" \
 --output "../../data/custom_dataset"
 ```
+
+### Personal Dataset
+```bash
+wget https://github.com/sumitkumarjethani/fall-detection/releases/download/v0.1/videos-dataset-train-raw.zip
+```
+
 
 ### Generate Landmarks Dataset for Fall Detection
 
@@ -398,32 +400,3 @@ python scripts/video_fall_pipeline.py \
 3. Train pose classifier
 4. Evaluate Pose classifier
 5. Run pipeline inference on example image/video/webcam
-
-## Dataset ingestion
-
-### Fall dataset scripts
-
-Link to dataset: [Falldataset](https://falldataset.com/)
-
-**Requirements MAC users**:
-- wget
-- tar
-
-**Requirements Windows users**:
-- Download [wget](https://eternallybored.org/misc/wget/) binaries
-- Copy the wget.exe to the c:\Windows\System32 folder location
-
-**Download fall dataset**
-```bash
-python src/scripts/download_fall_dataset.py -O ./output_directory_path
-```
-
-**Process fall dataset**
-```bash
-python src/scripts/process_fall_dataset.py -I ./output_directory_path -O ./final_datasets
-```
-
-## Key point dataset generation
-```bash
-python src/scripts/create_key_point_dataset.py [-M model_name] -I ./final_datasets -O ./final_data
-```
