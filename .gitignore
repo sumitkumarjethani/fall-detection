@@ -1,2 +1,10 @@
 .idea/*
 venv/*
+/data
+.pytest_cache
+__pycache__
+.DS_Store
+*.egg-info
+/models
+/metrics
+/venv
