@@ -81,22 +81,26 @@ class PoseLandmarksGenerator(object):
                 # Bootstrap every image.
                 for image_name in tqdm.tqdm(image_names):
                     # Load image.
-                    initial_frame = cv2.imread(os.path.join(images_in_folder, image_name))
+                    initial_frame = cv2.imread(
+                        os.path.join(images_in_folder, image_name)
+                    )
 
                     base_image_name = ".".join(image_name.split(".")[:-1])
-                    image_extension = image_name.split('.')[-1]
+                    image_extension = image_name.split(".")[-1]
 
                     # Input frames
                     input_frames = [(image_name, initial_frame)]
-                    
+
                     # Check if any pose augmentations required
                     if len(self._pose_augmentators):
                         for pose_augmentator in self._pose_augmentators:
-                            input_frames.append((
-                                f"{base_image_name}_{pose_augmentator.get_pose_augmentaion_name()}.{image_extension}",
-                                pose_augmentator(initial_frame)
-                            ))
-                    
+                            input_frames.append(
+                                (
+                                    f"{base_image_name}_{pose_augmentator.get_pose_augmentaion_name()}.{image_extension}",
+                                    pose_augmentator(initial_frame),
+                                )
+                            )
+
                     for input_frame_name, input_frame in input_frames:
                         # Initialize fresh pose tracker and run it.
                         results = pose_model.predict(input_frame)
@@ -104,19 +108,16 @@ class PoseLandmarksGenerator(object):
                         # Save image with pose prediction (if pose was detected).
                         output_frame = input_frame.copy()
 
-<<<<<<< HEAD
-                    cv2.imwrite(
-                        os.path.join(images_out_folder, image_name), output_frame
-                    )
-=======
                         if results is not None:
                             output_frame = pose_model.draw_landmarks(
                                 image=output_frame,
                                 results=results,
                             )
->>>>>>> b1c4cb19cf767b2b66c29dad46b92007d58821c4
 
-                        cv2.imwrite(os.path.join(images_out_folder, input_frame_name), output_frame)
+                        cv2.imwrite(
+                            os.path.join(images_out_folder, input_frame_name),
+                            output_frame,
+                        )
 
                         # Save landmarks if pose was detected.
                         if results is not None:
@@ -129,7 +130,8 @@ class PoseLandmarksGenerator(object):
                                 results, frame_height, frame_width
                             )
                             csv_out_writer.writerow(
-                                [input_frame_name] + pose_landmarks.flatten().astype(str).tolist()
+                                [input_frame_name]
+                                + pose_landmarks.flatten().astype(str).tolist()
                             )
         self.align_images_and_csvs()
 
