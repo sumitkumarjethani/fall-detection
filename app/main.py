@@ -13,9 +13,9 @@ from fall_detection.object_detection import YoloObjectDetector
 from fall_detection.fall.pipeline import Pipeline
 
 # Model Variables
-yolo_pose_model = YoloPoseModel(model_path="C:/Users/sumit/OneDrive/Escritorio/models/yolov8n-pose.pt")
-yolo_object_model = YoloObjectDetector(model_path="C:/Users/sumit/OneDrive/Escritorio/models/yolov8n.pt")
-with open("C:/Users/sumit/OneDrive/Escritorio/models/yolo_rf_pose_classifier.pkl", "rb") as f:
+yolo_pose_model = YoloPoseModel(model_path="../models/yolov8n-pose.pt")
+yolo_object_model = YoloObjectDetector(model_path="../models/yolov8n.pt")
+with open("../models/yolo_rf_pose_classifier_falldataset.pkl", "rb") as f:
     pose_classifier = pickle.load(f)
 
 # app variables
@@ -35,6 +35,7 @@ async def get():
 async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
     await manager.connect(websocket)
     try:
+        print(conn_url)
         cam = cv2.VideoCapture(int(conn_url) if conn_url == "0" else conn_url)
 
         pipeline = Pipeline(
@@ -46,13 +47,14 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
         while True:
             ok, input_frame = cam.read()
             if not ok:
-                break
-            
+                continue
+
             # Run pipeline
             output_frame = pipeline(input_frame)
 
             # Send output_frame via websocket
             await manager.send_image(output_frame, websocket)
+
             await sleep(0.1)
     except WebSocketDisconnect:
         manager.disconnect(websocket)

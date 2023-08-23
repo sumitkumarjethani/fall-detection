@@ -92,7 +92,9 @@ class PoseLandmarksGenerator(object):
                             results=results,
                         )
 
-                    cv2.imwrite(os.path.join(images_out_folder, image_name), output_frame)
+                    cv2.imwrite(
+                        os.path.join(images_out_folder, image_name), output_frame
+                    )
 
                     # Save landmarks if pose was detected.
                     if results is not None:
@@ -124,7 +126,8 @@ class PoseLandmarksGenerator(object):
             with open(csv_out_path) as csv_out_file:
                 csv_out_reader = csv.reader(csv_out_file, delimiter=",")
                 for row in csv_out_reader:
-                    if len(row) == 0: continue
+                    if len(row) == 0:
+                        continue
                     rows.append(row)
 
             # Image names left in CSV.

@@ -13,7 +13,6 @@ function connectWebSocket(event) {
   var connUrlInput = document.getElementById("connUrlInput");
   console.log(`connecting to ws: ${userIdInput.value} - ${connUrlInput.value}`);
 
-
   var table = document.getElementById("results-table");
 
   // Create an empty <tr> element and add it to the 1st position of the table:
@@ -28,14 +27,14 @@ function connectWebSocket(event) {
     `ws://localhost:8000/ws?user_id=${userIdInput.value}&conn_url=${connUrlInput.value}`
   );
 
-  ws.binaryType="arraybuffer"
+  ws.binaryType = "arraybuffer";
   ws_conns.push(ws);
 
   // Add some text to the new cells:
   cell0.innerHTML = ws_conns.length;
   cell1.innerHTML = userIdInput.value;
   cell2.innerHTML = connUrlInput.value;
-  
+
   ws.onmessage = function (event) {
     var imageContainer = document.getElementById("image-container");
     imageContainer.className = "container";

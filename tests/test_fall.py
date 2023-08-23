@@ -214,6 +214,7 @@ def test_fall_pipeline():
         file_extension="csv",
         file_separator=",",
     )
+
     classifier.fit(pose_samples)
 
     object_model = YoloObjectDetector(model_path="./models/yolov8n.pt")
@@ -226,14 +227,14 @@ def test_fall_pipeline():
         classification_model=classifier,
         detector=detector,
     )
+
     image_names = [
         "./tests/test_data/fall-sample.png",
         "./tests/test_data/fall-sample-2.jpeg",
         "./tests/test_data/fall-sample-3.jpeg",
     ]
+
     for image_name in image_names:
         image = load_image(image_name)
         results = pipeline(image)
-        print(results)
-
-    assert False
+        assert results.shape == image.shape

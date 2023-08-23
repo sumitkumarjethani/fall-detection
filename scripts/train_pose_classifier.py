@@ -5,7 +5,11 @@ import os
 from sklearn.ensemble import RandomForestClassifier
 from fall_detection.fall.data import load_pose_samples_from_dir
 from fall_detection.fall.classification import EstimatorClassifier, KnnPoseClassifier
-from fall_detection.fall.embedding import (PoseEmbedder, BLAZE_POSE_KEYPOINTS, COCO_POSE_KEYPOINTS)
+from fall_detection.fall.embedding import (
+    PoseEmbedder,
+    BLAZE_POSE_KEYPOINTS,
+    COCO_POSE_KEYPOINTS,
+)
 
 
 def cli():
