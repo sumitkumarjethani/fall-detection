@@ -70,6 +70,46 @@ python scripts/generate_landmarks_dataset.py \
 --yolo-pose-model-path "../../models/yolov8n-pose.pt"
 ```
 
+### Generate Landmarks Dataset for Fall Detection With Data Augmentation
+
+**Movenet:**
+```bash
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/personal-dataset" \
+-o "../../data/movenet-personal-dataset-out" \
+-f "../../data/movenet-personal-dataset-csv" \
+--pose-model-name "movenet" \
+--movenet-version "movenet_thunder" \
+--horizontal-flip \
+--rotate 10 \
+--zoom 1.1
+```
+
+**Mediapipe:**
+```bash
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/personal-dataset" \
+-o "../../data/mediapipe-personal-dataset-out" \
+-f "../../data/mediapipe-personal-dataset-csv" \
+--pose-model-name "mediapipe" \
+--horizontal-flip \
+--rotate 10 \
+--zoom 1.1
+```
+
+**Yolo:**
+```bash
+python scripts/generate_landmarks_dataset.py \
+-i "../../data/personal-dataset" \
+-o "../../data/yolo-personal-dataset-out" \
+-f "../../data/yolo-personal-dataset-csv" \
+--pose-model-name "yolo"
+--yolo-pose-model-path "../../models/yolov8n-pose.pt" \
+--horizontal-flip \
+--rotate 10 \
+--zoom 1.1
+```
+
 ## Pose Models
 
 ### Image Pose Inference

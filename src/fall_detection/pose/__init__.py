@@ -1,6 +1,6 @@
-from .movenet import MovenetModel
-from .movenet import TFLiteMovenetModel
-from .mediapipe import MediapipePoseModel
 from .data import PoseLandmarksGenerator
-from .base import PoseModel
+from .base import PoseModel, PoseAugmentation
+from .augmentation import HorizontalFlip, Rotate, Zoom
 from .yolo import YoloPoseModel
+from .movenet import MovenetModel, TFLiteMovenetModel
+from .mediapipe import MediapipePoseModel
