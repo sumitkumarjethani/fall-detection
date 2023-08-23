@@ -18,7 +18,7 @@ class PoseLandmarksGenerator(object):
         images_in_folder,
         images_out_folder,
         csvs_out_folder,
-        pose_augmentators: List[PoseAugmentation],
+        pose_augmentators: List[PoseAugmentation] = [],
         per_pose_class_limit=None,
     ):
         self._images_in_folder = images_in_folder
@@ -92,7 +92,7 @@ class PoseLandmarksGenerator(object):
                     input_frames = [(image_name, initial_frame)]
 
                     # Check if any pose augmentations required
-                    if len(self._pose_augmentators):
+                    if len(self._pose_augmentators) > 0:
                         for pose_augmentator in self._pose_augmentators:
                             input_frames.append(
                                 (
