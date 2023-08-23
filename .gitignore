@@ -10,6 +10,7 @@ __pycache__
 /venvvideo_frames/*
 # src/notebooks/*
 
+.idea/*
 *.pyc
 /data
 /venv
@@ -23,4 +24,4 @@ __pycache__
 __pycache__
 .pytest_cache
 /metrics
-.DS_Store
+.DS_Sto
