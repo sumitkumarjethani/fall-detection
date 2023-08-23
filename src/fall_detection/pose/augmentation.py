@@ -21,7 +21,7 @@ class Rotate(PoseAugmentation):
         return rotated_image
     
     def get_pose_augmentaion_name(self):
-        return "rotate"
+        return f"rotate_{self.degrees}"
 
 
 class Zoom(PoseAugmentation):
@@ -35,4 +35,4 @@ class Zoom(PoseAugmentation):
         return zoomed_image
     
     def get_pose_augmentaion_name(self):
-        return "zoom"
+        return f"zoom_{self.zoom_factor}"
