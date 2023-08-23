@@ -10,3 +10,17 @@ __pycache__
 /venvvideo_frames/*
 # src/notebooks/*
 
+*.pyc
+/data
+/venv
+/__pycache__
+/models
+/torchenv
+*.pt
+*.egg-info
+*build
+*dist
+__pycache__
+.pytest_cache
+/metrics
+.DS_Store
