@@ -180,7 +180,7 @@ python scripts/train_pose_classifier.py \
 --model "rf" \
 --model-name "movenet_rf_pose_classifier" \
 --n-kps 17 \
---n-dim 3
+--n-dim 2
 ```
 
 **Mediapipe:**
@@ -202,7 +202,7 @@ python scripts/train_pose_classifier.py \
 --model "rf" \
 --model-name "yolo_rf_pose_classifier" \
 --n-kps 17 \
---n-dim 3
+--n-dim 2
 ```
 
 ### KNN
@@ -215,7 +215,7 @@ python scripts/train_pose_classifier.py \
 --model "knn" \
 --model-name "movenet_knn_pose_classifier" \
 --n-kps 17 \
---n-dim 3 \
+--n-dim 2 \
 --n-neighbours 10
 ```
 
@@ -239,7 +239,7 @@ python scripts/train_pose_classifier.py \
 --model "knn" \
 --model-name "yolo_knn_pose_classifier" \
 --n-kps 17 \
---n-dim 3 \
+--n-dim 2 \
 --n-neighbours 10
 ```
 

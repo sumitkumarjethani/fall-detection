@@ -32,11 +32,13 @@ class EstimatorClassifier(PoseClassifier):
         pose_embedder: PoseEmbedder,
         n_output_scaler=10,
         n_landmarks=33,
+        n_dimensions=3,
     ):
         self._pose_embedder = pose_embedder
         self._n_output_scaler = n_output_scaler
         self._model = estimator
         self._n_landmarks = n_landmarks
+        self._n_dimensions = n_dimensions
 
     def fit(self, pose_samples: List[PoseSample]):
         logger.info(f"Fitting on {len(pose_samples)} pose samples")
@@ -72,12 +74,14 @@ class KnnPoseClassifier(PoseClassifier):
         self,
         pose_embedder,
         n_landmarks=33,
+        n_dimensions=2,
         top_n_by_max_distance=30,
         top_n_by_mean_distance=10,
         axes_weights=(1.0, 1.0, 0.1),
     ):
         self._pose_embedder = pose_embedder
         self._n_landmarks = n_landmarks
+        self._n_dimensions = n_dimensions
         self._top_n_by_max_distance = top_n_by_max_distance
         self._top_n_by_mean_distance = top_n_by_mean_distance
         self._axes_weights = axes_weights
