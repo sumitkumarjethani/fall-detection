@@ -2,6 +2,10 @@
 
 ## Datasets
 
+```bash
+wget https://github.com/sumitkumarjethani/fall-detection/releases/download/v0.1/videos-dataset-train-raw.zip
+```
+
 ### Fall Dataset
 
 [**Fall dataset**](https://falldataset.com/)
