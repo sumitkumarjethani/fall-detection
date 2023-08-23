@@ -117,7 +117,7 @@ def main():
         if args.horizontal_flip:
             pose_augmentators.append(HorizontalFlip())
         if args.rotate:
-            pose_augmentators.append(Rotate(args.rotate))
+            pose_augmentators.append(Rotate(args.rotate), Rotate(-args.rotate))
         if args.zoom:
             pose_augmentators.append(Zoom(args.zoom))
         
