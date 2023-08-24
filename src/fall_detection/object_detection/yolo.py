@@ -60,7 +60,7 @@ class YoloObjectDetector(ObjectDetector):
         return model
 
     def predict(self, image):
-        results = self._model(
+        results = self._model.predict(
             image,
             device=self._device,
             verbose=False,
