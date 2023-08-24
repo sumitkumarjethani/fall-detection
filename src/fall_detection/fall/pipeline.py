@@ -57,7 +57,18 @@ class Pipeline:
         )
 
     def _create_pose_embedder(self):
-        return PoseEmbedder(landmark_names=self._pose_model.landmarks_names)
+        return PoseEmbedder(
+            landmark_names=self._pose_model.landmarks_names,
+            dims=self._classification_model._n_dimensions
+        )
+    
+    def _create_result_dict(self, classification, smooth_classification, detection, message):
+        return {
+            "classification": classification,
+            "smooth_classification": smooth_classification,
+            "detection": detection,
+            "message": message
+        }
 
     def _run(self, image):
         # detect and draw objects
@@ -68,19 +79,35 @@ class Pipeline:
 
         # check manual rules
         if not self._rules_checker.check(objs):
-            print("Pipeline: rules failed")
             if objs_results is not None:
                 image = self._object_model.draw_results(image, objs_results)
-            return plot_fall_text(image, self._detector._pose_entered)
-
+            
+            return (
+                plot_fall_text(image, self._detector._pose_entered),
+                self._create_result_dict(
+                    classification=None,
+                    smooth_classification=None,
+                    detection=self._detector._state,
+                    message="Manual rules failed"
+                )
+            )
+        
         # detect and draw pose
         pose_results = self._pose_model.predict(image)
 
         if pose_results is None:
-            print("Pipeline: pose failed")
             if objs_results is not None:
                 image = self._object_model.draw_results(image, objs_results)
-            return plot_fall_text(image, self._detector._pose_entered)
+            
+            return (
+                plot_fall_text(image, self._detector._pose_entered),
+                self._create_result_dict(   
+                    classification=None,
+                    smooth_classification=None,
+                    detection=self._detector._state,
+                    message="Pose failed"
+                )
+            )
 
         pose_landmarks = self._pose_model.results_to_pose_landmarks(
             pose_results, image.shape[0], image.shape[1]
@@ -103,9 +130,25 @@ class Pipeline:
             image = self._pose_model.draw_landmarks(image, pose_results)
 
         if detection == 0:
-            return plot_fall_text(image, False)
+            return (
+                plot_fall_text(image, False),
+                self._create_result_dict(    
+                    classification=classification_result,
+                    smooth_classification=smooth_classification_result,
+                    detection=detection,
+                    message="No Fall"
+                )
+            )
         else:
-            return plot_fall_text(image, True)
+            return (
+                plot_fall_text(image, True),
+                self._create_result_dict(
+                    classification=classification_result,
+                    smooth_classification=smooth_classification_result,
+                    detection=detection,
+                    message="Fall"
+                )
+            )
 
     def __call__(self, image):
         return self._run(image)
