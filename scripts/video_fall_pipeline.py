@@ -2,7 +2,6 @@ import argparse
 import sys
 import cv2
 import pickle
-import numpy as np
 import tqdm
 
 from fall_detection.fall.pipeline import Pipeline
@@ -134,7 +133,8 @@ def main():
                 if not success:
                     break
                 
-                output_frame = pipeline._run(image=input_frame)
+                output_frame, result_dict = pipeline._run(image=input_frame)
+                print(result_dict)
 
                 # Save the output frame.
                 out_video.write(output_frame)
