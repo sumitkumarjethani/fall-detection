@@ -50,7 +50,8 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
                 continue
 
             # Run pipeline
-            output_frame = pipeline(input_frame)
+            output_frame, result_dict = pipeline._run(image=input_frame)
+            print(result_dict)
 
             # Send output_frame via websocket
             await manager.send_image(output_frame, websocket)
