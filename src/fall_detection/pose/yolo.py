@@ -34,7 +34,9 @@ class YoloPoseModel(PoseModel):
 
     @torch.no_grad()
     def predict(self, image):
-        results = self._model(image, device=self._device, verbose=False)
+        results = self._model.predict(
+            image, device=self._device, verbose=False, conf=0.5
+        )
         if (
             results is None
             or results[0].keypoints.shape[1] == 0
