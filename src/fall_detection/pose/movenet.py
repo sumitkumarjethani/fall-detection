@@ -252,7 +252,7 @@ class TFLiteMovenetModel(PoseModel):
 
         interpreter = tf.lite.Interpreter(model_path="model.tflite")
         interpreter.allocate_tensors()
-        return interpreter        
+        return interpreter
 
     def predict(self, image):
         image = _preprocess_image_for_movenet(image, self._input_size)
