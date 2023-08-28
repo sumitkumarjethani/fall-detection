@@ -43,7 +43,7 @@ class YoloPoseModel(PoseModel):
         if (
             results is None
             or results[0].keypoints.shape[1] == 0
-            or results[0].boxes.conf[0] < 0.01  # TODO: change threshold of person
+            or results[0].boxes.conf[0] < 0.001  # TODO: change threshold of person
         ):
             return None
         return results[0]

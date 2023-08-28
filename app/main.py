@@ -15,7 +15,7 @@ from fall_detection.fall.pipeline import Pipeline
 # Model Variables
 yolo_pose_model = YoloPoseModel(model_path="../models/yolov8n-pose.pt")
 yolo_object_model = YoloObjectDetector(model_path="../models/yolov8n.pt")
-with open("../models/yolo_rf_pose_classifier_falldataset.pkl", "rb") as f:
+with open("../models/yolo-rf-pose-classifier.pkl", "rb") as f:
     pose_classifier = pickle.load(f)
 
 # app variables
@@ -44,19 +44,23 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
             object_model=yolo_object_model,
         )
 
+        c = 0
         while True:
             ok, input_frame = cam.read()
             if not ok:
                 continue
 
-            # Run pipeline
-            output_frame, result_dict = pipeline._run(image=input_frame)
-            print(result_dict)
+            c = c + 1
+            if c % 2 == 0:
+                # Run pipeline
+                output_frame, result_dict = pipeline._run(image=input_frame)
+                print(result_dict)
+                # Send output_frame via websocket
+                await manager.send_image(output_frame, websocket)
 
-            # Send output_frame via websocket
-            await manager.send_image(output_frame, websocket)
-
-            await sleep(0.1)
+            if c == 10:
+                c = 0
+            # await sleep(0.1)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     except Exception as e:
@@ -64,3 +68,4 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
     finally:
         cam.release()
         cv2.destroyAllWindows()
+        return
