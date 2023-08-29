@@ -116,6 +116,15 @@ python scripts/generate_landmarks_dataset.py \
 --zoom 1.1
 ```
 
+### Generate Intersection Landmarks Dataset for Fall Detection Test
+
+**All models:**
+```bash
+python scripts/generate_intersection_landmarks_dataset.py \
+-i "../../data/movenet-personal-dataset-train-csv" "../../data/mediapipe-personal-dataset-train-csv" "../../data/yolo-personal-dataset-train-csv" \
+-o "../../data/intersection"
+```
+
 ## Pose Models
 
 ### Image Pose Inference
