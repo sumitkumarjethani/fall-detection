@@ -60,8 +60,7 @@ def main():
         pose_samples = load_pose_samples_from_dir(
             pose_embedder=pose_classifier._pose_embedder,
             landmarks_dir=args.input,
-            n_landmarks=pose_classifier._n_landmarks,
-            n_dimensions=pose_classifier._n_dimensions,
+            n_landmarks=pose_classifier._n_landmarks
         )
 
         print("Predicting on loaded pose samples...")
