@@ -60,12 +60,14 @@ def main():
         pose_samples = load_pose_samples_from_dir(
             pose_embedder=pose_classifier._pose_embedder,
             landmarks_dir=args.input,
-            n_landmarks=pose_classifier._n_landmarks
+            n_landmarks=pose_classifier._n_landmarks,
         )
 
         print("Predicting on loaded pose samples...")
         y = np.where(np.array([ps.class_name for ps in pose_samples]) == "fall", 1, 0)
-        y_pred = np.where(pose_classifier.predict_pose_samples(pose_samples) == "fall", 1, 0)
+        y_pred = np.where(
+            pose_classifier.predict_pose_samples(pose_samples) == "fall", 1, 0
+        )
 
         # Create output folder if not exists.
         if not os.path.exists(args.output):

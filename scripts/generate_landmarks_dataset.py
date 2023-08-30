@@ -53,7 +53,7 @@ def cli():
             "movenet_thunder_f16.tflite",
             "movenet_lightning_int8.tflite",
             "movenet_thunder_int8.tflite",
-        ]
+        ],
     )
     parser.add_argument(
         "--yolo-pose-model-path",
@@ -81,14 +81,14 @@ def cli():
         "--rotate",
         help="apply rotate data augmentation to image while generating landmarks",
         type=float,
-        required=False
+        required=False,
     )
     parser.add_argument(
         "--zoom",
         "--zoom",
         help="apply zoom data augmentation to image while generating landmarks",
         type=float,
-        required=False
+        required=False,
     )
     return parser.parse_args()
 
@@ -104,14 +104,17 @@ def main():
             model = MediapipePoseModel()
         elif pose_model_name == "movenet":
             movenet_version = args.movenet_version
-            model = TFLiteMovenetModel(movenet_version) \
-                if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
+            model = (
+                TFLiteMovenetModel(movenet_version)
+                if movenet_version.endswith("tflite")
+                else MovenetModel(movenet_version)
+            )
         elif pose_model_name == "yolo":
             yolo_pose_model_path = args.yolo_pose_model_path
             model = YoloPoseModel(model_path=yolo_pose_model_path)
         else:
             raise ValueError("Model name not valid")
-        
+
         pose_augmentators = []
 
         if args.horizontal_flip:
@@ -121,7 +124,7 @@ def main():
             pose_augmentators.append(Rotate(-args.rotate))
         if args.zoom:
             pose_augmentators.append(Zoom(args.zoom))
-        
+
         print(f"Pose augmentions to apply per image: {len(pose_augmentators)}")
 
         generator = PoseLandmarksGenerator(
