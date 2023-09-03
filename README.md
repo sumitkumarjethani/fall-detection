@@ -121,7 +121,7 @@ python scripts/generate_landmarks_dataset.py \
 **All models:**
 ```bash
 python scripts/generate_intersection_landmarks_dataset.py \
--i "./data/movenet-videos-dataset-test-train-csv" "./data/mediapipe-videos-dataset-test-train-csv" "./data/yolo-videos-dataset-test-train-csv" \
+-i "./data/movenet-videos-dataset-test-csv" "./data/mediapipe-videos-dataset-test-csv" "./data/yolo-videos-dataset-test-csv" \
 -o "./data/intersection"
 ```
 
@@ -259,27 +259,27 @@ python scripts/train_pose_classifier.py \
 **Movenet:**
 ```bash
 python scripts/evaluate_pose_classifier.py \
--i "./data/movenet-videos-dataset-test-csv" \
+-i "./data/intersection/movenet-videos-dataset-test-csv" \
 -o "./metrics/" \
--f "movenet_rf_test_dataset" \
+-f "movenet_rf_test_dataset-inter" \
 --pose-classifier "./models/movenet-rf-pose-classifier.pkl"
 ```
 
 **Mediapipe:**
 ```bash
 python scripts/evaluate_pose_classifier.py \
--i "./data/mediapipe-videos-dataset-test-csv" \
+-i "./data/intersection/mediapipe-videos-dataset-test-csv" \
 -o "./metrics/" \
--f "mediapipe_rf_test_dataset" \
+-f "mediapipe_rf_test_dataset-inter" \
 --pose-classifier "./models/mediapipe-rf-pose-classifier.pkl"
 ```
 
 **Yolo:**
 ```bash
 python scripts/evaluate_pose_classifier.py \
--i "./data/yolo-videos-dataset-test-csv" \
+-i "./data/intersection/yolo-videos-dataset-test-csv" \
 -o "./metrics/" \
--f "yolo_rf_test_dataset" \
+-f "yolo_rf_test_dataset-inter" \
 --pose-classifier "./models/yolo-rf-pose-classifier.pkl"
 ```
 

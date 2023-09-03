@@ -9,9 +9,11 @@ function showImage(data) {
 function connectWebSocket(event) {
   event.preventDefault();
 
-  var userIdInput = document.getElementById("userIdInput");
+  var userEmailInput = document.getElementById("userEmailInput");
   var connUrlInput = document.getElementById("connUrlInput");
-  console.log(`connecting to ws: ${userIdInput.value} - ${connUrlInput.value}`);
+  console.log(
+    `connecting to ws: ${userEmailInput.value} - ${connUrlInput.value}`
+  );
 
   var table = document.getElementById("results-table");
 
@@ -24,7 +26,7 @@ function connectWebSocket(event) {
   var cell2 = row.insertCell(2);
 
   var ws = new WebSocket(
-    `ws://localhost:8000/ws?user_id=${userIdInput.value}&conn_url=${connUrlInput.value}`
+    `ws://localhost:8000/ws?user_email=${userEmailInput.value}&conn_url=${connUrlInput.value}`
   );
 
   ws.binaryType = "arraybuffer";
@@ -32,7 +34,7 @@ function connectWebSocket(event) {
 
   // Add some text to the new cells:
   cell0.innerHTML = ws_conns.length;
-  cell1.innerHTML = userIdInput.value;
+  cell1.innerHTML = userEmailInput.value;
   cell2.innerHTML = connUrlInput.value;
 
   ws.onmessage = function (event) {
@@ -41,6 +43,6 @@ function connectWebSocket(event) {
     console.log(event);
     showImage(event.data);
   };
-  userIdInput.value = "";
+  userEmailInput.value = "";
   connUrlInput.value = "";
 }

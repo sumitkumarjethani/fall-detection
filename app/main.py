@@ -6,6 +6,7 @@ from anyio import sleep
 from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 from connection.connection import ConnectionManager
+from notification.notification import NotificationManager
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fall_detection.pose import YoloPoseModel
@@ -20,6 +21,10 @@ with open("../models/yolo-rf-pose-classifier.pkl", "rb") as f:
 
 # app variables
 manager = ConnectionManager()
+
+notificator = NotificationManager()
+
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -32,10 +37,10 @@ async def get():
 
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
+async def websocket_endpoint(websocket: WebSocket, user_email: str, conn_url: str):
     await manager.connect(websocket)
+    notificator.add_user(user_email)
     try:
-        print(conn_url)
         cam = cv2.VideoCapture(int(conn_url) if conn_url == "0" else conn_url)
 
         pipeline = Pipeline(
@@ -47,20 +52,27 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, conn_url: str):
         c = 0
         while True:
             ok, input_frame = cam.read()
+
             if not ok:
+                print("no ok")
                 continue
 
             c = c + 1
             if c % 2 == 0:
                 # Run pipeline
                 output_frame, result_dict = pipeline._run(image=input_frame)
-                print(result_dict)
+                # print(result_dict)
                 # Send output_frame via websocket
                 await manager.send_image(output_frame, websocket)
 
+                if result_dict["detection"] == 1:
+                    notificator.send_notification(user_email)
+
             if c == 10:
                 c = 0
+
             # await sleep(0.1)
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     except Exception as e:
