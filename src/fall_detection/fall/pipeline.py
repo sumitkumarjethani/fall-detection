@@ -111,10 +111,6 @@ class Pipeline:
                 ),
             )
 
-        # checkear que el score del los keypoints sea > a threshold
-        ok_landmarks = pose_landmarks[pose_landmarks[:, 2] > 0.3]
-        print("Ok Landmarks: ", ok_landmarks.shape[0])
-
         # array[2]>0.5)]
         pose_landmarks = self._pose_model.results_to_pose_landmarks(
             pose_results, image.shape[0], image.shape[1]
