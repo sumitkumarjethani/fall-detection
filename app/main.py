@@ -19,7 +19,6 @@ with open("C:/Users/sumit/OneDrive/Escritorio/models/yolo-rf-pose-classifier.pkl
 
 # app variables
 connection_manager = ConnectionManager()
-notificaton_manager = NotificationManager()
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -37,6 +36,7 @@ async def websocket_endpoint(websocket: WebSocket, user_email: str, conn_url: st
     await connection_manager.connect(websocket)
     try:
         cam = cv2.VideoCapture(int(conn_url) if conn_url == "0" else conn_url)
+        notificaton_manager = NotificationManager()
 
         pipeline = Pipeline(
             pose_model=yolo_pose_model,
@@ -59,7 +59,11 @@ async def websocket_endpoint(websocket: WebSocket, user_email: str, conn_url: st
                 print(result_dict)
                 
                 # Send output_frame via websocket
-                await connection_manager.send_image(output_frame, websocket)
+                await connection_manager.send_data(
+                    output_frame,
+                    result_dict["detection"],
+                    websocket
+                )
 
                 # Send output fall frame via email noification
                 if result_dict["detection"] == 1:
@@ -70,7 +74,7 @@ async def websocket_endpoint(websocket: WebSocket, user_email: str, conn_url: st
     except WebSocketDisconnect:
         connection_manager.disconnect(websocket)
     except Exception as e:
-        raise e
+        print(e)
     finally:
         cam.release()
         cv2.destroyAllWindows()

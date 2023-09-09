@@ -28,6 +28,9 @@ class NotificationManager:
         return datetime.datetime.now()
     
     def _check_send_notification(self, user_email):
+        if self.email_sender is None or self.email_password is None:
+            return False
+         
         for user_data in self._notified_users:
             if user_data["email"] == user_email:
                 last_notification = user_data["last_notification"]

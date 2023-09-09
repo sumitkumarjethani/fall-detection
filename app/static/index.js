@@ -35,13 +35,16 @@ function connectWebSocket(event) {
   // Add some text to the new cells:
   cell0.innerHTML = ws_conns.length;
   cell1.innerHTML = userEmailInput.value;
-  cell2.innerHTML = connUrlInput.value;
 
   ws.onmessage = function (event) {
+    const response = JSON.parse(event.data);
+    console.log(response);
+
+    cell2.innerHTML = (response.detection === 1) ? "Fall" : "No Fall"
+    
     var imageContainer = document.getElementById("image-container");
     imageContainer.className = "container";
-    console.log(event);
-    showImage(event.data);
+    showImage(response.image);
   };
   userEmailInput.value = "";
   connUrlInput.value = "";

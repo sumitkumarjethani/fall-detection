@@ -15,7 +15,9 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
 
-    async def send_image(self, image, websocket: WebSocket):
+    async def send_data(self, image, detection, websocket: WebSocket):
         image_buffer = cv2.imencode(".jpg", image)[1]
-        await websocket.send_bytes(base64.b64encode(image_buffer).decode("utf-8"))
-
+        await websocket.send_json({
+            "image": base64.b64encode(image_buffer).decode("utf-8"),
+            "detection": detection  
+        })

@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Fall Detection</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fall Guard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <link rel="stylesheet" href="./static/index.css">
@@ -10,12 +12,14 @@
 
 <body>
 
+    <div class="header">
+        <img src="./static/images/logo.png" alt="Fall Guard Logo" class="logo">
+        <h1>Fall Guard</h1>
+    </div>
+
     <div class="container">
-        <div class="row justify-content-center text-center">
-            <h2>Fall Detection Service</h2>
-        </div>
         <div class="row justify-content-center">
-            <div class="col-4">
+            <div class="col-6">
                 <form action="" onsubmit="connectWebSocket(event)">
                     <div class="mb-3">
                         <label for="userEmailInput" class="form-label">User Email</label>
@@ -30,13 +34,14 @@
             </div>
         </div>
     </div>
+
     <div class="container">
         <table id="results-table" class="table">
             <thead>
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">UserId</th>
-                    <th scope="col">ConnUrl</th>
+                    <th scope="col">Fall Detection</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,7 +53,7 @@
         <div class="row justify-content-center">
             <div class="col-6">
                 <figure class="figure">
-                    <img id="fall-image" src="#" class="figure-img img-fluid rounded" alt="image">
+                    <img id="fall-image" src="#" class="figure-img img-fluid rounded" alt="Fall Image">
                 </figure>
             </div>
         </div>
