@@ -19,6 +19,7 @@ with open("C:/Users/sumit/OneDrive/Escritorio/models/yolo-rf-pose-classifier.pkl
 
 # app variables
 connection_manager = ConnectionManager()
+notificaton_manager = NotificationManager()
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -36,7 +37,6 @@ async def websocket_endpoint(websocket: WebSocket, user_email: str, conn_url: st
     await connection_manager.connect(websocket)
     try:
         cam = cv2.VideoCapture(int(conn_url) if conn_url == "0" else conn_url)
-        notificaton_manager = NotificationManager()
 
         pipeline = Pipeline(
             pose_model=yolo_pose_model,
