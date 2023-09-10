@@ -336,11 +336,11 @@ python scripts/video_fall_inference.py \
 **Yolo:**
 ```bash
 python scripts/video_fall_inference.py \
--i "./data/videos/uri.mp4" \
--o "./data/videos/yolo_uri_out.mp4" \
+-i "./data/videos/demos/01-demo.mp4" \
+-o "./data/videos/demos/01-demo_yolo_inference.mp4" \
 --pose-model-name "yolo" \
 --yolo-pose-model-path "./models/yolov8n-pose.pt" \
---pose-classifier "./models/yolo_rf_pose_classifier.pkl" 
+--pose-classifier "./models/yolo-rf-pose-classifier.pkl" 
 ```
 
 ## WebCam Fall Inference
@@ -350,14 +350,14 @@ python scripts/video_fall_inference.py \
 python scripts/webcam_fall_inference.py \
 --pose-model-name "movenet" \
 --movenet-version "movenet_thunder" \
---pose-classifier "./models/movenet_rf_pose_classifier.pkl" 
+--pose-classifier "./models/movenet-rf-pose-classifier.pkl" 
 ```
 
 **Mediapipe:**
 ```bash
 python scripts/webcam_fall_inference.py \
 --pose-model-name "mediapipe" \
---pose-classifier "./models/mediapipe_rf_pose_classifier.pkl" 
+--pose-classifier "./models/mediapipe-rf-pose-classifier.pkl" 
 ```
 
 **Yolo:**
@@ -365,7 +365,7 @@ python scripts/webcam_fall_inference.py \
 python scripts/webcam_fall_inference.py \
 --pose-model-name "yolo" \
 --yolo-pose-model-path "./models/yolov8n-pose.pt" \
---pose-classifier "./models/yolo_rf_pose_classifier.pkl" 
+--pose-classifier "./models/yolo-rf-pose-classifier.pkl" 
 ```
 
 ## Fall Detector Pipeline
@@ -373,33 +373,33 @@ python scripts/webcam_fall_inference.py \
 **Movenet:**
 ```bash
 python scripts/video_fall_pipeline.py \
--i "./data/videos/uri.mp4" \
--o "./data/videos/movenet_uri_pipeline_out.mp4" \
+-i "./data/videos/demos/01-demo.mp4" \
+-o "./data/videos/demos/01-demo_movenet_out.mp4" \
 --pose-model-name "movenet" \
 --movenet-version "movenet_thunder" \
 --yolo-object-model-path "./models/yolov8n.pt" \
---pose-classifier "./models/movenet_rf_pose_classifier.pkl" 
+--pose-classifier "./models/movenet-rf-pose-classifier.pkl" 
 ```
 
 **Mediapipe:**
 ```bash
 python scripts/video_fall_pipeline.py \
--i "./data/videos/uri.mp4" \
--o "./data/videos/mediapipe_uri_pipeline_out.mp4" \
+-i "./data/videos/demos/01-demo.mp4" \
+-o "./data/videos/demos/01-demo_movenet_out.mp4" \
 --pose-model-name "mediapipe" \
 --yolo-object-model-path "./models/yolov8n.pt" \
---pose-classifier "./models/mediapipe_rf_pose_classifier.pkl" 
+--pose-classifier "./models/movenet-rf-pose-classifier.pkl" 
 ```
 
 **Yolo:**
 ```bash
 python scripts/video_fall_pipeline.py \
--i "./data/videos/uri.mp4" \
--o "./data/videos/yolo_uri_pipeline_out.mp4" \
+-i "./data/videos/demos/03-demo.mp4" \
+-o "./data/videos/demos/03-demo_yolo_out.mp4" \
 --pose-model-name "yolo" \
 --yolo-pose-model-path "./models/yolov8n-pose.pt" \
 --yolo-object-model-path "./models/yolov8n.pt" \
---pose-classifier "./models/yolo_rf_pose_classifier.pkl" 
+--pose-classifier "./models/yolo-rf-pose-classifier.pkl" 
 ```
 
 ## Steps to Evaluate new Dataset / Model

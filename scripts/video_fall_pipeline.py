@@ -49,7 +49,7 @@ def cli():
             "movenet_thunder_f16.tflite",
             "movenet_lightning_int8.tflite",
             "movenet_thunder_int8.tflite",
-        ]
+        ],
     )
     parser.add_argument(
         "--yolo-pose-model-path",
@@ -95,8 +95,11 @@ def main():
             pose_model = MediapipePoseModel()
         elif pose_model_name == "movenet":
             movenet_version = args.movenet_version
-            pose_model = TFLiteMovenetModel(movenet_version) \
-                if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
+            pose_model = (
+                TFLiteMovenetModel(movenet_version)
+                if movenet_version.endswith("tflite")
+                else MovenetModel(movenet_version)
+            )
         elif pose_model_name == "yolo":
             yolo_pose_model_path = args.yolo_pose_model_path
             pose_model = YoloPoseModel(model_path=yolo_pose_model_path)
@@ -106,7 +109,7 @@ def main():
         with open(f"{args.pose_classifier}", "rb") as f:
             print(f"Loading pose classifier from: {args.pose_classifier}")
             pose_classifier = pickle.load(f)
-        
+
         print(f"Loading yolo object detector model from: {args.yolo_object_model_path}")
         object_model = YoloObjectDetector(model_path=args.yolo_object_model_path)
 
@@ -114,7 +117,7 @@ def main():
         pipeline = Pipeline(
             pose_model=pose_model,
             classification_model=pose_classifier,
-            object_model=object_model
+            object_model=object_model,
         )
 
         out_video = cv2.VideoWriter(
@@ -132,7 +135,7 @@ def main():
                 success, input_frame = video_cap.read()
                 if not success:
                     break
-                
+
                 output_frame, result_dict = pipeline._run(image=input_frame)
                 print(result_dict)
 
