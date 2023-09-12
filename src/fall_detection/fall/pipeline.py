@@ -86,11 +86,11 @@ class Pipeline:
                 image = self._object_model.draw_results(image, objs_results)
 
             return (
-                plot_fall_text(image, False),
+                plot_fall_text(image, self._detector._pose_entered),
                 self._create_result_dict(
                     classification=None,
                     smooth_classification=None,
-                    detection=0,
+                    detection=self._detector.state,
                     message="Manual rules failed",
                 ),
             )
@@ -103,11 +103,11 @@ class Pipeline:
                 image = self._object_model.draw_results(image, objs_results)
 
             return (
-                plot_fall_text(image, False),
+                plot_fall_text(image, self._detector._pose_entered),
                 self._create_result_dict(
                     classification=None,
                     smooth_classification=None,
-                    detection=0,
+                    detection=self._detector.state,
                     message="Pose failed",
                 ),
             )
@@ -125,11 +125,11 @@ class Pipeline:
                 image = self._object_model.draw_results(image, objs_results)
 
             return (
-                plot_fall_text(image, False),
+                plot_fall_text(image, self._detector._pose_entered),
                 self._create_result_dict(
                     classification=None,
                     smooth_classification=None,
-                    detection=0,
+                    detection=self._detector.state,
                     message="Landmarks scores failed",
                 ),
             )

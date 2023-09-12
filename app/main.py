@@ -12,9 +12,9 @@ from fall_detection.fall.pipeline import Pipeline
 
 
 # Model Variables
-yolo_pose_model = YoloPoseModel(model_path="C:/Users/sumit/OneDrive/Escritorio/models/yolov8n-pose.pt")
-yolo_object_model = YoloObjectDetector(model_path="C:/Users/sumit/OneDrive/Escritorio/models/yolov8n.pt")
-with open("C:/Users/sumit/OneDrive/Escritorio/models/yolo-rf-pose-classifier.pkl", "rb") as f:
+yolo_pose_model = YoloPoseModel(model_path="../models/yolov8n-pose.pt")
+yolo_object_model = YoloObjectDetector(model_path="../models/yolov8n.pt")
+with open("../models/yolo-rf-pose-classifier.pkl", "rb") as f:
     pose_classifier = pickle.load(f)
 
 # app variables
@@ -57,17 +57,17 @@ async def websocket_endpoint(websocket: WebSocket, user_email: str, conn_url: st
                 # Run pipeline
                 output_frame, result_dict = pipeline._run(image=input_frame)
                 print(result_dict)
-                
+
                 # Send output_frame via websocket
                 await connection_manager.send_data(
-                    output_frame,
-                    result_dict["detection"],
-                    websocket
+                    output_frame, result_dict["detection"], websocket
                 )
 
                 # Send output fall frame via email noification
                 if result_dict["detection"] == 1:
-                    notificaton_manager.send_notification(user_email, result=None, image=output_frame)
+                    notificaton_manager.send_notification(
+                        user_email, result=None, image=output_frame
+                    )
 
             if c == 10:
                 c = 0

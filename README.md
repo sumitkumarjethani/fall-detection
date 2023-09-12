@@ -336,8 +336,8 @@ python scripts/video_fall_inference.py \
 **Yolo:**
 ```bash
 python scripts/video_fall_inference.py \
--i "./data/videos/demos/01-demo.mp4" \
--o "./data/videos/demos/01-demo_yolo_inference.mp4" \
+-i "./data/videos/demos/03-demo.mp4" \
+-o "./data/videos/demos/03-demo_yolo_inference.mp4" \
 --pose-model-name "yolo" \
 --yolo-pose-model-path "./models/yolov8n-pose.pt" \
 --pose-classifier "./models/yolo-rf-pose-classifier.pkl" 

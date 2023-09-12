@@ -25,3 +25,5 @@ __pycache__
 .pytest_cache
 /metrics
 .DS_Sto
+
+.env
