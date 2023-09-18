@@ -4,22 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fall Guard</title>
+    <title>Smart Care</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <link rel="stylesheet" href="./static/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
+    <nav class="navbar navbar-expand navbar-light bg-white border p-0">
+        <div class="container">
+            <!-- Logo y título -->
+            <a class="navbar-brand" href="#">
+                <img src="./static/images/logo.png" class="img-fluid" style="max-height: 80px;" alt="Logo">
+            </a>
 
-    <div class="header">
-        <img src="./static/images/logo.png" alt="Fall Guard Logo" class="logo">
-        <h1>Fall Guard</h1>
-    </div>
+            <!-- Enlaces de navegación -->
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <div class="container">
+    <div id="connection" class="container mt-3">
         <div class="row justify-content-center">
-            <div class="col-6">
+            <div class="col-4 border p-2 rounded">
                 <form action="" onsubmit="connectWebSocket(event)">
                     <div class="mb-3">
                         <label for="userEmailInput" class="form-label">User Email</label>
@@ -27,20 +46,22 @@
                     </div>
                     <div class="mb-3">
                         <label for="connUrlInput" class="form-label">Connection Url</label>
-                        <input type="text" class="form-control" id="connUrlInput">
+                        <input type="password" class="form-control" id="connUrlInput">
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary m-auto">Connect</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <table id="results-table" class="table">
-            <thead>
+    <div id="result-container" class="container d-none mt-3">
+        <table id="results-table" class="table table-striped">
+            <thead class="thead-light">
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">UserId</th>
+                    <th scope="col"></th>
+                    <th scope="col">User Email</th>
                     <th scope="col">Fall Detection</th>
                 </tr>
             </thead>
@@ -49,15 +70,37 @@
         </table>
     </div>
 
-    <div id="image-container" class="container align-items-center d-none">
-        <div class="row justify-content-center">
-            <div class="col-6">
+    <div id="loader" class="container mt-3 d-none text-center mt-3">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <p>Connecting...</p>
+    </div>
+
+    <div id="image-container" class="container mt-3 d-none">
+        <div class="row justify-content-center text-center">
+            <div class="col-12">
                 <figure class="figure">
-                    <img id="fall-image" src="#" class="figure-img img-fluid rounded" alt="Fall Image">
+                    <img id="fall-image" src="#" class="figure-img img-fluid rounded"
+                    alt="Fall Image" style="max-width: 100%; max-height: 350px;">
                 </figure>
             </div>
         </div>
     </div>
+
+    <footer class="footer bg-dark text-white fixed-bottom">
+        <div class="container">
+            <div class="row text-center m-0">
+                <ul class="list-inline">
+                    <li class="list-inline-item"><p>&copy; Smart Care</p></li>
+                    <li class="list-inline-item"><a href="#"><i class="fa fa-facebook text-white"></i></a></li>
+                    <li class="list-inline-item"><a href="#"><i class="fa fa-twitter text-white"></i></a></li>
+                    <li class="list-inline-item"><a href="#"><i class="fa fa-instagram text-white"></i></a></li>
+                    <li class="list-inline-item"><a href="#"><i class="fa fa-youtube text-white"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"

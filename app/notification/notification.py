@@ -60,7 +60,7 @@ class NotificationManager:
             msg["To"] = user_email
             msg["Subject"] = "ALERTA: CAIDA DETECTADA"
 
-            msg.attach(MIMEText("Caida detectada. Se adjunta la imagen correspondiente:"))
+            msg.attach(MIMEText("Caida detectada. Llame a 112 de manera urgente"))
             image_encoded = cv2.imencode(".jpg", image)[1].tobytes()
             msg.attach(MIMEImage(image_encoded))
             try:

@@ -117,8 +117,6 @@ class Pipeline:
             pose_results, image.shape[0], image.shape[1]
         )
 
-        print(pose_landmarks)
-
         # check landmarks
         ok_landmarks = pose_landmarks[:, 2] > 0.2
         

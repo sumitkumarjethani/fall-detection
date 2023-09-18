@@ -8,6 +8,9 @@ function showImage(data) {
 
 function connectWebSocket(event) {
   event.preventDefault();
+  document.getElementById("connection").classList.add("d-none");
+  document.getElementById("result-container").classList.remove("d-none");
+  document.getElementById("loader").classList.remove("d-none");
 
   var userEmailInput = document.getElementById("userEmailInput");
   var connUrlInput = document.getElementById("connUrlInput");
@@ -37,11 +40,13 @@ function connectWebSocket(event) {
   cell1.innerHTML = userEmailInput.value;
 
   ws.onmessage = function (event) {
+    document.getElementById("loader").classList.add("d-none");
     const response = JSON.parse(event.data);
-    console.log(response);
 
-    cell2.innerHTML = (response.detection === 1) ? "Fall" : "No Fall"
-    
+    cell2.innerHTML = (response.detection === 1) ?
+    `<span class="badge text-bg-danger">Fall</span>` :
+    `<span class="badge text-bg-success">No Fall</span>`;
+
     var imageContainer = document.getElementById("image-container");
     imageContainer.className = "container";
     showImage(response.image);
