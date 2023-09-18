@@ -51,7 +51,7 @@ def cli():
             "movenet_thunder_f16.tflite",
             "movenet_lightning_int8.tflite",
             "movenet_thunder_int8.tflite",
-        ]
+        ],
     )
     parser.add_argument(
         "--yolo-pose-model-path",
@@ -91,8 +91,11 @@ def main():
             pose_model = MediapipePoseModel()
         elif pose_model_name == "movenet":
             movenet_version = args.movenet_version
-            pose_model = TFLiteMovenetModel(movenet_version) \
-                if movenet_version.endswith("tflite") else MovenetModel(movenet_version)
+            pose_model = (
+                TFLiteMovenetModel(movenet_version)
+                if movenet_version.endswith("tflite")
+                else MovenetModel(movenet_version)
+            )
         elif pose_model_name == "yolo":
             yolo_pose_model_path = args.yolo_pose_model_path
             pose_model = YoloPoseModel(model_path=yolo_pose_model_path)
@@ -101,18 +104,29 @@ def main():
 
         with open(f"{args.pose_classifier}", "rb") as f:
             pose_classifier = pickle.load(f)
-        
+
         # Initialize EMA smoothing.
         pose_classification_smoother = EMADictSmoothing(window_size=10, alpha=0.3)
 
         # Initialize counter.
-        fall_detector = StateDetector(class_name="fall", enter_threshold=6, exit_threshold=4)
+        fall_detector = StateDetector(
+            class_name="fall", enter_threshold=6, exit_threshold=4
+        )
 
         # Initialize renderer.
         pose_classification_visualizer = PoseClassificationVisualizer(
             class_name="fall",
             plot_x_max=video_n_frames,
             plot_y_max=10,
+            plot_location_x=0.5,
+            plot_location_y=0.05,
+            detector_location_x=0.01,
+            detector_location_y=0.05,
+            detector_font_color="red",
+            detector_font_size=0.05,
+            plot_max_height=0.4,
+            plot_max_width=0.4,
+            plot_figsize=(9, 4),
         )
 
         out_video = cv2.VideoWriter(

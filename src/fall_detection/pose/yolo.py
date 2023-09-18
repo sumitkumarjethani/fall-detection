@@ -35,10 +35,7 @@ class YoloPoseModel(PoseModel):
     @torch.no_grad()
     def predict(self, image):
         results = self._model.predict(
-            image,
-            device=self._device,
-            verbose=False,
-            # conf=0.3
+            image, device=self._device, verbose=False, conf=0.6
         )
         if (
             results is None

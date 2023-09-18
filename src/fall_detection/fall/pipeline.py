@@ -86,11 +86,11 @@ class Pipeline:
                 image = self._object_model.draw_results(image, objs_results)
 
             return (
-                plot_fall_text(image, False),
+                plot_fall_text(image, self._detector._pose_entered),
                 self._create_result_dict(
                     classification=None,
                     smooth_classification=None,
-                    detection=0,
+                    detection=self._detector.state,
                     message="Manual rules failed",
                 ),
             )
@@ -103,11 +103,11 @@ class Pipeline:
                 image = self._object_model.draw_results(image, objs_results)
 
             return (
-                plot_fall_text(image, False),
+                plot_fall_text(image, self._detector._pose_entered),
                 self._create_result_dict(
                     classification=None,
                     smooth_classification=None,
-                    detection=0,
+                    detection=self._detector.state,
                     message="Pose failed",
                 ),
             )
@@ -116,21 +116,21 @@ class Pipeline:
         pose_landmarks = self._pose_model.results_to_pose_landmarks(
             pose_results, image.shape[0], image.shape[1]
         )
-
-        # check landmarks
-        ok_landmarks = pose_landmarks[:, 2] > 0.2
         
-        if not np.all(ok_landmarks):
+        # check landmarks
+        ok_landmarks = pose_landmarks[:, 2] > 0.1
+
+        if np.sum(ok_landmarks) <= int(15):
             image = self._pose_model.draw_landmarks(image, pose_results)
             if objs_results is not None:
                 image = self._object_model.draw_results(image, objs_results)
 
             return (
-                plot_fall_text(image, False),
+                plot_fall_text(image, self._detector._pose_entered),
                 self._create_result_dict(
                     classification=None,
                     smooth_classification=None,
-                    detection=0,
+                    detection=self._detector.state,
                     message="Landmarks scores failed",
                 ),
             )

@@ -5,7 +5,7 @@ import cv2
 # password = "falldetection"
 # url = f"rtsp://falldetection:falldetection@192.168.1.133:554/stream1"
 
-# url = f"rtsp://falldetection:falldetection@172.20.10.7:554/stream1"
+url = f"rtsp://falldetection:falldetection@172.20.10.7:554/stream2"
 
 # ipaddr = "172.20.10.7:554"
 # user = "falldetection"
